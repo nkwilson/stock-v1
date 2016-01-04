@@ -1,6 +1,7 @@
 import tushare
 import pandas
 import urllib
+import os
 
 def StockPrice(stock):
     data=tushare.get_hist_data(stock, start='2015-01-01',end='2015-12-31')
@@ -9,7 +10,10 @@ def StockPrice(stock):
 def StockPrice_w(stock):
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2015&d=11&e=11&f=2016&g=w&ignore=.csv' % stock
     filename='%sw.csv' % stock
-    urllib.urlretrieve(url, filename)
+    if not os.path.isfile(filename):
+        urllib.urlretrieve(url, filename)
+    else:
+        raise ValueError,'invalid argument'
     data=pandas.read_csv(filename, index_col=0).sort()
     # for i in range(data.columns.values.size):
     #     data.columns.values[i]=data.columns.values[i].lower()
