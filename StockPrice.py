@@ -12,11 +12,8 @@ def StockPrice_w(stock):
     filename='%sw.csv' % stock
     if not os.path.isfile(filename):
         urllib.urlretrieve(url, filename)
-    else:
-        raise ValueError,'invalid argument'
-    data=pandas.read_csv(filename, index_col=0).sort()
+    data=pandas.read_csv(filename, index_col=0).sort_index()
     # for i in range(data.columns.values.size):
     #     data.columns.values[i]=data.columns.values[i].lower()
-
     return data
 
