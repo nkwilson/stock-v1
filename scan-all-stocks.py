@@ -4,14 +4,22 @@ import time
 import random
 
 stocks=load_code_ex()
-
-for i in range(stocks[0].count()):
-    try:
-        stock_signal_w_new(stocks[0][i])
-    except ValueError, ve:
-        continue
-    except Exception, ex:
-        print stocks[0][i],stocks[1][i],ex
-        time.sleep(random.randint(1,5))
+count=stocks[0].count()
+left=count
+loop=0
+while left > 0:
+    count=left
+    print '##### loop %d begin ####' % loop
+    loop=loop+1
+    for i in range(count):
+        try:
+            print stocks[1][i],stock_signal_w_new_simple(stocks[0][i])
+            left=left-1
+        except ValueError, ve:
+            left=left-1
+            continue
+        except Exception, ex:
+            print stocks[0][i],stocks[1][i],ex
+            time.sleep(random.randint(1,5))
 
     

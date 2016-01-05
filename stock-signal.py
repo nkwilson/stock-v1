@@ -98,4 +98,15 @@ def stock_signal_w_new(stock):
 
     all_data.to_csv('%sw-all-data.csv' % stock)
     
+    return all_data
+    
+def stock_signal_w_new_simple(stock):
+    all_data=stock_signal_w_new(stock)
+    
     print stock,all_data['profit'].sum()
+
+def stock_signal_w_new_detail(stock):
+    all_data=stock_signal_w_new(stock)
+
+    detail_data=all_data.select(lambda x: return all_data.loc[x]['signal']!=0)
+    detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
