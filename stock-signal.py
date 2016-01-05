@@ -108,5 +108,5 @@ def stock_signal_w_new_simple(stock):
 def stock_signal_w_new_detail(stock):
     all_data=stock_signal_w_new(stock)
 
-    detail_data=all_data.select(lambda x: return all_data.loc[x]['signal']!=0)
-    detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+    detail_data=all_data.select(lambda x: True if all_data.loc[x]['signal']!=0 else False)
+    return detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
