@@ -100,7 +100,7 @@ def stock_signal_w_new(stock):
     
     return all_data
     
-def stock_signal_w_new_simple(stock):
+def stock_signal_w_new_sum(stock):
     all_data=stock_signal_w_new(stock)
     
     print stock,all_data['profit'].sum()
