@@ -110,3 +110,14 @@ def stock_signal_w_new_detail(stock):
 
     detail_data=all_data.select(lambda x: True if all_data.loc[x]['signal']!=0 else False)
     return detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+
+def stock_signal_w_new_find_candidate(stock):
+    all_data=stock_signal_w_new(stock)
+
+    count=all_data['signal'].count()
+    if all_data['signal'].sum() > 0:
+        for i in range(count-1, 0):
+            if all_data['signal'][i]==1:
+                print all_data.iloc[i]
+                break
+
