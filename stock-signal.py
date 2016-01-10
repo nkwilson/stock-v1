@@ -116,8 +116,8 @@ def stock_signal_w_new_find_candidate(stock):
 
     count=all_data['signal'].count()
     if all_data['signal'].sum() > 0:
-        for i in range(count-1, 0):
+        for i in range(count-1, 0, -1):
             if all_data['signal'][i]==1:
-                print all_data.iloc[i]
+                return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
                 break
 
