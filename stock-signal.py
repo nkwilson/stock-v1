@@ -121,3 +121,7 @@ def stock_signal_w_new_find_candidate(stock):
                 return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
                 break
 
+def stock_signal_w_new_close_ema(stock):
+    all_data=stock_signal_w_new(stock)
+
+    print all_data[['signal','Adj Close', 'EMA']]
