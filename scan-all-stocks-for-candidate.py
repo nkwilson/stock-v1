@@ -2,9 +2,11 @@
 # load load-code.py # load it by manual
 import time
 import random
+import pandas
 
 stocks=load_code_ex()
 count=stocks[0].count()
+data=pandas.DataFrame()
 for i in range(count):
     try:
         ret=stock_signal_w_new_find_candidate(stocks[0][i])
@@ -13,11 +15,12 @@ for i in range(count):
         if not isinstance(ret, type(None)) :
             ret.insert(0,'name', stocks[1][i])
             ret.insert(1,'code', stocks[0][i])
+            pandas.concat([data, ret])
             print ret
     except ValueError, ve:
         continue
     except Exception, ex:
         print stocks[0][i],stocks[1][i],ex
-        time.sleep(random.randint(1,5))
-        
+
+data.to_csv('candidates.csv')
     
