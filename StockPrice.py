@@ -39,7 +39,7 @@ def StockPrice_w(stock):
 
     try:
         new_data=StockPrice_w_3(stock, pandas.datetime.strptime(start, '%Y-%M-%d'), 'w')
-    except HTTPError, ex:
+    except Exception, ex:
         print ex
         return data
 
