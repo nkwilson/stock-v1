@@ -34,19 +34,19 @@ def StockPrice_w(stock):
     
     data=pandas.read_csv(filename, index_col=0).sort_index()
     start=data.index[data.index.size - 1]
-    if cmp(start, pandas.datetime.now().strftime('%Y-%M-%d')) == 0:
+    if cmp(start, pandas.datetime.now().strftime('%Y-%m-%d')) == 0:
         return data
 
     try:
-        new_data=StockPrice_w_3(stock, pandas.datetime.strptime(start, '%Y-%M-%d'), 'w')
+        new_data=StockPrice_w_3(stock, pandas.datetime.strptime(start, '%Y-%m-%d'), 'w')
     except Exception, ex:
-        print ex
         return data
 
     # pandas.concat([data, new_data[1:]]) emit wrong message
     new_data=new_data[1:]
     data=pandas.concat([data, new_data])
 
+    # save to file using original order
     data.sort_index(ascending=False).to_csv(filename)
     
     return data
