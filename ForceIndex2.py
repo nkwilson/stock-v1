@@ -8,11 +8,16 @@ def FI(hist_data, period):
                             columns=['F','FI','FI_s'])
 
     for i in range(count):
-        data['F'][i]=(hist_data['Adj Close'][i] - hist_data['Adj Close'][i-1])*hist_data['Low'][i]
+        if hist_data['Volume'][i] > 0:
+            data['F'][i]=(hist_data['Adj Close'][i] - hist_data['Adj Close'][i-1])*hist_data['Volume'][i]
 
-        if i >= period:
-            data['FI'][i]=(data['F'][i]*2 + data['F'][i-1]*(period-1))/(period+1)
-        
-        data['FI_s'][i]=1 if data['FI'][i]>data['FI'][i-1] else 0
+            if i >= period:
+                data['FI'][i]=(data['F'][i]*2 + data['F'][i-1]*(period-1))/(period+1)
+                
+            data['FI_s'][i]=1 if data['FI'][i]>data['FI'][i-1] else 0
+        else:
+            data['F'][i]=0
+            data['FI'][i]=0
+            data['FI_s'][i]=0
     
     return data
