@@ -23,6 +23,7 @@ for i in range(count):
         continue
     except Exception, ex:
         print stocks[0][i],ex
-
+if data.index.size > 0:
+    data.sort_index().to_csv('candidates.csv')
 
     
