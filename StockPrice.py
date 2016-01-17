@@ -32,8 +32,11 @@ def StockPrice_4str(stock, type, start, end):
 
     return StockPrice_4(stock, type, start_dt, end_dt)
 
-def StockPrice_w_3(stock, start, type):
-    return StockPrice_4(stock, start, pandas.datetime.strptime('2016-12-31', '%Y-%m-%d'), 'w')
+def StockPrice_w_3(stock, start, end):
+    return StockPrice_4(stock, start, end, 'w')
+
+def StockPrice_w_2(stock, start):
+    return StockPrice_4(stock, start, pandas.datetime.now(), 'w')
     
 def StockPrice_w(stock):
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2015&d=11&e=11&f=2016&g=w&ignore=.csv' % stock
@@ -44,11 +47,12 @@ def StockPrice_w(stock):
     
     data=pandas.read_csv(filename, index_col=0).sort_index()
     start=data.index[data.index.size - 1]
-    if cmp(start, pandas.datetime.now().strftime('%Y-%m-%d')) == 0:
+    end_dt=pandas.datetime.now()
+    if cmp(start, end_dt.strftime('%Y-%m-%d')) == 0:
         return data
 
     try:
-        new_data=StockPrice_w_3(stock, pandas.datetime.strptime(start, '%Y-%m-%d'), 'w')
+        new_data=StockPrice_w_2(stock, pandas.datetime.strptime(start, '%Y-%m-%d'))
     except Exception, ex:
         return data
 
