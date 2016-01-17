@@ -24,8 +24,18 @@ def StockPrice_4(stock, type, start, end):
     if isinstance(start, str):
         start_str=start
         start=pandas.datetime.strptime(start_str, '%Y-%m-%d')
+    elif isinstance(start, datetime.datetime):
+        start_str=start.strftime('%Y-%m-%d')
+    else:
+        raise Exception('StockPrice_4 start')
+    
+    if isinstance(end, str):
         end_str=end
         end=pandas.datetime.strptime(end_str, '%Y-%m-%d')
+    elif isinstance(end, datetime.datetime):
+        end_str=end.strftime('%Y-%m-%d')
+    else:
+        raise Exception('StockPrice_4 end')            
 
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)
 
