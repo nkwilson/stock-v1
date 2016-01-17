@@ -32,12 +32,6 @@ def StockPrice_4(stock, type, start, end):
     f=urllib2.urlopen(url)
     return pandas.read_csv(f, index_col=0).sort_index()
 
-def StockPrice_4str(stock, type, start, end):
-    start_dt=pandas.datetime.strptime(start, '%Y-%m-%d')
-    end_dt=pandas.datetime.strptime(end, '%Y-%m-%d')
-
-    return StockPrice_4(stock, type, start_dt, end_dt)
-
 def StockPrice_w_3(stock, start, end):
     return StockPrice_4(stock, start, end, 'w')
 
