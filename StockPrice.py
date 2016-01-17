@@ -20,10 +20,20 @@ def StockPrice(stock):
     #     data.columns.values[i]=data.columns.values[i].lower()
     return data
 
-def StockPrice_w_3(stock, start, type):
-    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=11&e=11&f=2016&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, type)
+def StockPrice_4(stock, type, start, end):
+    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)
+
     f=urllib2.urlopen(url)
     return pandas.read_csv(f, index_col=0).sort_index()
+
+def StockPrice_4str(stock, type, start, end):
+    start_dt=pandas.datetime.strptime(start, '%Y-%m-%d')
+    end_dt=pandas.datetime.strptime(end, '%Y-%m-%d')
+
+    return StockPrice_4(stock, type, start_dt, end_dt)
+
+def StockPrice_w_3(stock, start, type):
+    return StockPrice_4(stock, start, pandas.datetime.strptime('2016-12-31', '%Y-%m-%d'), 'w')
     
 def StockPrice_w(stock):
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2015&d=11&e=11&f=2016&g=w&ignore=.csv' % stock
@@ -42,7 +52,7 @@ def StockPrice_w(stock):
     except Exception, ex:
         return data
 
-    # pandas.concat([data, new_data[1:]]) emit wrong message
+    # pandas.concat([datal, new_data[1:]]) emit wrong message
     new_data=new_data[1:]
     data=pandas.concat([data, new_data])
 
