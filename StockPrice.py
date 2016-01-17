@@ -21,6 +21,12 @@ def StockPrice(stock):
     return data
 
 def StockPrice_4(stock, type, start, end):
+    if isinstance(start, str):
+        start_str=start
+        start=pandas.datetime.strptime(start_str, '%Y-%m-%d')
+        end_str=end
+        end=pandas.datetime.strptime(end_str, '%Y-%m-%d')
+
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)
 
     f=urllib2.urlopen(url)
