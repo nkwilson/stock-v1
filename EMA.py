@@ -8,6 +8,10 @@ def EMA(hist_data, period):
                             columns=['EMA','EMA_s'])
 
     for i in range(count):
+        if hist_data['Volume'][i] < 1:
+            data['EMA'][i]=hist_data['Adj Close'][i]
+            continue;
+        
         if i == period - 1:
             data['EMA'][i]=hist_data['Adj Close'][0:i].sum()/period
         if i >= period:

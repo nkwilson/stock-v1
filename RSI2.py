@@ -8,6 +8,9 @@ def RSI(hist_data, period):
                             columns=['X','A','B','RSI','RSI_s'])
 
     for i in range(count):
+        if hist_data['Volume'][i] < 1:
+            continue;
+        
         data['X'][i]=hist_data['Adj Close'][i] - hist_data['Adj Close'][i-1]
 
         if i >= period:
