@@ -9,8 +9,8 @@ import pandas
 stocks=LoadCode.load_code_ex()
 count=stocks[0].count()
 data=pandas.DataFrame()
-skip=1
-skip_before='600000.SS'
+skip_before=''
+skip=len(skip_before)
 for i in range(count):
     try:
         if stocks[0][i].find(skip_before)==0:
