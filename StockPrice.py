@@ -11,9 +11,7 @@ def StockPrice_old(stock):
 
 def StockPrice(stock):
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2015&d=11&e=11&f=2016&g=d&ignore=.csv' % stock
-    print url
     filename='%sd.csv' % stock
-    print filename
     if not os.path.isfile(filename):
         urllib.urlretrieve(url, filename)
     data=pandas.read_csv(filename, index_col=0).sort_index()
@@ -39,7 +37,6 @@ def StockPrice_4(stock, type, start, end):
         raise Exception('StockPrice_4 end')            
 
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)
-    print url
     
     f=urllib2.urlopen(url, timeout=2)
     return pandas.read_csv(f, index_col=0).sort_index()
