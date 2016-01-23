@@ -91,6 +91,15 @@ def calculate_stock_signal_new(hist_data):
                 
     return all_data.join(data)
 
+def stock_signal_d_new(stock):
+    hist_data=StockPrice.StockPrice_d(stock)
+    
+    all_data=calculate_stock_signal_new(hist_data)
+
+    all_data.to_csv('%sd-all-data.csv' % stock)
+    
+    return all_data
+
 def stock_signal_w_new(stock):
     hist_data=StockPrice.StockPrice_w(stock)
     
@@ -99,22 +108,47 @@ def stock_signal_w_new(stock):
     all_data.to_csv('%sw-all-data.csv' % stock)
     
     return all_data
+
+def stock_signal_d_new_sum(stock):
+    all_data=stock_signal_d_new(stock)
+    
+    print stock,all_data['profit'].sum()
     
 def stock_signal_w_new_sum(stock):
     all_data=stock_signal_w_new(stock)
     
     print stock,all_data['profit'].sum()
 
+def stock_signal_d_new_signals(stock):
+    all_data=stock_signal_d_new(stock)
+
+    print all_data[['J', 'FI', 'KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
+
 def stock_signal_w_new_signals(stock):
     all_data=stock_signal_w_new(stock)
 
-    print all_data[['KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
+    print all_data[['J', 'FI', 'KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
+
+def stock_signal_d_new_detail(stock):
+    all_data=stock_signal_d_new(stock)
+
+    detail_data=all_data.select(lambda x: True if all_data.loc[x]['signal']!=0 else False)
+    return detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
 
 def stock_signal_w_new_detail(stock):
     all_data=stock_signal_w_new(stock)
 
     detail_data=all_data.select(lambda x: True if all_data.loc[x]['signal']!=0 else False)
     return detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+
+def stock_signal_d_new_find_candidate(stock):
+    all_data=stock_signal_d_new(stock)
+
+    count=all_data['signal'].count()
+    if all_data['signal'].sum() > 0 and all_data['Volume'][count-1] > 0:
+        for i in range(count-1, 0, -1):
+            if all_data['signal'][i]==1:
+                return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
 
 def stock_signal_w_new_find_candidate(stock):
     all_data=stock_signal_w_new(stock)
@@ -124,6 +158,11 @@ def stock_signal_w_new_find_candidate(stock):
         for i in range(count-1, 0, -1):
             if all_data['signal'][i]==1:
                 return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+
+def stock_signal_d_new_close_ema(stock):
+    all_data=stock_signal_d_new(stock)
+
+    print all_data[['signal','Adj Close', 'EMA']]
 
 def stock_signal_w_new_close_ema(stock):
     all_data=stock_signal_w_new(stock)
