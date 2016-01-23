@@ -15,12 +15,12 @@ for i in range(count):
     try:
         if stocks[0][i].find(skip_before)==0:
             skip=0
-        if skip == 1:
+        if skip > 0:
             continue;
         
         print stocks[0][i],stocks[1][i]
         ret=StockSignal.stock_signal_w_new_find_candidate(stocks[0][i])
-        # df.insert(1, 'bar', df['one']) 插入一列
+        # df.insert(1, 'bar', df['one']) insert one column
         # df['one_trunc'] = df['one'][:2] 
         if not isinstance(ret, type(None)) :
             ret.insert(0,'name', stocks[1][i])
