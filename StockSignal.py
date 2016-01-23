@@ -122,12 +122,12 @@ def stock_signal_w_new_sum(stock):
 def stock_signal_d_new_signals(stock):
     all_data=stock_signal_d_new(stock)
 
-    print all_data[['J', 'FI', 'KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
+    print all_data[['Close', 'Adj Close', 'J', 'FI', 'KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
 
 def stock_signal_w_new_signals(stock):
     all_data=stock_signal_w_new(stock)
 
-    print all_data[['J', 'FI', 'KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
+    print all_data[['Close', 'Adj Close', 'J', 'FI', 'KDJ_s', 'RSI_s', 'FI_s', 'EMA_s', 'close_s']]
 
 def stock_signal_d_new_detail(stock):
     all_data=stock_signal_d_new(stock)
