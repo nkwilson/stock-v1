@@ -42,7 +42,7 @@ def StockPrice_4(stock, type, start, end):
     return pandas.read_csv(f, index_col=0).sort_index()
     
 def StockPrice_2(stock, type):
-    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2015&d=11&e=11&f=2016&g=%s&ignore=.csv' % (stock, type)
+    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2008&d=11&e=11&f=2016&g=%s&ignore=.csv' % (stock, type)
     filename='%s%s.csv' % (stock, type)
     if not os.path.isfile(filename):
 #        raise ValueError,'invalid argument'
