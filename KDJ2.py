@@ -7,6 +7,7 @@ def KDJ(hist_data, period):
                             index=hist_data.index,
                             columns=['I','j','RSV','K','D','J','KDJ_s'])
 
+    shift=0
     for i in range(count):
         if hist_data['Volume'][i] < 1:
             data['K'][i]=50
