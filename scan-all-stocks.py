@@ -14,14 +14,16 @@ while left > 0:
     print '##### loop %d begin ####' % loop
     loop=loop+1
     for i in range(count):
+        print stocks[0][i],stocks[1][i]
         try:
-            print stocks[1][i],StockSignal.stock_signal_w_new_simple(stocks[0][i])
+            sum=StockSignal.stock_signal_w_new_sum(stocks[0][i])
+            if sum > 2.0:
+                print sum
             left=left-1
         except ValueError, ve:
             left=left-1
             continue
         except Exception, ex:
-            print stocks[0][i],stocks[1][i],ex
-            time.sleep(random.randint(1,5))
+            print ex
 
     
