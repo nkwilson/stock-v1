@@ -14,11 +14,10 @@ while left > 0:
     print '##### loop %d begin ####' % loop
     loop=loop+1
     for i in range(count):
-        print stocks[0][i],stocks[1][i]
         try:
             sum=StockSignal.stock_signal_w_new_sum(stocks[0][i])
             if sum > 2.0:
-                print sum
+                print stocks[1][i],stocks[0][i],sum
             left=left-1
         except ValueError, ve:
             left=left-1
