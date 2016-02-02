@@ -1,6 +1,7 @@
 import tushare
 import pandas
 import numpy
+import os
 
 import StockPrice
 import KDJ2
@@ -91,23 +92,25 @@ def calculate_stock_signal_new(hist_data):
                 
     return all_data.join(data)
 
-def stock_signal_d_new(stock):
-    hist_data=StockPrice.StockPrice_d(stock)
-    
-    all_data=calculate_stock_signal_new(hist_data)
+def stock_signal_new_2(stock, type):
+    filename='%s%s-all-data.csv' % (stock, type)
 
-    all_data.to_csv('%sd-all-data.csv' % stock)
+    if os.path.isfile(filename):
+        all_data=pandas.read_csv(filename, index_col=0)
+    else:
+        hist_data=StockPrice.StockPrice_d(stock)
+        
+        all_data=calculate_stock_signal_new(hist_data)
+        
+        all_data.to_csv('%sd-all-data.csv' % stock)
     
     return all_data
+
+def stock_signal_d_new(stock):
+    return stock_signal_new_2(stock, 'd')
 
 def stock_signal_w_new(stock):
-    hist_data=StockPrice.StockPrice_w(stock)
-    
-    all_data=calculate_stock_signal_new(hist_data)
-
-    all_data.to_csv('%sw-all-data.csv' % stock)
-    
-    return all_data
+    return stock_signal_new_2(stock, 'w')
 
 def stock_signal_d_new_sum(stock):
     all_data=stock_signal_d_new(stock)
