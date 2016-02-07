@@ -2,6 +2,7 @@ import tushare
 import pandas
 import numpy
 import os
+import datetime
 
 import StockPrice
 import KDJ2
@@ -95,9 +96,19 @@ def calculate_stock_signal_new(hist_data):
 def stock_signal_new_2(stock, type):
     filename='%s%s-all-data.csv' % (stock, type)
 
+    need_update=True
     if os.path.isfile(filename):
         all_data=pandas.read_csv(filename, index_col=0)
-    else:
+        
+        saved_end=all_data.index[all_data.index.size - 1]
+        real_end=pandas.datetime.now()
+        if cmp(type, 'w')==0: # need week data
+            delta=datetime.timedelta(-real_end.weekday())
+            real_end+=delta
+        print saved_end, real_end
+        need_update=cmp(saved_end, real_end.strftime('%Y-%m-%d'))!=0
+
+    if need_update:
         hist_data=StockPrice.StockPrice_2(stock, type)
         
         all_data=calculate_stock_signal_new(hist_data)

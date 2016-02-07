@@ -42,7 +42,7 @@ def StockPrice_4(stock, type, start, end):
     return pandas.read_csv(f, index_col=0).sort_index()
     
 def StockPrice_2(stock, type):
-    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2008&d=11&e=11&f=2016&g=%s&ignore=.csv' % (stock, type)
+    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2004&d=11&e=11&f=2016&g=%s&ignore=.csv' % (stock, type)
     filename='%s%s.csv' % (stock, type)
     if not os.path.isfile(filename):
 #        raise ValueError,'invalid argument'
@@ -52,14 +52,18 @@ def StockPrice_2(stock, type):
     else:
         data=pandas.read_csv(filename, index_col=0)
         
-    data=data.sort_index()        
+    data=data.sort_index()
     start=data.index[data.index.size - 1]
     end_dt=pandas.datetime.now()
+    if cmp(type, 'w')==0: # need week price
+        delta=datetime.timedelta(-end_dt.weekday())
+        end_dt+=delta
+    
     if cmp(start, end_dt.strftime('%Y-%m-%d')) == 0:
         return data
 
     try:
-        new_data=StockPrice_4(stock, type, pandas.datetime.strptime(start, '%Y-%m-%d'), pandas.datetime.now())
+        new_data=StockPrice_4(stock, type, pandas.datetime.strptime(start, '%Y-%m-%d'), end_dt)
     except Exception, ex:
         return data
 
