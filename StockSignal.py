@@ -98,11 +98,11 @@ def stock_signal_new_2(stock, type):
     if os.path.isfile(filename):
         all_data=pandas.read_csv(filename, index_col=0)
     else:
-        hist_data=StockPrice.StockPrice_d(stock)
+        hist_data=StockPrice.StockPrice_2(stock, type)
         
         all_data=calculate_stock_signal_new(hist_data)
         
-        all_data.to_csv('%sd-all-data.csv' % stock)
+        all_data.to_csv(filename)
     
     return all_data
 
