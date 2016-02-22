@@ -1,12 +1,49 @@
 import LoadCode
 import StockSignal
+import pandas
 
 funds=LoadCode.load_etf_code()
 
-ss_funds=[510010, 510050, 510210, 510290, 510300, 510500]
-for i in ss_funds: StockSignal.stock_signal_w_new_find_candidate('%s.SS' % i)
+summary=None
 
-sz_funds=[159915,159919, 159918, 159921, 159907, 159922]
-for i in sz_funds: StockSignal.stock_signal_w_new_find_candidate('%s.SZ' % i)
-    
+ss_funds=[[510050, ' 50ETF'],
+          [510210, '综指ETF'],
+          [510290, ' 380ETF'],
+          [510300, ' 300ETF'],
+          [510500, ' 500ETF'],
+          [518800, u'黄金基金']]
+for i in ss_funds:
+    try:
+        ret = StockSignal.stock_signal_w_new_find_candidate('%s.SS' % i[0])
+    except Exception, ex:
+        ret = None
 
+    if not isinstance(ret, type(None)) :
+        ret.insert(0,'name', i[1])
+        ret.insert(1,'code', i[0])
+        
+        if not isinstance(summary, type(None)):
+#            summary=pandas.DataFrame.append(summary,ret)
+            summary=pandas.concat([ret, summary])
+        else:
+            summary=ret
+
+sz_funds=[[159915, u'创业板'],
+          [150172, u'证券B'],
+          [150204, u'传媒B']]
+for i in sz_funds:
+    try:
+        ret = StockSignal.stock_signal_w_new_find_candidate('%s.SZ' % i[0])
+    except Exception, ex:
+        ret = None
+
+    if not isinstance(ret, type(None)) :
+        ret.insert(0,'name', i[1])
+        ret.insert(1,'code', i[0])
+
+        if not isinstance(summary, type(None)):
+            summary=pandas.concat([ret, summary])
+        else:
+            summary=ret
+
+print summary.sort_index()
