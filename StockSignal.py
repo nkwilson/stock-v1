@@ -105,7 +105,7 @@ def stock_signal_new_2(stock, type):
         if cmp(type, 'w')==0: # need week data
             delta=datetime.timedelta(-real_end.weekday())
             real_end+=delta
-        print saved_end, real_end
+
         need_update=cmp(saved_end, real_end.strftime('%Y-%m-%d'))!=0
 
     if need_update:
