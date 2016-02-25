@@ -173,6 +173,15 @@ def stock_signal_w_new_find_candidate(stock):
             if all_data['signal'][i]==1:
                 return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
 
+def stock_signal_w_new_find_candidate_with_volume(stock):
+    all_data=stock_signal_w_new(stock)
+
+    count=all_data['signal'].count()
+    if all_data['signal'].sum() > 0 and all_data['Volume'][count-1] > 0:
+        for i in range(count-1, 0, -1):
+            if all_data['signal'][i]==1:
+                return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Volume', 'Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+            
 def stock_signal_d_new_close_ema(stock):
     all_data=stock_signal_d_new(stock)
 
