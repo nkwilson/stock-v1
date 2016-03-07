@@ -18,7 +18,6 @@ for i in range(count):
         if skip > 0:
             continue;
         
-        print stocks[0][i],stocks[1][i]
         ret=StockSignal.stock_signal_w_new_find_candidate(stocks[0][i])
         # df.insert(1, 'bar', df['one']) insert one column
         # df['one_trunc'] = df['one'][:2] 
