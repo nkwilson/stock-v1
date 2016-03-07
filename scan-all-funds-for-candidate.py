@@ -14,13 +14,13 @@ for i in range(funds['FundName'].count()):
         else:
             stock='%s.SS' % funds['FundCode'][i]
 
-        ret = StockSignal.stock_signal_w_new_find_candidate(stock)
+        ret = StockSignal.stock_signal_w_new_find_candidate_with_volume(stock)
     except Exception, ex:
         ret = None
     
     if not isinstance(ret, type(None)):
         ret.insert(0,'code', funds['FundCode'][i])
-        ret.insert(1,'name', funds['FundName'][i])
+        ret.insert(ret.columns.size,'name', funds['FundName'][i])
         
         if not isinstance(summary, type(None)):
             summary=pandas.concat([ret, summary])
@@ -28,6 +28,6 @@ for i in range(funds['FundName'].count()):
             summary=ret
             
 if not isinstance(summary, type(None)):
-    summary=summary.sort_index()
+    summary=summary.sort(['code', 'Volume'])
     summary.to_csv('funds-candidates.csv')
-    print summary.to_string(index=False);
+    print summary.to_string();
