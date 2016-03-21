@@ -22,8 +22,10 @@ for i in range(count):
         # df.insert(1, 'bar', df['one']) insert one column
         # df['one_trunc'] = df['one'][:2] 
         if not isinstance(ret, type(None)) :
-            ret.insert(0,'name', stocks[1][i])
-            ret.insert(1,'code', stocks[0][i])
+#            ret.insert(0,'name', stocks[1][i])
+#            ret.insert(1,'code', stocks[0][i])
+            ret.insert(0, 'code', stocks[0][i])
+            ret.insert(ret.columns.size, 'name', stocks[1][i])
             data=pandas.concat([data, ret])
             data.to_csv('candidates.csv')
             print ret
