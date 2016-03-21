@@ -28,6 +28,7 @@ for i in range(funds['FundName'].count()):
             summary=ret
             
 if not isinstance(summary, type(None)):
-    summary=summary.sort(['code', 'Volume'])
+    summary=summary.sort(['Volume'])
+#    summary=summary.sort_values(['code', 'Volume'])
     summary.to_csv('funds-candidates.csv')
     print summary.to_string();
