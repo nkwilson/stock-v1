@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import StockSignal
 import pandas
 
 summary=None
 
-stocks=[['002673.SZ', 'xbzq'],
-          ['000973.SZ', 'fskj']]
+stocks=[['002673.SZ', u'西部证券'],
+          ['000973.SZ', '佛塑科技']]
 
 for i in stocks:
     try:

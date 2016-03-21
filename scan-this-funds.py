@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import LoadCode
 import StockSignal
 import pandas
@@ -6,11 +8,11 @@ funds=LoadCode.load_etf_code()
 
 summary=None
 
-ss_funds=[[510050, ' 50ETF'],
-          [510210, '综指ETF'],
-          [510290, ' 380ETF'],
-          [510300, ' 300ETF'],
-          [510500, ' 500ETF'],
+ss_funds=[[510050,  '  50ETF'],
+          [510300,  ' 300ETF'],
+          [510500,  ' 500ETF'],
+          [510900,  ' H股ETF'],
+          [511010,  '国债ETF'],                    
           [518800, u'黄金基金']]
 for i in ss_funds:
     try:
@@ -29,6 +31,7 @@ for i in ss_funds:
             summary=ret
 
 sz_funds=[[159915, u'创业板'],
+          [159902, u'中小板'],
           [150172, u'证券B'],
           [150204, u'传媒B']]
 for i in sz_funds:
