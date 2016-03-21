@@ -1,3 +1,6 @@
+import sys
+import getopt
+
 import tushare
 import pandas
 import numpy
@@ -191,3 +194,27 @@ def stock_signal_w_new_close_ema(stock):
     all_data=stock_signal_w_new(stock)
 
     print all_data[['signal','Adj Close', 'EMA']]
+
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        except getopt.error, msg:
+             raise Usage(msg)
+
+        print argv[1], argv[2]
+         
+        print globals()[argv[1]](argv[2])
+    except Usage, err:
+        print err.msg
+        print >>sys.stderr, "for help use --help"
+        return 2
+    
+if __name__ == "__main__":
+    sys.exit(main())
