@@ -6,7 +6,9 @@ import pandas
 summary=None
 
 stocks=[['002673.SZ', u'西部证券'],
-          ['000973.SZ', '佛塑科技']]
+          ['000973.SZ', '佛塑科技'],
+        ['600030.SS', u'中信证券']
+]
 
 for i in stocks:
     try:
