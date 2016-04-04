@@ -158,33 +158,45 @@ def stock_signal_w_new_detail(stock):
     detail_data=all_data.select(lambda x: True if all_data.loc[x]['signal']!=0 else False)
     return detail_data[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
 
+def do_pick_out(all_data):
+    pick_it = None
+    if all_data['Volume'][count-1] > 0:
+        if all_data['signal'].sum() > 0:
+            pick_it = 1
+        elif all_data['signal'].sum() == 0:
+            pick_it = -1
+    return pick_it
+
 def stock_signal_d_new_find_candidate(stock):
     all_data=stock_signal_d_new(stock)
 
     count=all_data['signal'].count()
-    if all_data['signal'].sum() > 0 and all_data['Volume'][count-1] > 0:
-        for i in range(count-1, 0, -1):
-            if all_data['signal'][i]==1:
-                return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
-
+    pick_it = do_pick_out(all_data)
+    
+    for i in range(count-1, 0, -1):
+        if all_data['signal'][i]==pick_it:
+            return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+        
 def stock_signal_w_new_find_candidate(stock):
     all_data=stock_signal_w_new(stock)
 
     count=all_data['signal'].count()
-    if all_data['signal'].sum() > 0 and all_data['Volume'][count-1] > 0:
-        for i in range(count-1, 0, -1):
-            if all_data['signal'][i]==1:
-                return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+    pick_it = do_pick_out(all_data)
 
+    for i in range(count-1, 0, -1):
+        if all_data['signal'][i]==pick_it:
+            return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+        
 def stock_signal_w_new_find_candidate_with_volume(stock):
     all_data=stock_signal_w_new(stock)
 
     count=all_data['signal'].count()
-    if all_data['signal'].sum() > 0 and all_data['Volume'][count-1] > 0:
-        for i in range(count-1, 0, -1):
-            if all_data['signal'][i]==1 or all_data['signal'][i]==-1:
-                return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Volume', 'Adj Close', 'EMA', 'buy', 'sell', 'profit']]
-            
+    pick_it=do_pick_out(all_data)
+    
+    for i in range(count-1, 0, -1):
+        if all_data['signal'][i]==pick_it:
+            return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Volume', 'Adj Close', 'EMA', 'buy', 'sell', 'profit']]
+        
 def stock_signal_d_new_close_ema(stock):
     all_data=stock_signal_d_new(stock)
 
