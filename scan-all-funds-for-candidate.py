@@ -6,7 +6,7 @@ import pandas
 funds=LoadCode.load_etf_code()
 
 summary=None
-
+result_file='funds-candidates-%s.csv' % pandas.datetime.now().strftime('%Y-%m-%d')
 for i in range(funds['FundName'].count()):
     try:
         if funds['FundCode'][i] < 500000:
@@ -30,5 +30,5 @@ for i in range(funds['FundName'].count()):
 if not isinstance(summary, type(None)):
     summary=summary.sort(['Volume'])
 #    summary=summary.sort_values(['code', 'Volume'])
-    summary.to_csv('funds-candidates.csv')
+    summary.to_csv(result_file)
     print summary.to_string();

@@ -11,6 +11,7 @@ count=stocks[0].count()
 data=pandas.DataFrame()
 skip_before=''
 skip=len(skip_before)
+result_file='candidates-%s.csv' % pandas.datetime.now().strftime('%Y-%m-%d')
 for i in range(count):
     try:
         if stocks[0][i].find(skip_before)==0:
@@ -27,7 +28,7 @@ for i in range(count):
             ret.insert(0, 'code', stocks[0][i])
             ret.insert(ret.columns.size, 'name', stocks[1][i])
             data=pandas.concat([data, ret])
-            data.to_csv('candidates.csv')
+            data.to_csv(result_file)
             print ret
     except ValueError, ve:
         continue
@@ -36,6 +37,4 @@ for i in range(count):
         time.sleep(random.random()*10)
 
 if data.index.size > 0:
-    data.sort_index().to_csv('candidates.csv')
-
-    
+    data.sort_index().to_csv(result_file)
