@@ -24,7 +24,7 @@ def local_func(stock, code, name):
 ppservers = ()
 jobs = []
 
-job_server = pp.Server(ppservers=ppservers)
+job_server = pp.Server(12, ppservers=ppservers)
 
 for i in range(funds['FundName'].count()):
     if funds['FundCode'][i] < 500000:
