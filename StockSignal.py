@@ -160,6 +160,7 @@ def stock_signal_w_new_detail(stock):
 
 def do_pick_out(all_data):
     pick_it = None
+    count=all_data['Volume'].count()
     if all_data['Volume'][count-1] > 0:
         if all_data['signal'].sum() > 0:
             pick_it = 1
