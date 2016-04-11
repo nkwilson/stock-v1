@@ -5,9 +5,9 @@ import pandas
 
 summary=None
 
-stocks=[['002673.SZ', u'西部证券'],
+stocks=[['002673.SZ', '西部证券'],
           ['000973.SZ', '佛塑科技'],
-        ['600030.SS', u'中信证券']
+        ['600030.SS', '中信证券']
 ]
 
 for i in stocks:
@@ -27,4 +27,4 @@ for i in stocks:
             summary=ret
 
 if not isinstance(summary, type(None)):            
-    print summary.sort_index()
+    print summary[['code','signal','EMA', 'buy', 'sell','profit','name']].sort_index()
