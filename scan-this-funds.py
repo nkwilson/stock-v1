@@ -49,4 +49,4 @@ for i in sz_funds:
         else:
             summary=ret
 
-print summary[['code','signal','EMA', 'buy', 'sell','profit','name']].sort_index()
+print summary[['code','signal', 'buy', 'sell','profit','name']].sort_values(['signal'])
