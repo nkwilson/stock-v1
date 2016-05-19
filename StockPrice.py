@@ -1,9 +1,13 @@
+import sys
+
 import tushare
 import pandas
 import urllib
 import urllib2
 import os
 import datetime
+
+price_source='tushare'
 
 def StockPrice_old(stock):
     data=tushare.get_hist_data(stock, start='2015-01-01',end='2015-12-31')
@@ -18,7 +22,32 @@ def StockPrice(stock):
     # for i in range(data.columns.values.size):
     #     data.columns.values[i]=data.columns.values[i].lower()
     return data
+# tushare data version
+def StockPrice_yahoo(stock, type, start, end):
+    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)
+    
+    f=urllib2.urlopen(url, timeout=2)
+    return pandas.read_csv(f, index_col=0).sort_index()
 
+def StockPrice_tushare(stock, type, start, end):
+    # maybe '300027.SZ' pattern, strip '.SZ' suffix
+    idx=stock.index('.')
+    if idx > 0:
+        stock=stock[0:idx]
+        
+    if cmp(type, 'd')==0:
+        data=tushare.get_h_data(stock, start.strftime('%Y-%m-%d'),
+                                  end.strftime('%Y-%m-%d'));
+        data['Open']=data['open']
+        data['High']=data['high']
+        data['Close']=data['close']
+        data['Low']=data['low']
+        data['Adj Close']=data['close']
+        data['Volume']=data['volume']
+        return data.sort_index(ascending=True)
+    
+    return Exception('Unsupported price type:%s' % type)
+    
 def StockPrice_4(stock, type, start, end):
     if isinstance(start, str):
         start_str=start
@@ -36,12 +65,10 @@ def StockPrice_4(stock, type, start, end):
     else:
         raise Exception('StockPrice_4 end')            
 
-    url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)
-    
-    f=urllib2.urlopen(url, timeout=2)
-    return pandas.read_csv(f, index_col=0).sort_index()
-    
-def StockPrice_2(stock, type):
+    # use price_source to choose real function
+    return globals()['StockPrice_%s' % (price_source)](stock, type, start, end)
+        
+def StockPrice_2_fast(stock, type):
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=0&b=1&c=2015&d=11&e=11&f=2016&g=%s&ignore=.csv' % (stock, type)
     filename='%s%s.csv' % (stock, type)
     if not os.path.isfile(filename):
@@ -75,6 +102,9 @@ def StockPrice_2(stock, type):
     data.sort_index(ascending=False).to_csv(filename)
     
     return data
+
+def StockPrice_2(stock, type):
+    return StockPrice_4(stock ,type, '2015-01-01', pandas.datetime.now())
 
 def StockPrice_w_3(stock, start, end):
     return StockPrice_4(stock, 'w', start, end)
