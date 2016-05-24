@@ -28,6 +28,7 @@ for i in stocks:
     try:
         ret = StockSignal.stock_signal_w_new_find_candidate(i[0])
     except Exception, ex:
+        print i[1]
         ret = None
 
     if not isinstance(ret, type(None)) :
@@ -40,5 +41,8 @@ for i in stocks:
         else:
             summary=ret
 
-if not isinstance(summary, type(None)):            
-    print summary[['code','signal', 'buy', 'sell','profit','name']].sort_values(['signal'])
+if not isinstance(summary, type(None)):
+    result=summary[['code','signal', 'buy', 'sell','profit','name']].sort_values(['signal'])
+    result.to_csv('scan-these-stocks.csv')
+    print '\n',result
+

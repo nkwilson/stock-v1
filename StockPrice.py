@@ -1,13 +1,15 @@
 import sys
+import getopt
 
 import tushare
 import pandas
+import numpy
 import urllib
 import urllib2
 import os
 import datetime
 
-price_source='tushare'
+price_source='tushare' 
 
 def StockPrice_old(stock):
     data=tushare.get_hist_data(stock, start='2015-01-01',end='2015-12-31')
@@ -31,13 +33,12 @@ def StockPrice_yahoo(stock, type, start, end):
 
 def StockPrice_tushare(stock, type, start, end):
     # maybe '300027.SZ' pattern, strip '.SZ' suffix
-    idx=stock.index('.')
-    if idx > 0:
-        stock=stock[0:idx]
-        
+    stock=stock[0:6]
+
     if cmp(type, 'd')==0:
         data=tushare.get_h_data(stock, start.strftime('%Y-%m-%d'),
-                                  end.strftime('%Y-%m-%d'));
+                                end.strftime('%Y-%m-%d'));
+        
         data['Open']=data['open']
         data['High']=data['high']
         data['Close']=data['close']
@@ -45,6 +46,59 @@ def StockPrice_tushare(stock, type, start, end):
         data['Adj Close']=data['close']
         data['Volume']=data['volume']
         return data.sort_index(ascending=True)
+    elif cmp(type, 'w')==0:
+        start_w = pandas.Timestamp(start - pandas.Timedelta(days=start.weekday())).normalize()
+        end_w = pandas.Timestamp(end - pandas.Timedelta(days=end.weekday())+pandas.Timedelta(days=4)).normalize()
+        if end_w > pandas.Timestamp.now():
+            end_w = end_w - pandas.Timedelta(days=7)
+
+        data=tushare.get_h_data(stock, start.strftime('%Y-%m-%d'),
+                                end.strftime('%Y-%m-%d'));
+        try:
+            data=data.sort_index(ascending=True)
+        except AttributeError, ex:
+            data=tushare.get_hist_data(stock, start.strftime('%Y-%m-%d'),
+                                       end.strftime('%Y-%m-%d'));
+            data=data[['open','close','high','low','volume','price_change']]
+            data=data.sort_index(ascending=True)            
+        
+        values=(end_w-start_w).days/7 + 1
+        new_index=pandas.timedelta_range(start='4 days', periods=values, freq='7d')+start_w
+        new_data=pandas.DataFrame(numpy.zeros(values*6).reshape(values, 6), index=new_index,columns=data.columns)
+
+        for i in new_index:
+            try:
+                one_week_data=data.loc[i-pandas.Timedelta(days=4):i]
+            except TypeError, ex:
+                one_week_data=data.loc[(i-pandas.Timedelta(days=4)).strftime('%Y-%m-%d'):i.strftime('%Y-%m-%d')]
+
+            if one_week_data['open'].count() == 0:
+                if i == new_index[0]:
+                    new_data.loc[i]=0
+                    continue
+                
+#                new_data.loc[i]=new_data.loc[i-pandas.Timedelta(days=7)]
+                new_data.loc[i]['open']=new_data.loc[i - pandas.Timedelta(days=7)]['close']
+                new_data.loc[i]['close']=new_data.loc[i - pandas.Timedelta(days=7)]['close']
+                new_data.loc[i]['high']=new_data.loc[i - pandas.Timedelta(days=7)]['close']
+                new_data.loc[i]['low']=new_data.loc[i - pandas.Timedelta(days=7)]['close']
+                new_data.loc[i]['volume']=0
+                continue
+            
+            new_data.loc[i]['open']=one_week_data.iloc[0]['open']
+            new_data.loc[i]['close']=one_week_data.iloc[one_week_data['close'].count()-1]['close']
+            new_data.loc[i]['high']=one_week_data['high'].max()
+            new_data.loc[i]['low']=one_week_data['low'].min()            
+            new_data.loc[i]['volume']=one_week_data['volume'].sum()
+            
+        new_data['Open']=new_data['open']
+        new_data['High']=new_data['high']
+        new_data['Close']=new_data['close']
+        new_data['Low']=new_data['low']
+        new_data['Adj Close']=new_data['close']
+        new_data['Volume']=new_data['volume']
+
+        return new_data
     
     return Exception('Unsupported price type:%s' % type)
     
@@ -123,3 +177,27 @@ def StockPrice_d_2(stock, start):
     
 def StockPrice_d(stock):
     return StockPrice_2(stock, 'd')
+
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        except getopt.error, msg:
+             raise Usage(msg)
+
+        print argv[1], argv[2]
+         
+        print globals()[argv[1]](argv[2], argv[3], pandas.Timestamp(argv[4]), pandas.Timestamp(argv[5]))
+    except Usage, err:
+        print err.msg
+        print >>sys.stderr, "for help use --help"
+        return 2
+    
+if __name__ == "__main__":
+    sys.exit(main())
