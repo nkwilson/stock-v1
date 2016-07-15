@@ -39,8 +39,6 @@ for job in jobs:
 
     if isinstance(ret, type(None)):
         continue
-
-    print ret
     
     if not isinstance(summary, type(None)):
         summary=pandas.concat([ret, summary])
@@ -49,7 +47,7 @@ for job in jobs:
 
 
 if not isinstance(summary, type(None)):
-    summary=summary.sort(['Volume'])
+    summary=summary.sort(['signal', 'Volume'])
 #    summary=summary.sort_values(['code', 'Volume'])
     summary.to_csv(result_file)
     print summary.to_string();

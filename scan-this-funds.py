@@ -12,9 +12,9 @@ summary=None
 ss_funds=[[510050,  '50ETF'],
           [510300,  '300ETF'],
           [510500,  '500ETF'],
-          [510900,  'H股ETF'],
           [511010,  '国债ETF'],                    
-          [518800, '黄金基金']]
+          [518800, '黄金基金'],
+	]
 
 StockPrice.price_func='get_hist_data'
 
@@ -37,8 +37,8 @@ for i in ss_funds:
 
 sz_funds=[[159915, '创业板'],
           [159902, '中小板'],
-          [150172, '证券B'],
-          [150204, '传媒B']]
+          [150023, '深成指B'],          
+          ]
 for i in sz_funds:
     try:
         ret = StockSignal.stock_signal_w_new_find_candidate('%s.SZ' % i[0])
