@@ -5,13 +5,14 @@ import pp
 
 funds=pandas.read_csv('fenji-funds.csv')
 
+today=pandas.datetime.now().strftime('%Y-%m-%d')
 summary=None
-result_file='funds-candidates-%s.csv' % pandas.datetime.now().strftime('%Y-%m-%d')
+result_file='fenji-funds-candidates-%s.csv' % today
 
 def local_func(stock, code, name):
     try:
         ret = StockSignal.stock_signal_w_new_find_candidate_with_volume(stock)
-        
+
         ret.insert(0, 'code', code)
         ret.insert(ret.columns.size, 'name', name)
 
@@ -32,7 +33,8 @@ for i in range(funds['FundName'].count()):
         stock='%s.SS' % funds['FundCode'][i]
 
     jobs.append(job_server.submit(local_func, (stock, funds['FundCode'][i], funds['FundName'][i]), (), ("StockSignal","pandas", )))
-    
+
+
 for job in jobs:
     ret = job()
 
@@ -50,3 +52,20 @@ if not isinstance(summary, type(None)):
 #    summary=summary.sort_values(['code', 'Volume'])
     summary.to_csv(result_file)
     print summary.to_string();
+
+
+    # sold=summary.select(lambda x: True if summary.loc[x]['signal']<0 else False)
+    # hold=summary.select(lambda x: True if summary.loc[x]['signal']>0 else False)
+
+    # # select those signaled today
+    # sell_today=sold.select(lambda x: True if cmp(sold.loc[x][0], today)==0 else False)
+    # buy_today=hold.select(lambda x: True if cmp(hold.loc[x][0], today)==0 else False)
+
+    # sell_today.to_csv('sell-today-%s' % result_file)
+    # buy_today.to_csv('buy-today-%s' % result_file)
+
+    # print sell_today.to_string()
+    # print buy_today.to_string()
+
+
+    

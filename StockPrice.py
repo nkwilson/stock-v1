@@ -38,14 +38,23 @@ def StockPrice_tushare(stock, type, start, end):
     if cmp(type, 'd')==0:
         data=tushare.get_h_data(stock, start.strftime('%Y-%m-%d'),
                                 end.strftime('%Y-%m-%d'));
+
+        try:
+            values=data['open'].count();
+        except Exception, ex:
+            raise Exception('Empty price values')
+
+        new_data=pandas.DataFrame(numpy.zeros(values * 6).reshape(values, 6), index=data.index,
+                                  columns=[['Open', 'High','Close', 'Low', 'Adj Close', 'Volume']])
         
-        data['Open']=data['open']
-        data['High']=data['high']
-        data['Close']=data['close']
-        data['Low']=data['low']
-        data['Adj Close']=data['close']
-        data['Volume']=data['volume']
-        return data.sort_index(ascending=True)
+        new_data['Open']=data['open']
+        new_data['High']=data['high']
+        new_data['Close']=data['close']
+        new_data['Low']=data['low']
+        new_data['Adj Close']=data['close']
+        new_data['Volume']=data['volume']
+        return new_data.sort_index(ascending=True)
+
     elif cmp(type, 'w')==0:
         start_w = pandas.Timestamp(start - pandas.Timedelta(days=start.weekday())).normalize()
         end_w = pandas.Timestamp(end - pandas.Timedelta(days=end.weekday())+pandas.Timedelta(days=4)).normalize()

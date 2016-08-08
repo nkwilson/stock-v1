@@ -61,13 +61,10 @@ print "Time elapsed: ", time.time() - start_time, "s"
 job_server.print_stats()
         
 if not isinstance(summary, type(None)):
-#    summary2=summary.select(lambda x: True if summary.loc[x]['Volume']>0 else False)
     summary=summary.sort(['profit'])
-#    summary=summary.sort_values(['code', 'Volume'])
     summary.to_csv(result_file)
 
-    print summary[['code', 'signal', 'Volume', 'buy', 'sell', 'profit', 'name']]
-
+    print summary[['code', 'signal', 'Volume', 'buy', 'sell', 'profit', 'name']].sort_values(['signal'])
 
     # # select those have been sold
     # sold=summary2.select(lambda x: True if summary2.loc[x]['signal']==-1 else False)
