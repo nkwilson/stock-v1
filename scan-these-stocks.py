@@ -38,6 +38,6 @@ for i in stocks:
 
 if not isinstance(summary, type(None)):
     result=summary[['code','signal', 'buy', 'sell','profit','name']].sort_values(['signal'])
-    result.to_csv('scan-these-stocks-candidates-%s.csv' % pandas.datetime.now().strfmt('%Y-%m-%d'))
+    result.to_csv('scan-these-stocks-candidates-%s.csv' % pandas.datetime.now().strftime('%Y-%m-%d'))
     print '\n',result
 

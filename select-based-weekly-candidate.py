@@ -21,13 +21,13 @@ def select_base_weekly_candidate(file, date):
     
     data=pandas.read_csv(file)
     
-    holding=data.select(lambda x: True if data.loc[x]['signal'] > 0 else False)
+    holding=data.select(lambda x: True if data.loc[x]['signal'] != 0 else False)
 
 #    print holding[['Unnamed: 0', 'code', 'Volume', 'Adj Close', 'buy', 'name']].sort_values(['Volume'])
     
     selected=holding.select(lambda x: True if holding.loc[x]['Unnamed: 0'].find(date)==0 else False)
 
-    print selected[['code', 'Volume', 'Adj Close', 'buy', 'name']].sort_values(['Volume'])
+    print selected[['code', 'Volume', 'Adj Close', 'buy', 'signal', 'name']].sort_values(['signal', 'Volume'])
 
 
 class Usage(Exception):
