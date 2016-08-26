@@ -17,8 +17,6 @@ count=0
 period=5
 
 def select_base_weekly_candidate(file, date):
-    print file, date
-    
     data=pandas.read_csv(file)
     
     holding=data.select(lambda x: True if data.loc[x]['signal'] != 0 else False)
@@ -27,8 +25,13 @@ def select_base_weekly_candidate(file, date):
     
     selected=holding.select(lambda x: True if holding.loc[x]['Unnamed: 0'].find(date)==0 else False)
 
-    print selected[['code', 'Volume', 'Adj Close', 'buy', 'signal', 'name']].sort_values(['signal', 'Volume'])
-
+    if selected.size == 0:
+        return
+    
+    if 'Volume' in selected.columns :
+        print selected[['code', 'Volume', 'Adj Close', 'buy', 'signal', 'name']].sort_values(['signal', 'Volume'])
+    else:
+        print selected[['code', 'buy', 'signal', 'name']].sort_values(['signal'])
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -45,7 +48,7 @@ def main(argv=None):
 
         print argv[1], argv[2], argv[3]
         
-        print globals()[argv[1]](argv[2], argv[3])
+        globals()[argv[1]](argv[2], argv[3])
     except Usage, err:
         print err.msg
         print >>sys.stderr, "for help use --help"
