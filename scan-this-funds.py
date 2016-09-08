@@ -14,6 +14,8 @@ ss_funds=[[510050,  '50ETF'],
           [510500,  '500ETF'],
           [511010,  '国债ETF'],                    
           [518800, '黄金基金'],
+          [159920, '恒生ETF'],
+          [510900, 'H股ETF'],
 	]
 
 StockPrice.price_func='get_hist_data'
