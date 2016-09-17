@@ -1,0 +1,38 @@
+
+当前的周线交易策略，可以提供入场和出场点信号。
+
+新增仓位控制策略：每次买入单位是总本金的2%或者是1手。向上选择两者之中能够成交的一种。比如2%无法成交，则选择1手。如果1手小于2%，则选择最接近2%的仓位。
+
+0. 如果出现了入场信号，则上升趋势为真。如果出现出场信号，则下降趋势为真。
+1. 周线下跌时，不考虑趋势，都在下一个周一买入1个单位。
+2. 周线上升时，如果上升趋势为真，则持仓不动；如果下降趋势为真，则在下一个周一卖出所有盈利的交易。
+3. 出场信号出现时，在下一个周一把所有盈利的交易平仓。
+4. 入场信号出现时，下一个周一买入1个单位，历史盈利持仓全部卖出，历史亏损持仓保持不动。
+
+===
+先计算上一周的 signal， close_s (另一种选择是 EMA_s)
+
+如果 signal 是出场信号，则给出下一周卖出盈利交易的信号 selling_good_deals=1
+  如果是入场信号，则给出下周一买入的信号 next_buy=1
+  
+如果 close_s 是0，则给出信号 next_buy=1 。
+
+如果 close_s 是1，全局趋势 global_tendency 是下降，则给出信号 selling_good_deals=1
+
+根据 signal 更新当前的 global_tendency (上升趋势，还是下降趋势）
+（是否可以在 close_s=1 && global_tendency=1 时买入半个单位，待后续单独分析）
+
+===
+仓位管理：
+next_buy 的单位是总本金(total_money)的 2% 或者 1手股票。该结果保存为 deal_cost 。
+能买的手数记录为 deal_count : (deal_count * 100 * stock_price) < (deal_cost * 1.1)
+
+===
+目标文件名是 股票代码.csv
+
+需要写入文件保存的结果包括：
+total_money, deal_cost, holds, holds_profit, global_tendency, global_profit
+
+详细数据(date是index)
+price, count, total, signal, close_s, sell-date, sell-price, profit
+
