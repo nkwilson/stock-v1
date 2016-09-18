@@ -12,8 +12,10 @@ deal_cost=10000
 total_money=10*deal_cost # all of my money
 total_cost=0 # total cost of holding until now, must be less than total_money
 do_half_buy=0
-do_steady_buy=0
+do_steady_buy=1
 show_detail=0
+show_signal=1
+show_summary=0
 
 #data=pandas.read_csv('600663.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600547.SSw-all-data.csv', index_col=0).sort_index()
@@ -28,7 +30,7 @@ show_detail=0
 #data=pandas.read_csv('600799.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('300017.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('300027.SZw-all-data.csv', index_col=0).sort_index()
-#data=pandas.read_csv('300104.SZw-all-data.csv', index_col=0).sort_index()
+data=pandas.read_csv('300104.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('300251.SZw-all-data.csv', index_col=0).sort_index()
 
 #data=pandas.read_csv('510050.SSw-all-data.csv', index_col=0).sort_index()
@@ -40,7 +42,7 @@ show_detail=0
 #data=pandas.read_csv('159920.SZw-all-data.csv', index_col=0).sort_index()
 
 #data=pandas.read_csv('150206.SZw-all-data.csv', index_col=0).sort_index()
-data=pandas.read_csv('150153.SZw-all-data.csv', index_col=0).sort_index()
+#data=pandas.read_csv('150153.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('150195.SZw-all-data.csv', index_col=0).sort_index()
 
 ss_funds=[[510050,  '50ETF'],
@@ -149,12 +151,27 @@ for i in range(data['signal'].count()):
         
     global_tendency=data['signal'][i]
 
+# generate signal for next operation, buy and/or sell?
+if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0) and show_signal > 0:
+    last=data['open'].count()-1
+    count=int(deal_cost / data.iloc[last]['open']/100.0) * 100
+    if next_half_buy > 0 and count >= 200:
+        count=count / 2
+    print '+%d' % count
+if selling_good_deals > 0 and show_signal > 0:
+    last=data['open'].count()-1
+    price=data.iloc[last]['open']
+    sellings=lodgers.select(lambda x: True if lodgers.loc[x]['price'] < price and lodgers.loc[x]['sell-price'] == 0 else False)['count']
+#    print sellings
+    print '-%d' % sellings.sum() if sellings.count() > 0 else ''
+
 #    print 'selling %d next_buy %d next_half_buy %d global %d' % (selling_good_deals, next_buy, next_half_buy, global_tendency)
 
-holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)
-total_profit=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit'].sum()
-total_flows=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total'].sum()
+if show_summary > 0:
+    holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)
+    total_profit=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit'].sum()
+    total_flows=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total'].sum()
 
-print '### flows %d profit %d rate %.3f holding %d(=%d)' % (total_flows, total_profit, total_profit/total_flows, holdings['count'].sum(), holdings['total'].sum())
+    print '### flows %d profit %d rate %.3f holding %d(=%d)' % (total_flows, total_profit, total_profit/total_flows, holdings['count'].sum(), holdings['total'].sum())
 
 print lodgers if show_detail > 0 else ''
