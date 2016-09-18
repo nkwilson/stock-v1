@@ -14,23 +14,25 @@ total_cost=0 # total cost of holding until now, must be less than total_money
 do_half_buy=0
 do_steady_buy=1
 show_detail=0
-show_signal=1
-show_summary=0
+show_signal=0
+show_summary=1
 
 #data=pandas.read_csv('600663.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600547.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('000002.SZw-all-data.csv', index_col=0).sort_index()
+data=pandas.read_csv('000333.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('000651.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('000799.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('000938.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('002407.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('002460.SZw-all-data.csv', index_col=0).sort_index()
+#data=pandas.read_csv('002587.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('002673.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600519.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600799.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('300017.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('300027.SZw-all-data.csv', index_col=0).sort_index()
-data=pandas.read_csv('300104.SZw-all-data.csv', index_col=0).sort_index()
+#data=pandas.read_csv('300104.SZw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('300251.SZw-all-data.csv', index_col=0).sort_index()
 
 #data=pandas.read_csv('510050.SSw-all-data.csv', index_col=0).sort_index()
@@ -168,10 +170,12 @@ if selling_good_deals > 0 and show_signal > 0:
 #    print 'selling %d next_buy %d next_half_buy %d global %d' % (selling_good_deals, next_buy, next_half_buy, global_tendency)
 
 if show_summary > 0:
+    last=data['open'].count()-1
+    price=data.iloc[last]['open']
     holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)
     total_profit=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit'].sum()
     total_flows=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total'].sum()
 
-    print '### flows %d profit %d rate %.3f holding %d(=%d)' % (total_flows, total_profit, total_profit/total_flows, holdings['count'].sum(), holdings['total'].sum())
+    print '### flows %d profit %d rate %.3f holding %d(=%d) pending %d' % (total_flows, total_profit, total_profit/total_flows, holdings['count'].sum(), holdings['total'].sum(), holdings['count'].sum() * price - holdings['total'].sum())
 
 print lodgers if show_detail > 0 else ''
