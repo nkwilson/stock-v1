@@ -36,3 +36,5 @@ total_money, deal_cost, holds, holds_profit, global_tendency, global_profit
 详细数据(date是index)
 price, count, total, signal, close_s, sell-date, sell-price, profit
 
+===
+多只股票，每周打印出下周一的操作建议，'+100'表示开盘买入100股；'-100'表示开盘卖出100股。
