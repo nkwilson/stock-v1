@@ -134,9 +134,13 @@ void OnTick()
   buy_s = 1;
   global_tendency = 1;
   }else if (force_s > 0)   #1
+  buy_s = 0;
+  global_tendency = 0;
   return;
 // else if (ema_s > 0 || close_s > 0)
   else if (close_s > 0)    #2
+  buy_s = 0;
+  global_tendency = 0;
   return;
   else {
   sell_s = 1;
