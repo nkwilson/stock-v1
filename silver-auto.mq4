@@ -34,8 +34,8 @@ void OnDeinit(const int reason)
 
   int rsi_period = 5;
 
-// int ema_period = 5;
-  int ema_period = 3;
+  int ema_period = 5;
+//  int ema_period = 3;
 
   int global_tendency = 0;
 
