@@ -132,43 +132,36 @@ void OnTick()
 
   if ((force_s + kdj_s + rsi_s) > 2) {
   buy_s = 1;
-  }else if (force_s > 0) {
-  buy_s = 0;
-  return;
+  global_tendency = 1;
+  }else if (global_tendency > 0) {
+  if (force_s > 0) {
+  ;
   }
 // else if (ema_s > 0 || close_s > 0)
   else if (close_s > 0) {
-  buy_s = 0;
-  return;
+  ;
   }
   else {
   sell_s = 1;
+  global_tendency = -1;
+  }
   }
 
   if (buy_s)
   res = OrderSend(Symbol(),OP_BUY,0.01,Ask,3,0,0,"",0,0,Blue);
-  // if (sell_s)
-  // res = OrderSend(Symbol(),OP_SELL,0.1,Bid,3,0,0,"",0,0,Red);
+// if (sell_s)
+// res = OrderSend(Symbol(),OP_SELL,0.01,Bid,3,0,0,"",0,0,Red);
 
-  if (global_tendency > 0) {
+  if (buy_s == 0 && global_tendency > 0) {
   CheckForClose(OP_SELL);
   if (close_s < 0 && buy_s == 0)
   res = OrderSend(Symbol(),OP_BUY,0.01,Ask,3,0,0,"",0,0,Blue);
-
   }
-  else if (global_tendency < 0) {
-  CheckForClose(OP_BUY);
-  if (close_s > 0 && sell_s == 0)
-  res = OrderSend(Symbol(),OP_SELL,0.1,Bid,3,0,0,"",0,0,Red);
-  }
-
-  if (buy_s) {
-  buy_s = 0;
-  global_tendency = 1;
-  } else if (sell_s) {
-  sell_s = 0;
-  global_tendency = -1;
-  }
+// else if (sell_s == 0 && global_tendency < 0) {
+// CheckForClose(OP_BUY);
+// if (close_s > 0 && sell_s == 0)
+// res = OrderSend(Symbol(),OP_SELL,0.01,Bid,3,0,0,"",0,0,Red);
+// }
 
   }
 //+------------------------------------------------------------------+
