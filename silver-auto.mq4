@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-16 21:18:48 nkyubin>
+// Time-stamp: <2016-10-16 22:29:46 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -232,6 +232,7 @@ void OnTick()
   buy_s=0;
   sell_s=0;
 
+  new_global_tendency = 0;
   if(force_s > 0 && kdj_s > 0 && rsi_s>0 && close_s>0 && macd_s>0 && bands_s>0) {
 	new_global_tendency=1;
   } else if(force_s < 0 && kdj_s < 0 && rsi_s<0 && close_s<0 && macd_s<0 && bands_s<0) {
@@ -239,13 +240,9 @@ void OnTick()
   } else if (global_tendency > 0) {
 	if (bands_s > 0)  // bands_s is more bold for tendency
 	  new_global_tendency = 1;
-	else
-	  new_global_tendency = -1;
   } else if (global_tendency < 0) {
 	if (bands_s < 0)
 	  new_global_tendency = -1;
-	else
-	  new_global_tendency = 1;
   }else 
     new_global_tendency = 0;
 
