@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-16 17:42:27 nkyubin>
+// Time-stamp: <2016-10-16 21:18:48 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -8,7 +8,7 @@
 
 #property copyright "Copyright 2016, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.42"
+#property version "1.44"
 #property strict
 
 //+------------------------------------------------------------------+
@@ -133,16 +133,13 @@ void AdjustOrder(int ordertype)
       //--- check order type
       if(ordertype==OP_BUY && OrderType()==ordertype)
         {
-	  //	  double stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
-	  //double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
-	  double stoploss;
-	  double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
-	  double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
+		  //double base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
+	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
+	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
+	  // double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 	  //	  double takeprofit = NormalizeDouble(Ask + 2 * stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Ask + (order_margin + stoplevel) * Point,Digits);
 
-	  stoploss = (ema + bands)/2;
-	    
 	  printf("ticket %d buy open %f should adjust to loss %f profit %f",
 		 OrderTicket(), OrderOpenPrice(), stoploss, takeprofit);
 
@@ -156,17 +153,14 @@ void AdjustOrder(int ordertype)
         }
       else if(ordertype==OP_SELL && OrderType()==ordertype)
         {
-	  //double stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
-	  //	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;
-	  double stoploss;
-	  double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
-	  double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
+		  //double base_stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
+	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;
+	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
+	  //	  double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 
 	  //	  double takeprofit = NormalizeDouble(Bid - 2 * stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Bid - (order_margin + stoplevel) * Point,Digits);
 
-	  stoploss = (ema + bands)/2;
-	  
 	  printf("ticket %d sell open %f should adjust to loss %f profit %f",
 		 OrderTicket(), OrderOpenPrice(), stoploss, takeprofit);
 	  
@@ -242,7 +236,17 @@ void OnTick()
 	new_global_tendency=1;
   } else if(force_s < 0 && kdj_s < 0 && rsi_s<0 && close_s<0 && macd_s<0 && bands_s<0) {
     new_global_tendency=-1;
-  } else
+  } else if (global_tendency > 0) {
+	if (bands_s > 0)  // bands_s is more bold for tendency
+	  new_global_tendency = 1;
+	else
+	  new_global_tendency = -1;
+  } else if (global_tendency < 0) {
+	if (bands_s < 0)
+	  new_global_tendency = -1;
+	else
+	  new_global_tendency = 1;
+  }else 
     new_global_tendency = 0;
 
   if (global_tendency == 0)
@@ -316,11 +320,15 @@ void OnTick()
 	    res=OrderSend(Symbol(),OP_SELL,0.1,Bid,3,stoploss,0,"",0,0,Red);
 	  }
   }else if(global_tendency > 0) {
-    if (bands_s < 0)
+    if (bands_s <= 0)
       CheckForClose(OP_BUY, 1);
+	else
+	  AdjustOrder(OP_BUY);
   }else if(global_tendency < 0) {
-    if (bands_s > 0)
+    if (bands_s >= 0)
       CheckForClose(OP_SELL, 1);
+	else
+	  AdjustOrder(OP_SELL);
   }else if (bands_s < 0)
     AdjustOrder(OP_SELL);
   else if(bands_s > 0)
