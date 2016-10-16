@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-16 17:11:33 nkyubin>
+// Time-stamp: <2016-10-16 17:32:27 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -8,7 +8,7 @@
 
 #property copyright "Copyright 2016, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.41"
+#property version "1.42"
 #property strict
 
 //+------------------------------------------------------------------+
@@ -258,7 +258,7 @@ void OnTick()
   		  force_s, kdj_s, rsi_s, close_s, ema_s, macd_s, bands_s, global_tendency, new_global_tendency);
 
   if (new_global_tendency > 0 && global_tendency > 0 && OrdersTotal() < total_orders) {
-    int buy_policy = 1; 
+    int buy_policy = 0; 
     int stoploss_policy = 1;
 	  double stoploss = 0.0;
 	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
@@ -278,16 +278,19 @@ void OnTick()
 		if (buy_policy == 2) { // close_s should not be too bigger
 		  if (fabs(close_s) > 0.2)
 			stoploss = 0.0;
+		}else if (buy_policy == 3) { // open and close should not be too bigger
+		  if (fabs(iClose(NULL, 0, 1) - iOpen(NULL, 0, 1)) > 0.2)
+			stoploss = 0.0;
 		}
 	  }
 	  
-	  if (stoplevel != 0.0) {
+	  if (stoploss != 0.0) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_BUY,0.01,Ask,3,stoploss,0,"",0,0,Blue);
+	    res=OrderSend(Symbol(),OP_BUY,0.1,Ask,3,stoploss,0,"",0,0,Blue);
 	  }
   }
   else if (new_global_tendency < 0 && global_tendency < 0 && OrdersTotal() < total_orders) {
-	int sell_policy = 1;
+	int sell_policy = 0;
     int stoploss_policy = 1;
 	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double stoploss = 0.0;
@@ -303,12 +306,15 @@ void OnTick()
 		if (sell_policy == 2) { // close_s should not be too bigger
 		  if (fabs(close_s) > 0.2)
 			stoploss = 0.0;
+		} else if (sell_policy == 3) { // open and close should not be too bigger
+		  if (fabs(iClose(NULL, 0, 1) - iOpen(NULL, 0, 1)) > 0.2)
+			stoploss = 0.0;
 		}
 	  }
 	  
 	  if (stoploss != 0.0) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_SELL,0.01,Bid,3,stoploss,0,"",0,0,Red);
+	    res=OrderSend(Symbol(),OP_SELL,0.1,Bid,3,stoploss,0,"",0,0,Red);
 	  }
   }else if(global_tendency > 0) {
     if (bands_s < 0)
