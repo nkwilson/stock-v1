@@ -3,7 +3,7 @@
 //| Copyright 2016, MetaQuotes Software Corp. |
 //| https://www.mql5.com |
 //+------------------------------------------------------------------+
-// Time-stamp: <2016-10-16 15:29:39 nkyubin>
+// Time-stamp: <2016-10-16 15:58:06 nkyubin>
 #property copyright "Copyright 2016, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
 #property version "1.39"
@@ -190,7 +190,6 @@ void OnTick()
   double force_s,kdj_s,rsi_s,ema_s,close_s, macd_s, bands_s;
   int buy_s,sell_s;
   int new_global_tendency;
-  int orders;
   int below_bands_up = 0; // only open buy when blow bands up 
   
   Print("Bars ", Bars);
@@ -257,26 +256,44 @@ void OnTick()
   		  force_s, kdj_s, rsi_s, close_s, ema_s, macd_s, bands_s, global_tendency, new_global_tendency);
 
   if (new_global_tendency > 0 && global_tendency > 0 && OrdersTotal() < total_orders) {
+    int buy_policy = 0;
+    int stoploss_policy = 1;
+	  double stoploss = 0.0;
 	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
-	  //	  double stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
-	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
 	  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
 
-	  if (Ask < iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1)) {
+	  // conditional buy
+	  if (buy_policy == 1) {
+	    if (Ask < iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1)) {
+	      stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;		
+	    }
+	  }else {// unconditional buy
+	    if (stoploss_policy == 1) {
+	      stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
+	    } else 	    
+	      stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
+	  }
+	  
+	  if (stoplevel != 0.0) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-
 	    res=OrderSend(Symbol(),OP_BUY,0.01,Ask,3,stoploss,0,"",0,0,Blue);
 	  }
   }
   else if (new_global_tendency < 0 && global_tendency < 0 && OrdersTotal() < total_orders) {
+    int stoploss_policy = 1;
 	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
-	  //	  double stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
-	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;
+	  double stoploss = 0.0;
 	  double takeprofit = NormalizeDouble(Bid - profit_rate * stoplevel * Point,Digits);
 
-	  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	  if (stoploss_policy == 1) {
+	    stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;	    
+	  } else
+	    stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
 	  
-	  res=OrderSend(Symbol(),OP_SELL,0.01,Bid,3,stoploss,0,"",0,0,Red);
+	  if (stoploss != 0.0) {
+	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	    res=OrderSend(Symbol(),OP_SELL,0.01,Bid,3,stoploss,0,"",0,0,Red);
+	  }
   }else if(global_tendency > 0) {
     if (bands_s < 0)
       CheckForClose(OP_BUY, 1);
