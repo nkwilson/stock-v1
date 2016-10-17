@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-17 22:08:10 nkyubin>
+// Time-stamp: <2016-10-17 22:13:25 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -8,7 +8,7 @@
 
 #property copyright "Copyright 2016, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.46"
+#property version "1.47"
 #property strict
 
 //+------------------------------------------------------------------+
@@ -380,6 +380,8 @@ void OnTick()
 	if (no_stoploss) {
 	  if (bands_s <= 0)
 		CheckForCloseWithProfit(OP_BUY);
+	  else
+		AdjustOrder(OP_BUY);
 	} else {
 	  if (bands_s <= 0)
 		CheckForClose(OP_BUY, 1);
@@ -388,12 +390,15 @@ void OnTick()
 	}
   }else if(global_tendency < 0) {
 	if (no_stoploss) {
-	  CheckForCloseWithProfit(OP_SELL);
+	  if (bands_s >=0)
+		CheckForCloseWithProfit(OP_SELL);
+	  else
+		AdjustOrder(OP_SELL);
 	} else {
-		if (bands_s >= 0)
-      CheckForClose(OP_SELL, 1);
-	else
-	  AdjustOrder(OP_SELL);
+	  if (bands_s >= 0)
+		CheckForClose(OP_SELL, 1);
+	  else
+		AdjustOrder(OP_SELL);
 	}
   }else if (bands_s < 0) {
 	if (no_stoploss) 
