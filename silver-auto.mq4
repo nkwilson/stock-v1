@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-17 21:15:32 nkyubin>
+// Time-stamp: <2016-10-17 22:08:10 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -8,7 +8,7 @@
 
 #property copyright "Copyright 2016, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.45"
+#property version "1.46"
 #property strict
 
 //+------------------------------------------------------------------+
@@ -57,7 +57,9 @@ double viabality_percent = 0.01;  // 1%
 
 double profit_rate = 1.3;
 
-int total_orders = 1;
+int total_orders = 10;
+
+int no_stoploss = 1;
 
 //+------------------------------------------------------------------+
 //| Calculate open positions |
@@ -91,6 +93,7 @@ void CheckForClose(int ordertype,int force)
     {
       if(OrderSelect(i,SELECT_BY_POS,MODE_TRADES)==false) break;
       if(OrderSymbol()!=Symbol()) continue;
+
       //--- check order type
       if(ordertype==OP_BUY && OrderType()==ordertype && (force || OrderOpenPrice()<Bid))
         {
@@ -114,6 +117,57 @@ void CheckForClose(int ordertype,int force)
         }
     }
   //---
+}
+
+//+------------------------------------------------------------------+
+//| Close all orders |
+//+------------------------------------------------------------------+
+void CloseAll(int ordertype)
+{
+  int res;
+  for (int i=0;i<OrdersTotal();i++) {
+      if(OrderSelect(i,SELECT_BY_POS,MODE_TRADES)==false) break;
+      if(OrderSymbol()!=Symbol()) continue;
+
+      //--- check order type
+      if(OrderType()==OP_BUY && ordertype==OP_BUY)
+		res=OrderClose(OrderTicket(), OrderLots(),Bid,30,White);
+	  else if (OrderType()==OP_SELL && ordertype==OP_SELL)
+		res=OrderClose(OrderTicket(), OrderLots(),Ask,30,White);
+  }
+}
+  
+//+------------------------------------------------------------------+
+//| Send opposite orders to stop loss |
+//+------------------------------------------------------------------+
+void CheckForCloseWithProfit(int ordertype)
+{
+  double buy_profit, sell_profit;
+  double buys, sells;
+  
+  buy_profit = sell_profit = 0;
+  buys=sells=0;
+  
+  for (int i=0;i<OrdersTotal();i++) {
+      if(OrderSelect(i,SELECT_BY_POS,MODE_TRADES)==false) break;
+      if(OrderSymbol()!=Symbol()) continue;
+
+      //--- check order type
+      if(OrderType()==OP_BUY) {
+		buy_profit += OrderProfit();
+		buys += OrderLots();
+	  } else if (OrderType()==OP_SELL) {
+		sell_profit += OrderProfit();
+		sells += OrderLots();
+	  }
+
+	  if (buy_profit + sell_profit > 0.0) {
+		CloseAll(OP_BUY);
+		CloseAll(OP_SELL);
+	  } else {
+		CloseAll(ordertype);
+	  }
+  }
 }
 
 //+------------------------------------------------------------------+
@@ -283,10 +337,13 @@ void OnTick()
 			stoploss = 0.0;
 		}
 	  }
-	  
-	  if (stoploss != 0.0) {
+
+	  if (no_stoploss) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_BUY,0.1,Ask,3,stoploss,0,"",0,0,Blue);
+	    res=OrderSend(Symbol(),OP_BUY,0.01,Ask,3,0,0,"",0,0,Blue);
+	  } else if (stoploss != 0.0) {
+	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	    res=OrderSend(Symbol(),OP_BUY,0.01,Ask,3,stoploss,0,"",0,0,Blue);
 	  }
   }
   else if (new_global_tendency < 0 && global_tendency < 0 && OrdersTotal() < total_orders) {
@@ -311,25 +368,44 @@ void OnTick()
 			stoploss = 0.0;
 		}
 	  }
-	  
-	  if (stoploss != 0.0) {
+
+	  if (no_stoploss) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_SELL,0.1,Bid,3,stoploss,0,"",0,0,Red);
+	    res=OrderSend(Symbol(),OP_SELL,0.01,Bid,3,0,0,"",0,0,Red);
+	  } else if (stoploss != 0.0) {
+	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	    res=OrderSend(Symbol(),OP_SELL,0.01,Bid,3,stoploss,0,"",0,0,Red);
 	  }
   }else if(global_tendency > 0) {
-    if (bands_s <= 0)
-      CheckForClose(OP_BUY, 1);
-	else
-	  AdjustOrder(OP_BUY);
+	if (no_stoploss) {
+	  if (bands_s <= 0)
+		CheckForCloseWithProfit(OP_BUY);
+	} else {
+	  if (bands_s <= 0)
+		CheckForClose(OP_BUY, 1);
+	  else
+		AdjustOrder(OP_BUY);
+	}
   }else if(global_tendency < 0) {
-    if (bands_s >= 0)
+	if (no_stoploss) {
+	  CheckForCloseWithProfit(OP_SELL);
+	} else {
+		if (bands_s >= 0)
       CheckForClose(OP_SELL, 1);
 	else
 	  AdjustOrder(OP_SELL);
-  }else if (bands_s < 0)
-    AdjustOrder(OP_SELL);
-  else if(bands_s > 0)
-    AdjustOrder(OP_BUY);
+	}
+  }else if (bands_s < 0) {
+	if (no_stoploss) 
+	  ;
+	else
+	  AdjustOrder(OP_SELL);
+  } else if(bands_s > 0) {
+	if (no_stoploss)
+	  ;
+	else
+	  AdjustOrder(OP_BUY);
+  }
   
   global_tendency = new_global_tendency;
   
