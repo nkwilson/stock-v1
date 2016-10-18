@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-18 08:22:00 nkyubin>
+// Time-stamp: <2016-10-18 08:25:33 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -305,7 +305,7 @@ void OnTick()
 	  if (balance1 >= balance2)
 		next_lots += next_min_lots;
 	  else if (next_lots > next_min_lots)
-		next_lots /= 2;
+		next_lots -= 2 * next_min_lots;
 
 	  if (next_lots < next_min_lots)
 		next_lots = next_min_lots;
