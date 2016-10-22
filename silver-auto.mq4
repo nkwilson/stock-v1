@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-18 08:25:33 nkyubin>
+// Time-stamp: <2016-10-22 22:49:33 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -8,7 +8,7 @@
 
 #property copyright "Copyright 2016, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.47"
+#property version "1.48"
 #property strict
 
 //+------------------------------------------------------------------+
@@ -63,6 +63,8 @@ int prev_orders = 0;
 double next_lots = 0.01;
 double next_min_lots=0.01;
 double balance1, balance2;
+
+double budget;
 
 int no_stoploss = 0;
 
@@ -192,27 +194,27 @@ void AdjustOrder(int ordertype)
       //--- check order type
       if(ordertype==OP_BUY && OrderType()==ordertype)
         {
-		  //double base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
+		  double base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
 	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
 	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
 	  // double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 	  //	  double takeprofit = NormalizeDouble(Ask + 2 * stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Ask + (order_margin + stoplevel) * Point,Digits);
 
-	  printf("ticket %d buy open %f should adjust to loss %f profit %f",
-		 OrderTicket(), OrderOpenPrice(), stoploss, takeprofit);
+	  printf("ticket %d buy open %f should adjust to loss %f (base %f) profit %f",
+			 OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
 
 	  // adjust stop loss to open price     
 	  //	  if ((OrderOpenPrice() + order_margin * Point) < iClose(NULL, 0, 0))
 	  //  stoploss = OrderOpenPrice();
          
-	  if(OrderStopLoss() < stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Blue))
+	  if(OrderStopLoss() < stoploss && stoploss < base_stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Blue))
 //	  if(!OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Blue))
 	    Print("OrderModify error ",GetLastError());
         }
       else if(ordertype==OP_SELL && OrderType()==ordertype)
         {
-		  //double base_stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
+		  double base_stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
 	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;
 	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
 	  //	  double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
@@ -220,13 +222,13 @@ void AdjustOrder(int ordertype)
 	  //	  double takeprofit = NormalizeDouble(Bid - 2 * stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Bid - (order_margin + stoplevel) * Point,Digits);
 
-	  printf("ticket %d sell open %f should adjust to loss %f profit %f",
-		 OrderTicket(), OrderOpenPrice(), stoploss, takeprofit);
+	  printf("ticket %d sell open %f should adjust to loss %f (base %f) profit %f",
+			 OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
 	  
 	  //if ((OrderOpenPrice() - order_margin * Point()) > iClose(NULL, 0, 0))
 	  //  stoploss = OrderOpenPrice();
          
-	  if(OrderStopLoss() > stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Red))
+	  if(OrderStopLoss() > stoploss && stoploss > base_stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Red))
 //	  if(!OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Red))
 	    Print("OrderModify error ",GetLastError());
         }
@@ -247,7 +249,7 @@ void OnTick()
   int new_global_tendency;
   int below_bands_up = 0; // only open buy when blow bands up 
   
-  Print("Bars ", Bars);
+  printf("Bars %d %f %f", Bars, budget, AccountBalance()+AccountProfit());
   
   //---
   if(Bars<13 || IsTradeAllowed()==false)
@@ -295,6 +297,8 @@ void OnTick()
   if (OrdersTotal() == 0 && balance1 == 0) {
 	balance1 = AccountBalance();
 	balance2 = balance1;
+
+	budget = balance1;
   }
   
   // orders changed, check balance
@@ -311,6 +315,13 @@ void OnTick()
 		next_lots = next_min_lots;
 
 	  balance1 = balance2;
+
+	  // positive profit
+	  if (budget < balance1) {
+		next_lots = next_min_lots;
+
+		budget = balance1;
+	  }
 	}
   }
   
@@ -328,29 +339,31 @@ void OnTick()
   }else 
     new_global_tendency = 0;
 
-  if (global_tendency == 0)
-    global_tendency = new_global_tendency;
-
   printf("force %f->%f kdj %f->%f rsi %f->%f macd %f->%f bands %f->%f", last_force, current_force,
   		last_kdj, current_kdj,
 		last_rsi, current_rsi,
 		last_macd, current_macd,
 		last_bands, current_bands);
-  printf("force_s %f kdj_s %f rsi_s %f close_s %f ema_s %f macd_s %f bands_s %f global_tendency %d new_global_tendency %d",
-  		  force_s, kdj_s, rsi_s, close_s, ema_s, macd_s, bands_s, global_tendency, new_global_tendency);
+  printf("ema_s %f close_s %f global_tendency %d new_global_tendency %d",
+		 ema_s, close_s, global_tendency, new_global_tendency);
 
   if (new_global_tendency > 0 && global_tendency > 0 && OrdersTotal() < total_orders) {
     int buy_policy = 0; 
     int stoploss_policy = 1;
 	  double stoploss = 0.0;
+	  double base_stoploss;
 	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
 
+	  base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
 	  if (stoploss_policy == 1) {
 		stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
 	  } else 	    
-		stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
-	  
+		stoploss = base_stoploss;
+
+	  if (stoploss > base_stoploss)
+		stoploss = base_stoploss;
+
 	  // conditional buy
 	  if (buy_policy >= 1) {
 	    if (Ask >= iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1)) {
@@ -379,13 +392,18 @@ void OnTick()
     int stoploss_policy = 1;
 	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double stoploss = 0.0;
+	  double base_stoploss;
 	  double takeprofit = NormalizeDouble(Bid - profit_rate * stoplevel * Point,Digits);
-		
+
+	  base_stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
 	  if (stoploss_policy == 1) {
 		stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;	    
 	  } else
-		stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
+		stoploss = base_stoploss;
 
+	  if (stoploss < base_stoploss)
+		stoploss = base_stoploss;
+	  
 	  // conditional sell
 	  if (sell_policy >= 1) {
 		if (sell_policy == 2) { // close_s should not be too bigger
