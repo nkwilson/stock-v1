@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-23 20:28:21 nkyubin>
+// Time-stamp: <2016-10-23 22:26:51 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -55,7 +55,7 @@ int order_margin = 50;
 
 double viabality_percent = 0.01;  // 1% 
 
-double profit_rate = 1.3;
+double profit_rate = 2.0;
 
 int total_orders = 1;
 
@@ -68,6 +68,7 @@ int increase_lots_on_loss = 0;
 double budget;
 
 int no_stoploss = 0;
+
 
 //+------------------------------------------------------------------+
 //| Calculate open positions |
@@ -110,8 +111,6 @@ void CheckForClose(int ordertype,int force)
 
 	  if(!OrderClose(OrderTicket(),OrderLots(),Bid,30,White))
             Print("OrderClose error ",GetLastError());
-	  else
-	    i = 0;
         }
       else if(ordertype==OP_SELL && OrderType()==ordertype && (force || OrderOpenPrice()>Ask))
         {
@@ -120,8 +119,6 @@ void CheckForClose(int ordertype,int force)
 
 	  if(!OrderClose(OrderTicket(),OrderLots(),Ask,30,White))
             Print("OrderClose error ",GetLastError());
-	  else
-	    i = 0;
         }
     }
   //---
@@ -200,7 +197,7 @@ void AdjustOrder(int ordertype)
 	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
 	  // double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 	  //	  double takeprofit = NormalizeDouble(Ask + 2 * stoplevel * Point,Digits);
-	  double takeprofit = NormalizeDouble(Ask + (order_margin + stoplevel) * Point,Digits);
+	  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
 
 	  printf("ticket %d buy open %f should adjust to loss %f (base %f) profit %f",
 			 OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
@@ -208,8 +205,13 @@ void AdjustOrder(int ordertype)
 	  // adjust stop loss to open price     
 	  //	  if ((OrderOpenPrice() + order_margin * Point) < iClose(NULL, 0, 0))
 	  //  stoploss = OrderOpenPrice();
-         
-	  if(OrderStopLoss() < stoploss && stoploss < base_stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Blue))
+
+	  if (OrderTakeProfit() != 0.0)
+		stoploss = base_stoploss;
+	  else
+		takeprofit = 0;
+	  
+	  if(OrderStopLoss() < stoploss && stoploss <= base_stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, takeprofit, 0, Blue))
 //	  if(!OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Blue))
 	    Print("OrderModify error ",GetLastError());
         }
@@ -221,15 +223,20 @@ void AdjustOrder(int ordertype)
 	  //	  double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 
 	  //	  double takeprofit = NormalizeDouble(Bid - 2 * stoplevel * Point,Digits);
-	  double takeprofit = NormalizeDouble(Bid - (order_margin + stoplevel) * Point,Digits);
+	  double takeprofit = NormalizeDouble(Bid - profit_rate * stoplevel * Point,Digits);
 
 	  printf("ticket %d sell open %f should adjust to loss %f (base %f) profit %f",
 			 OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
 	  
 	  //if ((OrderOpenPrice() - order_margin * Point()) > iClose(NULL, 0, 0))
 	  //  stoploss = OrderOpenPrice();
-         
-	  if(OrderStopLoss() > stoploss && stoploss > base_stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Red))
+
+	  if (OrderTakeProfit() != 0.0)
+		stoploss = base_stoploss;
+	  else
+		takeprofit = 0;
+	  
+	  if(OrderStopLoss() > stoploss && stoploss >= base_stoploss && !OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, takeprofit, 0, Red))
 //	  if(!OrderModify(OrderTicket(),OrderOpenPrice(),stoploss, 0, 0, Red))
 	    Print("OrderModify error ",GetLastError());
         }
@@ -250,8 +257,9 @@ void OnTick()
   int new_global_tendency;
   int below_bands_up = 0; // only open buy when blow bands up 
   double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
+  int aggressive_lots = 0;
   
-  printf("Bars %d %f %f", Bars, budget, AccountBalance()+AccountProfit());
+  printf("Bars %d %f %f %f", Bars, budget, AccountBalance(), AccountProfit());
   
   //---
   if(Bars<13 || IsTradeAllowed()==false)
@@ -352,7 +360,12 @@ void OnTick()
   printf("ema_s %f close_s %f global_tendency %d new_global_tendency %d",
 		 ema_s, close_s, global_tendency, new_global_tendency);
 
-  if (new_global_tendency > 0 && global_tendency > 0 && (OrdersTotal() < total_orders || AccountProfit() > (stoplevel * Point))) {
+  if (OrdersTotal() >= total_orders) {
+	if (AccountProfit() > (OrdersTotal() * stoplevel * Point))
+	  aggressive_lots = 1;
+  }
+  
+  if (new_global_tendency > 0 && global_tendency > 0 && (OrdersTotal() < total_orders || aggressive_lots)) {
     int buy_policy = 0; 
     int stoploss_policy = 1;
 	  double stoploss = 0.0;
@@ -383,15 +396,26 @@ void OnTick()
 		}
 	  }
 
+	  if (aggressive_lots == 0) // limitted orders
+		takeprofit = 0;
+	  else if (close_s >= 0) {// only buy if negative
+		takeprofit = 0;
+		stoploss = 0;
+	  }
+	  
+	  // if need takeprofit then use limitted stoploss
+	  if (takeprofit > 0)
+		stoploss = base_stoploss;
+
 	  if (no_stoploss) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
 	    res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,0,0,"",0,0,Blue);
 	  } else if (stoploss != 0.0) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,stoploss,0,"",0,0,Blue);
+	    res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,stoploss,takeprofit,"",0,0,Blue);
 	  }
   }
-  else if (new_global_tendency < 0 && global_tendency < 0 && (OrdersTotal() < total_orders || AccountProfit() > (stoplevel * Point))) {
+  else if (new_global_tendency < 0 && global_tendency < 0 && (OrdersTotal() < total_orders || aggressive_lots)) {
 	int sell_policy = 0;
     int stoploss_policy = 1;
 	  double stoploss = 0.0;
@@ -418,12 +442,23 @@ void OnTick()
 		}
 	  }
 
+	  if (aggressive_lots == 0) // limitted orders
+		takeprofit = 0;
+	  else if (close_s <= 0) {// only sell if positive
+		takeprofit = 0;
+		stoploss = 0;
+	  }
+	  
+	  // if need takeprofit then use limitted stoploss
+	  if (takeprofit > 0)
+		stoploss = base_stoploss;
+	  
 	  if (no_stoploss) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
 	    res=OrderSend(Symbol(),OP_SELL,next_lots,Bid,3,0,0,"",0,0,Red);
 	  } else if (stoploss != 0.0) {
 	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_SELL,next_lots,Bid,3,stoploss,0,"",0,0,Red);
+		res=OrderSend(Symbol(),OP_SELL,next_lots,Bid,3,stoploss,takeprofit,"",0,0,Red);
 	  }
   }else if(global_tendency > 0) {
 	if (no_stoploss) {
