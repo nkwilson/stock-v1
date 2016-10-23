@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-23 20:15:16 nkyubin>
+// Time-stamp: <2016-10-23 20:23:29 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -248,6 +248,7 @@ void OnTick()
   int buy_s,sell_s;
   int new_global_tendency;
   int below_bands_up = 0; // only open buy when blow bands up 
+  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
   
   printf("Bars %d %f %f", Bars, budget, AccountBalance()+AccountProfit());
   
@@ -347,12 +348,11 @@ void OnTick()
   printf("ema_s %f close_s %f global_tendency %d new_global_tendency %d",
 		 ema_s, close_s, global_tendency, new_global_tendency);
 
-  if (new_global_tendency > 0 && global_tendency > 0 && OrdersTotal() < total_orders) {
+  if (new_global_tendency > 0 && global_tendency > 0 && (OrdersTotal() < total_orders || AccountProfit() > (stoplevel * Point))) {
     int buy_policy = 0; 
     int stoploss_policy = 1;
 	  double stoploss = 0.0;
 	  double base_stoploss;
-	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
 
 	  base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
@@ -387,10 +387,9 @@ void OnTick()
 	    res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,stoploss,0,"",0,0,Blue);
 	  }
   }
-  else if (new_global_tendency < 0 && global_tendency < 0 && OrdersTotal() < total_orders) {
+  else if (new_global_tendency < 0 && global_tendency < 0 && (OrdersTotal() < total_orders || AccountProfit() > (stoplevel * Point))) {
 	int sell_policy = 0;
     int stoploss_policy = 1;
-	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double stoploss = 0.0;
 	  double base_stoploss;
 	  double takeprofit = NormalizeDouble(Bid - profit_rate * stoplevel * Point,Digits);
@@ -479,7 +478,7 @@ void OnTick()
 
       if(AccountProfit() >=0)
         {
-	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
+		  //	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Ask + 2 * stoplevel * Point,Digits);
 
@@ -507,7 +506,7 @@ void OnTick()
 		
       if(AccountProfit() >= 0)
         {
-	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
+		  //	  double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
 	  double stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Bid - 2 * stoplevel * Point,Digits);
 
