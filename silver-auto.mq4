@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-22 23:01:25 nkyubin>
+// Time-stamp: <2016-10-24 08:22:10 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -63,7 +63,9 @@ int prev_orders = 0;
 double next_lots = 0.01;
 double next_min_lots=0.01;
 double balance1, balance2;
-
+double max_lots = 0.10;
+  
+double base_budget;
 double budget;
 
 int no_stoploss = 0;
@@ -249,7 +251,7 @@ void OnTick()
   int new_global_tendency;
   int below_bands_up = 0; // only open buy when blow bands up 
   
-  printf("Bars %d %f %f", Bars, budget, AccountBalance()+AccountProfit());
+  printf("Bars %d %f %f %f", Bars, budget, base_budget, AccountBalance()+AccountProfit());
   
   //---
   if(Bars<13 || IsTradeAllowed()==false)
@@ -298,22 +300,34 @@ void OnTick()
 	balance1 = AccountBalance();
 	balance2 = balance1;
 
-	budget = balance1;
+	base_budget = budget = balance1;
   }
   
   // orders changed, check balance
   if (OrdersTotal() == 0) {
-	if (balance2 != AccountBalance()) {
-	  balance2 = AccountBalance();
+	if (balance2 != (AccountBalance() + AccountProfit())) {
+	  balance2 = AccountBalance() + AccountProfit();
 	  
-	  if (balance1 >= balance2)
-		next_lots += next_min_lots;
-	  else if (next_lots > next_min_lots)
-		next_lots -= 2 * next_min_lots;
-
+	  if (balance1 >= balance2) {
+		if ((balance1 - balance2) > 4 * 500) // lost more than 2000
+		  next_lots = next_min_lots;
+		else
+		  next_lots += next_min_lots;
+	  } else {
+		if (budget > (base_budget + 500)) { // if profit bigger than 500$, reset loig
+		  base_budget += 500;
+		  next_lots = next_min_lots;
+		}
+		
+		if (next_lots > next_min_lots)
+		  next_lots -= 2 * next_min_lots;
+	  }
+	  
 	  if (next_lots < next_min_lots)
 		next_lots = next_min_lots;
-
+	  else if (next_lots > max_lots)
+		next_lots = max_lots;
+	  
 	  balance1 = balance2;
 
 	  // positive profit
@@ -321,6 +335,9 @@ void OnTick()
 		next_lots = next_min_lots;
 
 		budget = balance1;
+	  } else if (next_lots == max_lots) { // if drawback and max lots
+		budget -= 500; // down budget
+		base_budget = budget - 500;
 	  }
 	}
   }
