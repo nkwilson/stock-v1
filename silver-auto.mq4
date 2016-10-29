@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-29 21:39:59 nkyubin>
+// Time-stamp: <2016-10-29 22:01:39 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -345,10 +345,10 @@ void OnTick()
   } else if(force_s < 0 && kdj_s < 0 && rsi_s<0 && close_s<0 && macd_s<0 && bands_s<0) {
     new_global_tendency=-1;
   } else if (global_tendency > 0) {
-	if (bands_s > 0)  // bands_s is more bold for tendency
+	if (bands_s > 0 && macd_s > 0)  // bands_s is more bold for tendency
 	  new_global_tendency = 1;
   } else if (global_tendency < 0) {
-	if (bands_s < 0)
+	if (bands_s < 0 && macd_s < 0)
 	  new_global_tendency = -1;
   }else 
     new_global_tendency = 0;
