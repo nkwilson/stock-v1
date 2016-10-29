@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-29 22:01:39 nkyubin>
+// Time-stamp: <2016-10-29 22:11:22 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -57,7 +57,7 @@ double viabality_percent = 0.01;  // 1%
 
 double profit_rate = 2.0;
 
-int total_orders = 2;
+int total_orders = 1;
 
 int prev_orders = 0;
 double next_lots = 0.01;
@@ -363,7 +363,8 @@ void OnTick()
 
   if (OrdersTotal() >= total_orders) {
 	if (AccountProfit() > (OrdersTotal() * stoplevel * Point))
-	  aggressive_lots = 1;
+	  //	  aggressive_lots = 1;
+	  ;
   }
   
   if (new_global_tendency > 0 && global_tendency > 0 && (OrdersTotal() < total_orders || aggressive_lots)) {
