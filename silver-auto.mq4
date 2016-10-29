@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-23 22:26:51 nkyubin>
+// Time-stamp: <2016-10-29 21:39:59 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -57,13 +57,14 @@ double viabality_percent = 0.01;  // 1%
 
 double profit_rate = 2.0;
 
-int total_orders = 1;
+int total_orders = 2;
 
 int prev_orders = 0;
 double next_lots = 0.01;
+double max_lots = 0.64;
 double next_min_lots=0.01;
 double balance1, balance2;
-int increase_lots_on_loss = 0;
+int increase_lots_on_loss = 1;
 
 double budget;
 
@@ -289,8 +290,8 @@ void OnTick()
   ema_s=current_ema-last_ema;
 
   // iMACD()
-  current_macd=iMACD(NULL, 0, macd_fast, macd_slow, macd_signal, PRICE_CLOSE, MODE_MAIN, 1);
-  last_macd=iMACD(NULL, 0, macd_fast, macd_slow, macd_signal, PRICE_CLOSE, MODE_MAIN, 2);
+  current_macd=iMACD(NULL, 0, macd_fast, macd_slow, macd_signal, PRICE_CLOSE, MODE_SIGNAL, 1);
+  last_macd=iMACD(NULL, 0, macd_fast, macd_slow, macd_signal, PRICE_CLOSE, MODE_SIGNAL, 2);
   macd_s=current_macd-last_macd;
 
   // iBand()
