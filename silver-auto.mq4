@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-29 22:59:54 nkyubin>
+// Time-stamp: <2016-10-30 21:30:34 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -41,12 +41,12 @@ int rsi_period=5;
 int ema_period=7;
 //  int ema_period = 3;
 
-int macd_fast=12;
-int macd_slow=26;
-int macd_signal=9;
+int macd_fast=24;
+int macd_slow=52;
+int macd_signal=18;
 
-int bands_period=20;
-int bands_devia=2;
+int bands_period=30;
+int bands_devia=4;
 int bands_shift=0;
 
 int global_tendency=0;
@@ -340,15 +340,17 @@ void OnTick()
   }
   
   new_global_tendency = 0; 
-  if(force_s > 0 && kdj_s > 0 && rsi_s>0 && close_s>0 && macd_s>0 && bands_s>0) {
+  //  if(force_s > 0 && kdj_s > 0 && rsi_s>0 && close_s>0 && macd_s>0 && bands_s>0) {
+  if (bands_s > 0 && macd_s > 0) {
 	new_global_tendency=1;
-  } else if(force_s < 0 && kdj_s < 0 && rsi_s<0 && close_s<0 && macd_s<0 && bands_s<0) {
+	//  } else if(force_s < 0 && kdj_s < 0 && rsi_s<0 && close_s<0 && macd_s<0 && bands_s<0) {
+  } else if (bands_s < 0 && macd_s < 0) {
     new_global_tendency=-1;
   } else if (global_tendency > 0) {
-	if (bands_s > 0 && macd_s > 0)  // bands_s is more bold for tendency
+	if (bands_s > 0)  // bands_s is more bold for tendency
 	  new_global_tendency = 1;
   } else if (global_tendency < 0) {
-	if (bands_s < 0 && macd_s < 0)
+	if (bands_s < 0)
 	  new_global_tendency = -1;
   }else 
     new_global_tendency = 0;
