@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-30 21:30:34 nkyubin>
+// Time-stamp: <2016-10-30 21:56:37 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -378,7 +378,8 @@ void OnTick()
 
 	  base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
 	  if (stoploss_policy == 1) {
-		stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
+		stoploss = (iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) +
+					iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_LOWER, 1))/2;
 	  } else 	    
 		stoploss = base_stoploss;
 
@@ -428,7 +429,8 @@ void OnTick()
 
 	  base_stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
 	  if (stoploss_policy == 1) {
-		stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;	    
+		stoploss = (iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) +
+					iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1))/2;
 	  } else
 		stoploss = base_stoploss;
 
