@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-31 22:38:50 nkyubin>
+// Time-stamp: <2016-10-31 22:50:24 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -45,7 +45,7 @@ int macd_fast=24;
 int macd_slow=52;
 int macd_signal=18;
 
-int bands_period=30;
+int bands_period=51;
 int bands_devia=4;
 int bands_shift=0;
 
@@ -57,7 +57,7 @@ double viabality_percent = 0.01;  // 1%
 
 double profit_rate = 2.0;
 
-int total_orders = 3;
+int total_orders = 2;
 
 int prev_orders = 0;
 double next_lots = 0.01;
