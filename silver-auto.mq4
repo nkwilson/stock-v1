@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-30 21:56:37 nkyubin>
+// Time-stamp: <2016-10-31 20:34:41 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -194,7 +194,8 @@ void AdjustOrder(int ordertype)
       if(ordertype==OP_BUY && OrderType()==ordertype)
         {
 		  double base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
-	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) - stoplevel * Point;
+		  double stoploss = (iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) +
+							 iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_LOWER, 1))/2;
 	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
 	  // double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 	  //	  double takeprofit = NormalizeDouble(Ask + 2 * stoplevel * Point,Digits);
@@ -219,7 +220,8 @@ void AdjustOrder(int ordertype)
       else if(ordertype==OP_SELL && OrderType()==ordertype)
         {
 		  double base_stoploss = NormalizeDouble(Ask+stoplevel * Point,Digits);
-	  double stoploss = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) + stoplevel * Point;
+	  double stoploss =  (iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) +
+						  iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1))/2;
 	  // double bands = iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1);
 	  //	  double ema = iMA(NULL,0,ema_period,0,MODE_EMA,PRICE_CLOSE,1);
 
