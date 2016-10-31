@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-31 20:34:41 nkyubin>
+// Time-stamp: <2016-10-31 22:13:03 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -61,7 +61,7 @@ int total_orders = 2;
 
 int prev_orders = 0;
 double next_lots = 0.01;
-double max_lots = 0.64;
+double max_lots = 1.0;
 double next_min_lots=0.01;
 double balance1, balance2;
 int increase_lots_on_loss = 1;
@@ -320,9 +320,12 @@ void OnTick()
 	  balance2 = AccountBalance();
 
 	  if (increase_lots_on_loss) {
-		if (balance1 >= balance2)
+		if (balance1 >= balance2) {
 		  next_lots += next_min_lots;
-		else if (next_lots > next_min_lots)
+		  
+		  if (next_lots > max_lots)
+			next_lots = max_lots;
+		} else if (next_lots > next_min_lots)
 		  next_lots -= 2 * next_min_lots;
 
 		if (next_lots < next_min_lots)
