@@ -1,3 +1,10 @@
+commit:30a640a
+2010:1280,6142,404
+2011:4551,19443,14443
+2014:2286,5480,-1745(max_lots=0.1)
+2015:2811,5220,-2108
+
+
 commit:bca89d5,
 year:min-balance,max-balance,net-profit:4H/1D
 
