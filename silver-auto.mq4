@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-31 22:23:31 nkyubin>
+// Time-stamp: <2016-10-31 22:38:50 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -57,7 +57,7 @@ double viabality_percent = 0.01;  // 1%
 
 double profit_rate = 2.0;
 
-int total_orders = 1;
+int total_orders = 3;
 
 int prev_orders = 0;
 double next_lots = 0.01;
