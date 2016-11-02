@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-11-01 22:29:43 nkyubin>
+// Time-stamp: <2016-11-02 22:23:44 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -10,25 +10,6 @@
 #property link "https://www.mql5.com"
 #property version "1.48"
 #property strict
-
-//+------------------------------------------------------------------+
-//| Expert initialization function |
-//+------------------------------------------------------------------+
-int OnInit()
-{
-  //---
-
-  //---
-  return(INIT_SUCCEEDED);
-}
-//+------------------------------------------------------------------+
-//| Expert deinitialization function |
-//+------------------------------------------------------------------+
-void OnDeinit(const int reason)
-{
-  //---
-
-}
 
 int force_period=13;
 
@@ -70,6 +51,30 @@ double budget;
 
 int no_stoploss = 0;
 
+int verbose = 0; // 1:summary; 2:detail
+
+double init_balance=0, min_balance=0, max_balance=0;
+
+
+//+------------------------------------------------------------------+
+//| Expert initialization function |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+  //---
+  max_balance = min_balance = init_balance=AccountBalance();
+
+  //---
+  return(INIT_SUCCEEDED);
+}
+//+------------------------------------------------------------------+
+//| Expert deinitialization function |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+  //---
+  printf("%f,%f,%f", min_balance, max_balance, AccountBalance()-init_balance);
+}
 
 //+------------------------------------------------------------------+
 //| Calculate open positions |
@@ -107,16 +112,18 @@ void CheckForClose(int ordertype,int force)
       //--- check order type
       if(ordertype==OP_BUY && OrderType()==ordertype && (force || OrderOpenPrice()<Bid))
         {
-	  printf("ticket %d buy open %f %sclose at %f",
-		 OrderTicket(), OrderOpenPrice(), force ? "forced " : "" , Bid);
+		  if (verbose >= 2)
+			printf("ticket %d buy open %f %sclose at %f",
+				   OrderTicket(), OrderOpenPrice(), force ? "forced " : "" , Bid);
 
 	  if(!OrderClose(OrderTicket(),OrderLots(),Bid,30,White))
             Print("OrderClose error ",GetLastError());
         }
       else if(ordertype==OP_SELL && OrderType()==ordertype && (force || OrderOpenPrice()>Ask))
         {
-	  printf("ticket %d sell open %f %sclose at %f",
-		 OrderTicket(), OrderOpenPrice(), force ? "forced " : "" , Ask);
+		  if (verbose >= 2)
+			printf("ticket %d sell open %f %sclose at %f",
+				   OrderTicket(), OrderOpenPrice(), force ? "forced " : "" , Ask);
 
 	  if(!OrderClose(OrderTicket(),OrderLots(),Ask,30,White))
             Print("OrderClose error ",GetLastError());
@@ -201,9 +208,10 @@ void AdjustOrder(int ordertype)
 	  //	  double takeprofit = NormalizeDouble(Ask + 2 * stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
 
-	  printf("ticket %d buy open %f should adjust to loss %f (base %f) profit %f",
-			 OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
-
+	  if (verbose >= 2)
+		printf("ticket %d buy open %f should adjust to loss %f (base %f) profit %f",
+			   OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
+	  
 	  // adjust stop loss to open price     
 	  //	  if ((OrderOpenPrice() + order_margin * Point) < iClose(NULL, 0, 0))
 	  //  stoploss = OrderOpenPrice();
@@ -228,8 +236,9 @@ void AdjustOrder(int ordertype)
 	  //	  double takeprofit = NormalizeDouble(Bid - 2 * stoplevel * Point,Digits);
 	  double takeprofit = NormalizeDouble(Bid - profit_rate * stoplevel * Point,Digits);
 
-	  printf("ticket %d sell open %f should adjust to loss %f (base %f) profit %f",
-			 OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
+	  if (verbose >= 2)
+		printf("ticket %d sell open %f should adjust to loss %f (base %f) profit %f",
+			   OrderTicket(), OrderOpenPrice(), stoploss, base_stoploss, takeprofit);
 	  
 	  //if ((OrderOpenPrice() - order_margin * Point()) > iClose(NULL, 0, 0))
 	  //  stoploss = OrderOpenPrice();
@@ -261,13 +270,21 @@ void OnTick()
   int below_bands_up = 0; // only open buy when blow bands up 
   double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
   int aggressive_lots = 0;
-  
-  printf("Bars %d %f %f %f", Bars, budget, AccountBalance(), AccountProfit());
+
+  if (verbose >= 1)
+	printf("Bars %d %f %f %f", Bars, budget, AccountBalance(), AccountProfit());
+
+  if (min_balance > (AccountBalance() + AccountProfit()))
+	min_balance = AccountProfit() + AccountBalance();
+  if (max_balance < (AccountBalance() + AccountProfit()))
+	max_balance = AccountProfit() + AccountBalance();
   
   //---
   if(Bars<13 || IsTradeAllowed()==false)
     {
-      Print("bars less than 100");
+	  if (verbose >= 1)
+		Print("bars less than 100");
+  
       return;
     }
 
@@ -360,14 +377,16 @@ void OnTick()
   }else 
     new_global_tendency = 0;
 
-  printf("force %f->%f kdj %f->%f rsi %f->%f macd %f->%f bands %f->%f", last_force, current_force,
-  		last_kdj, current_kdj,
-		last_rsi, current_rsi,
-		last_macd, current_macd,
-		last_bands, current_bands);
-  printf("ema_s %f close_s %f global_tendency %d new_global_tendency %d",
-		 ema_s, close_s, global_tendency, new_global_tendency);
-
+  if (verbose >= 2) {
+	printf("force %f->%f kdj %f->%f rsi %f->%f macd %f->%f bands %f->%f", last_force, current_force,
+		   last_kdj, current_kdj,
+		   last_rsi, current_rsi,
+		   last_macd, current_macd,
+		   last_bands, current_bands);
+	printf("ema_s %f close_s %f global_tendency %d new_global_tendency %d",
+		   ema_s, close_s, global_tendency, new_global_tendency);
+  }
+  
   if (OrdersTotal() >= total_orders) {
 	if (AccountProfit() > (OrdersTotal() * stoplevel * Point))
 	  //	  aggressive_lots = 1;
@@ -418,10 +437,14 @@ void OnTick()
 		stoploss = base_stoploss;
 
 	  if (no_stoploss) {
-	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
-	    res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,0,0,"",0,0,Blue);
+		if (verbose >= 1)
+		  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	    
+		res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,0,0,"",0,0,Blue);
 	  } else if (stoploss != 0.0) {
-	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		if (verbose >= 1)
+		  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		
 	    res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,stoploss,takeprofit,"",0,0,Blue);
 	  }
   }
@@ -465,10 +488,14 @@ void OnTick()
 		stoploss = base_stoploss;
 	  
 	  if (no_stoploss) {
-	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		if (verbose >= 1)
+		  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		
 	    res=OrderSend(Symbol(),OP_SELL,next_lots,Bid,3,0,0,"",0,0,Red);
 	  } else if (stoploss != 0.0) {
-	    printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		if (verbose >= 1)
+		  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		
 		res=OrderSend(Symbol(),OP_SELL,next_lots,Bid,3,stoploss,takeprofit,"",0,0,Red);
 	  }
   }else if(global_tendency > 0) {
