@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-10-31 22:50:24 nkyubin>
+// Time-stamp: <2016-11-01 22:29:43 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -45,7 +45,7 @@ int macd_fast=24;
 int macd_slow=52;
 int macd_signal=18;
 
-int bands_period=51;
+int bands_period=30;
 int bands_devia=4;
 int bands_shift=0;
 
