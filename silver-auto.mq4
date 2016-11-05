@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-11-05 22:41:10 nkyubin>
+// Time-stamp: <2016-11-05 23:18:33 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -587,7 +587,7 @@ void OnTick()
 	  }
 	} else {
 	  if (bands_s <= 0)
-		CheckForClose(OP_BUY, 1);
+		; //CheckForClose(OP_BUY, 1);
 	  else {
 		AdjustOrder(OP_BUY);
 		
@@ -710,7 +710,7 @@ void OnTick()
 	  }
 	} else {
 	  if (bands_s >= 0)
-		CheckForClose(OP_SELL, 1);
+		; //CheckForClose(OP_SELL, 1);
 	  else {
 		AdjustOrder(OP_SELL);
 
