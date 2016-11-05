@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-11-05 20:55:57 nkyubin>
+// Time-stamp: <2016-11-05 22:41:10 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -266,6 +266,7 @@ void OnTick()
 
   double current_force,current_kdj,current_ema,current_rsi, current_macd, current_bands, current_adx_p_di, current_adx_n_di;
   double last_force,last_kdj,last_ema,last_rsi, last_macd, last_bands, last_adx_p_di, last_adx_n_di;
+  double prev_last_adx_p_di, prev_last_adx_n_di;
   double force_s,kdj_s,rsi_s,ema_s,close_s, macd_s, bands_s, adx_di_s;
   int buy_s,sell_s;
   int new_global_tendency;
@@ -326,11 +327,21 @@ void OnTick()
    current_adx_n_di = iADX(NULL, 0, adx_period, PRICE_CLOSE, MODE_MINUSDI, 1);
    last_adx_p_di = iADX(NULL, 0, adx_period, PRICE_CLOSE, MODE_PLUSDI, 2);
    last_adx_n_di = iADX(NULL, 0, adx_period, PRICE_CLOSE, MODE_MINUSDI, 2);
+   prev_last_adx_p_di = iADX(NULL, 0, adx_period, PRICE_CLOSE, MODE_PLUSDI, 3);
+   prev_last_adx_n_di = iADX(NULL, 0, adx_period, PRICE_CLOSE, MODE_MINUSDI, 3);
 
    adx_di_s = 0;
-   if (current_adx_p_di > current_adx_n_di &&
+   if (((prev_last_adx_p_di < prev_last_adx_n_di) || //cross bewteen 
+		(prev_last_adx_p_di < last_adx_p_di && prev_last_adx_n_di > last_adx_n_di)) &&  // or one way going on 
+	   current_adx_p_di > current_adx_n_di &&
 	   (current_adx_p_di - current_adx_n_di) > (last_adx_p_di - last_adx_n_di))
 	 adx_di_s = -1;
+   else if (((prev_last_adx_p_di > prev_last_adx_n_di) || // cross bewteen
+			(prev_last_adx_p_di > last_adx_p_di && prev_last_adx_n_di < last_adx_n_di)) && // or one way going on 
+			current_adx_p_di < current_adx_n_di &&
+			(current_adx_p_di - current_adx_n_di) < (last_adx_p_di - last_adx_n_di))
+	 adx_di_s = 1;
+			
 
 
   buy_s=0;
@@ -515,13 +526,127 @@ void OnTick()
 	if (no_stoploss) {
 	  if (bands_s <= 0)
 		CheckForCloseWithProfit(OP_BUY);
-	  else
+	  else {
 		AdjustOrder(OP_BUY);
+
+		if (adx_di_s > 0) {
+		  int buy_policy = 0; 
+		  int stoploss_policy = 1;
+		  double stoploss = 0.0;
+		  double base_stoploss;
+		  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
+
+		  base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
+		  if (stoploss_policy == 1) {
+			stoploss = (iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) +
+						iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_LOWER, 1))/2;
+		  } else 	    
+			stoploss = base_stoploss;
+
+		  if (stoploss > base_stoploss)
+			stoploss = base_stoploss;
+
+		  // conditional buy
+		  if (buy_policy >= 1) {
+			if (Ask >= iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1)) {
+			  stoploss = 0.0;
+			}
+
+			if (buy_policy == 2) { // close_s should not be too bigger
+			  if (fabs(close_s) > 0.2)
+				stoploss = 0.0;
+			}else if (buy_policy == 3) { // open and close should not be too bigger
+			  if (fabs(iClose(NULL, 0, 1) - iOpen(NULL, 0, 1)) > 0.2)
+				stoploss = 0.0;
+			}
+		  }
+
+		  if (aggressive_lots == 0) // limitted orders
+			takeprofit = 0;
+		  else if (close_s >= 0) {// only buy if negative
+			takeprofit = 0;
+			stoploss = 0;
+		  }
+	  
+		  // if need takeprofit then use limitted stoploss
+		  if (takeprofit > 0)
+			stoploss = base_stoploss;
+
+		  if (no_stoploss) {
+			if (verbose >= 1)
+			  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	    
+			res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,0,0,"",0,0,Blue);
+		  } else if (stoploss != 0.0) {
+			if (verbose >= 1)
+			  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		
+			res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,stoploss,takeprofit,"",0,0,Blue);
+		  }
+		}
+	  }
 	} else {
 	  if (bands_s <= 0)
 		CheckForClose(OP_BUY, 1);
-	  else
+	  else {
 		AdjustOrder(OP_BUY);
+		
+		if (adx_di_s > 0) {
+		  int buy_policy = 0; 
+		  int stoploss_policy = 1;
+		  double stoploss = 0.0;
+		  double base_stoploss;
+		  double takeprofit = NormalizeDouble(Ask + profit_rate * stoplevel * Point,Digits);
+
+		  base_stoploss = NormalizeDouble(Bid-stoplevel * Point,Digits);
+		  if (stoploss_policy == 1) {
+			stoploss = (iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_MAIN, 1) +
+						iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_LOWER, 1))/2;
+		  } else 	    
+			stoploss = base_stoploss;
+
+		  if (stoploss > base_stoploss)
+			stoploss = base_stoploss;
+
+		  // conditional buy
+		  if (buy_policy >= 1) {
+			if (Ask >= iBands(NULL, 0, bands_period, bands_devia, bands_shift, PRICE_CLOSE, MODE_UPPER, 1)) {
+			  stoploss = 0.0;
+			}
+
+			if (buy_policy == 2) { // close_s should not be too bigger
+			  if (fabs(close_s) > 0.2)
+				stoploss = 0.0;
+			}else if (buy_policy == 3) { // open and close should not be too bigger
+			  if (fabs(iClose(NULL, 0, 1) - iOpen(NULL, 0, 1)) > 0.2)
+				stoploss = 0.0;
+			}
+		  }
+
+		  if (aggressive_lots == 0) // limitted orders
+			takeprofit = 0;
+		  else if (close_s >= 0) {// only buy if negative
+			takeprofit = 0;
+			stoploss = 0;
+		  }
+	  
+		  // if need takeprofit then use limitted stoploss
+		  if (takeprofit > 0)
+			stoploss = base_stoploss;
+
+		  if (no_stoploss) {
+			if (verbose >= 1)
+			  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+	    
+			res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,0,0,"",0,0,Blue);
+		  } else if (stoploss != 0.0) {
+			if (verbose >= 1)
+			  printf("orders %d->%d", OrdersTotal(), OrdersTotal()+1);
+		
+			res=OrderSend(Symbol(),OP_BUY,next_lots,Ask,3,stoploss,takeprofit,"",0,0,Blue);
+		  }
+		}
+	  }
 	}
   }else if(global_tendency < 0) {
 	if (no_stoploss) {
@@ -639,8 +764,7 @@ void OnTick()
 		
 			res=OrderSend(Symbol(),OP_SELL,next_lots,Bid,3,stoploss,takeprofit,"",0,0,Red);
 		  }
-
-		}		
+		}
 	  }
 	}
   }else if (bands_s < 0) {
