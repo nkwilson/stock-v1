@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-11-06 09:25:12 nkyubin>
+// Time-stamp: <2016-11-06 21:06:05 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -56,6 +56,7 @@ int no_stoploss = 0;
 int verbose = 0; // 1:summary; 2:detail
 
 double init_balance=0, min_balance=0, max_balance=0;
+double init_freemargin,  min_freemargin, max_freemagrin;
 
 
 //+------------------------------------------------------------------+
@@ -65,6 +66,7 @@ int OnInit()
 {
   //---
   max_balance = min_balance = init_balance=AccountBalance();
+  init_freemargin = min_freemargin = max_freemagrin = AccountFreeMargin();
 
   //---
   return(INIT_SUCCEEDED);
@@ -75,7 +77,8 @@ int OnInit()
 void OnDeinit(const int reason)
 {
   //---
-  printf("%f,%f,%f", min_balance, max_balance, AccountBalance()-init_balance);
+  printf("balance: %f,%f,%f", min_balance, max_balance, AccountBalance()-init_balance);
+  printf("freemargin: %f,%f,%f", min_freemargin, max_freemagrin, AccountFreeMargin());
 }
 
 //+------------------------------------------------------------------+
@@ -100,6 +103,35 @@ int CalculateCurrentOrders(string symbol,int ordertype)
   if(ordertype == OP_BUY) return buys;
   else return (-sells);
 }
+
+// Return the recent open order's price
+double FindRecentOrderPrice(string symbol, int ordertype)
+{
+  double openprice = 0;
+  
+  for (int i=OrdersTotal()-1;i>=0;i--) {
+	if(OrderSelect(i,SELECT_BY_POS,MODE_TRADES)==false) break;
+	
+	if(OrderSymbol()==symbol) {
+	  if(OrderType()==OP_BUY) {
+		if (openprice == 0)
+		  openprice = OrderOpenPrice();
+		else if (openprice < OrderOpenPrice())
+		   openprice = OrderOpenPrice();
+	  }else if(OrderType()==OP_SELL) {
+	    if (openprice == 0)
+		  openprice = OrderOpenPrice();
+		else if (openprice > OrderOpenPrice())
+		  openprice = OrderOpenPrice();
+	  }
+	}
+  }
+
+  Print("open ", openprice);
+  
+  return openprice;
+}
+
 //+------------------------------------------------------------------+
 //| Check for close order conditions |
 //+------------------------------------------------------------------+
@@ -276,11 +308,18 @@ void OnTick()
 
   if (verbose >= 1)
 	printf("Bars %d %f %f %f", Bars, budget, AccountBalance(), AccountProfit());
-
+  if (verbose >= 1)
+	printf(" %f", AccountFreeMargin());
+  
   if (min_balance > (AccountBalance() + AccountProfit()))
 	min_balance = AccountProfit() + AccountBalance();
   if (max_balance < (AccountBalance() + AccountProfit()))
 	max_balance = AccountProfit() + AccountBalance();
+
+  if (min_freemargin > AccountFreeMargin())
+	min_freemargin = AccountFreeMargin();
+  if (max_freemagrin < AccountFreeMargin())
+	max_freemagrin = AccountFreeMargin();
   
   //---
   if(Bars<13 || IsTradeAllowed()==false)
@@ -529,7 +568,7 @@ void OnTick()
 	  else {
 		AdjustOrder(OP_BUY);
 
-		if (adx_di_s > 0) {
+		if (adx_di_s > 0 && Ask > FindRecentOrderPrice(Symbol(), OP_BUY)) {
 		  int buy_policy = 0; 
 		  int stoploss_policy = 1;
 		  double stoploss = 0.0;
@@ -591,7 +630,7 @@ void OnTick()
 	  else {
 		AdjustOrder(OP_BUY);
 		
-		if (adx_di_s > 0) {
+		if (adx_di_s > 0 && Ask > FindRecentOrderPrice(Symbol(), OP_BUY)) {
 		  int buy_policy = 0; 
 		  int stoploss_policy = 1;
 		  double stoploss = 0.0;
@@ -655,7 +694,7 @@ void OnTick()
 	  else {
 		AdjustOrder(OP_SELL);
 
-		if (adx_di_s < 0) {
+		if (adx_di_s < 0 && Bid < FindRecentOrderPrice(Symbol(), OP_SELL)) {
 		  int sell_policy = 0;
 		  int stoploss_policy = 1;
 		  double stoploss = 0.0;
@@ -714,7 +753,7 @@ void OnTick()
 	  else {
 		AdjustOrder(OP_SELL);
 
-		if (adx_di_s < 0) {
+		if (adx_di_s < 0 && Bid < FindRecentOrderPrice(Symbol(), OP_SELL)) {
 		  int sell_policy = 0;
 		  int stoploss_policy = 1;
 		  double stoploss = 0.0;
