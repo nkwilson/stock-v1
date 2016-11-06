@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-11-06 21:06:05 nkyubin>
+// Time-stamp: <2016-11-06 22:31:21 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -41,10 +41,11 @@ double viabality_percent = 0.01;  // 1%
 double profit_rate = 2.0;
 
 int total_orders = 2;
+double multi_rate = 1.5; // for open more orders, total_orders must not bigger than multi_rate * total_orders
 
 int prev_orders = 0;
 double next_lots = 0.01;
-double max_lots = 1.0;
+double max_lots = 0.01;
 double next_min_lots=0.01;
 double balance1, balance2;
 int increase_lots_on_loss = 1;
@@ -627,7 +628,7 @@ void OnTick()
 	} else {
 	  if (bands_s <= 0)
 		; //CheckForClose(OP_BUY, 1);
-	  else {
+	  else if (CalculateCurrentOrders(Symbol(), OP_BUY) < multi_rate * total_orders) {
 		AdjustOrder(OP_BUY);
 		
 		if (adx_di_s > 0 && Ask > FindRecentOrderPrice(Symbol(), OP_BUY)) {
@@ -750,7 +751,7 @@ void OnTick()
 	} else {
 	  if (bands_s >= 0)
 		; //CheckForClose(OP_SELL, 1);
-	  else {
+	  else if (CalculateCurrentOrders(Symbol(), OP_SELL) > (-1 * multi_rate * total_orders)) {
 		AdjustOrder(OP_SELL);
 
 		if (adx_di_s < 0 && Bid < FindRecentOrderPrice(Symbol(), OP_SELL)) {
