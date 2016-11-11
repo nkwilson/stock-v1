@@ -8,7 +8,7 @@ python2.7 scan-fenji-funds-for-candidate.py 2>&1 > /dev/null # output: fenji-fun
 
 suffix=$(date +%Y-%m-%d)
 
-if [ "${OSTYPE}" = "darwin15" ]; then
+if [ "${OSTYPE}" = "darwin15" -o "${OSTYPE}" = "darwin16" ]; then
     last_fri=$(date -v-fri +%Y-%m-%d)
 else
     last_fri=$(date +%Y-%m-%d --date="Fri")
