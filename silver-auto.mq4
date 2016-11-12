@@ -1,5 +1,5 @@
 // ; -*- mode: c; tab-width: 4; -*-
-// Time-stamp: <2016-11-06 22:31:21 nkyubin>
+// Time-stamp: <2016-11-12 21:23:28 nkyubin>
 //+------------------------------------------------------------------+
 //| stock-v1.mq4 |
 //| Copyright 2016, MetaQuotes Software Corp. |
@@ -59,6 +59,10 @@ int verbose = 0; // 1:summary; 2:detail
 double init_balance=0, min_balance=0, max_balance=0;
 double init_freemargin,  min_freemargin, max_freemagrin;
 
+int prefered_chart = PERIOD_H4;
+
+int nbars_triggered;  // prompt trigger, if not triggered, prompt
+int nbars;  // record current bars
 
 //+------------------------------------------------------------------+
 //| Expert initialization function |
@@ -307,6 +311,20 @@ void OnTick()
   double stoplevel= MarketInfo(Symbol(),MODE_STOPLEVEL);
   int aggressive_lots = 0;
 
+  if (prefered_chart != ChartPeriod(0)) {
+	Print("Not in prefered chart: ", Period());
+	return;
+  }
+  if (nbars == Bars) {
+	if (nbars_triggered == 0) {
+	  Print("wait until next valid bar");
+	  nbars_triggered = 1;
+	}
+	return;
+  }
+  nbars_triggered = 0;
+  nbars = Bars;
+  
   if (verbose >= 1)
 	printf("Bars %d %f %f %f", Bars, budget, AccountBalance(), AccountProfit());
   if (verbose >= 1)
