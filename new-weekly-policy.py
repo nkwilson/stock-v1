@@ -74,7 +74,7 @@ stocks=[
 def new_weekly_policy ():
         lodgers=None
 
-        only_lastest_weeks = 50 # lastest 50 weeks
+        only_lastest_weeks = 5000 # lastest 50 weeks
         selling_good_deals=-1
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
