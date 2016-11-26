@@ -53,11 +53,28 @@ stocks=[
 	['300104.SZ', '乐视网'],
 	['000651.SZ', '格力电器'],
         ['600887.SS', '伊利股份'],
+        ['600839.SS', '四川长虹'],
+        ['002308.SZ', '威创股份'], # 幼儿教育产业
+        ['002638.SZ', '勤上光电'],
+        ['300160.SZ', '秀强股份'],
+        ['510050.SS',  '50ETF'],
+        ['510300.SS',  '300ETF'],
+        ['510500.SS',  '500ETF'],
+        ['511010.SS',  '国债ETF'],                    
+        ['518800.SS', '黄金基金'],
+        ['159920.SS', '恒生ETF'],
+        ['510900.SS', 'H股ETF'],
+        ['159915.SZ', '创业板'],
+        ['159902.SZ', '中小板'],
+        ['150023.SZ', '深成指B'],          
+        ['150201.SZ', '券商B'],
+        ['150153.SZ', '创业板B'],
 ]
 
 def new_weekly_policy ():
         lodgers=None
 
+        only_lastest_weeks = 50 # lastest 50 weeks
         selling_good_deals=-1
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
@@ -73,14 +90,18 @@ def new_weekly_policy ():
         show_summary=0
         total_op_count=0
         show_verbose=0
-        
-        for i in range(data['signal'].count()):
+
+        count = data['signal'].count()
+        for i in range(count):
             if show_verbose > 0 :
                 print '### round %d' % i 
                 print data.iloc[i][['open', 'volume']] 
             if data['volume'][i] == 0:
                 continue
 
+            if i < (count - only_lastest_weeks):
+                continue
+        
             if selling_good_deals == 0 and next_buy==0 and next_half_buy==0 and next_steady_buy == 0:
                 continue
 

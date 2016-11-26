@@ -9,7 +9,8 @@ funds=LoadCode.load_etf_code()
 
 summary=None
 
-ss_funds=[[510050,  '50ETF'],
+ss_funds=[
+    [510050,  '50ETF'],
           [510300,  '300ETF'],
           [510500,  '500ETF'],
           [511010,  '国债ETF'],                    
@@ -39,11 +40,10 @@ for i in ss_funds:
 
 sz_funds=[[159915, '创业板'],
           [159902, '中小板'],
-          [150023, '深成指B'],          
           ]
 for i in sz_funds:
     try:
-        ret = StockSignal.stock_signal_w_new_find_candidate('%s.SZ' % i[0])
+        ret = StockSignal.stock_signal_w_new_find_candidate('%s.SS' % i[0])
     except Exception, ex:
         print i[1]
         ret = None
