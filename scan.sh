@@ -21,9 +21,9 @@ if [ "${week_day}" -ge "5" ]; then
     last_key_day=$last_fri
 fi
 
-python2.7 select-based-weekly-candidate.py select_base_weekly_candidate scan-these-stocks-candidates-${suffix}.csv "${last_key_day}"
-python2.7 select-based-weekly-candidate.py select_base_weekly_candidate scan-this-funds-candidates-$suffix.csv "${last_key_day}"
-python2.7 select-based-weekly-candidate.py select_base_weekly_candidate fenji-funds-candidates-$suffix.csv "${last_key_day}"
+# python2.7 select-based-weekly-candidate.py select_base_weekly_candidate scan-these-stocks-candidates-${suffix}.csv "${last_key_day}"
+# python2.7 select-based-weekly-candidate.py select_base_weekly_candidate scan-this-funds-candidates-$suffix.csv "${last_key_day}"
+# python2.7 select-based-weekly-candidate.py select_base_weekly_candidate fenji-funds-candidates-$suffix.csv "${last_key_day}"
 
 python2.7 new-weekly-policy.py
 
