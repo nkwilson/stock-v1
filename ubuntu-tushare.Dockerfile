@@ -12,4 +12,5 @@ RUN  echo 'Asia/ShangHai' > /etc/timezone  &&
  pip install astropy &&
  pip install tushare &&
  pip install pp &&
- pip install --upgrade pip &&
+ pip install --upgrade pip 
+
