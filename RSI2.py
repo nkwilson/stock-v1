@@ -16,7 +16,7 @@ def RSI(hist_data, period):
         if i >= period:
             data['A'][i]=data['X'][i-period:i].apply(lambda x: x if x > 0 else 0).sum()
             data['B'][i]=data['X'][i-period:i].apply(lambda x: x if x < 0 else 0).sum()
-            data['RSI'][i]=data['A'][i]/(data['A'][i]-data['B'][i]) *100
+            data['RSI'][i]=data['A'][i]/(data['A'][i]-data['B'][i]+0.0000001) * 100
 
         data['RSI_s'][i]= 1 if data['RSI'][i]>data['RSI'][i-1] else 0
     
