@@ -96,6 +96,36 @@ def calculate_stock_signal_new(hist_data):
                 
     return all_data.join(data)
 
+def stock_signal_new_4(stock, type, start, end):
+    filename='%s%s-all-data.csv' % (stock, type)
+
+    need_update=True
+    if os.path.isfile(filename):
+        all_data=pandas.read_csv(filename, index_col=0)
+        
+        saved_end=all_data.index[all_data.index.size - 1]
+        if end == '':
+            end=pandas.datetime.now()
+        else:
+            end=pandas.datetime.strptime(end, '%Y-%m-%d')
+        if end > pandas.datetime.now():
+            end=pandas.datetime.now()
+            
+        if cmp(type, 'w')==0: # need week data
+            delta=datetime.timedelta(-end.weekday())
+            end+=delta
+
+        need_update=cmp(saved_end, end.strftime('%Y-%m-%d'))!=0
+
+    if need_update:
+        hist_data=StockPrice.StockPrice_4(stock, type, start, end)
+        
+        all_data=calculate_stock_signal_new(hist_data)
+        
+        all_data.to_csv(filename)
+    
+    return all_data
+    
 def stock_signal_new_2(stock, type):
     filename='%s%s-all-data.csv' % (stock, type)
 
@@ -123,8 +153,8 @@ def stock_signal_new_2(stock, type):
 def stock_signal_d_new(stock):
     return stock_signal_new_2(stock, 'd')
 
-def stock_signal_w_new(stock):
-    return stock_signal_new_2(stock, 'w')
+def stock_signal_w_new(stock, start='', end=''):
+    return stock_signal_new_4(stock, 'w', start, end)
 
 def stock_signal_d_new_sum(stock):
     all_data=stock_signal_d_new(stock)
@@ -168,7 +198,7 @@ def do_pick_out(all_data):
             pick_it = -1
     return pick_it
 
-def stock_signal_d_new_find_candidate(stock):
+def stock_signal_d_new_find_candidate(stock, start='2016-01-01', end='2016-12-31'):
     all_data=stock_signal_d_new(stock)
 
     count=all_data['signal'].count()
@@ -178,8 +208,8 @@ def stock_signal_d_new_find_candidate(stock):
         if all_data['signal'][i]==pick_it:
             return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
         
-def stock_signal_w_new_find_candidate(stock):
-    all_data=stock_signal_w_new(stock)
+def stock_signal_w_new_find_candidate(stock, start='2016-01-01', end='2016-12-31'):
+    all_data=stock_signal_w_new(stock, start, end)
 
     count=all_data['signal'].count()
     pick_it = do_pick_out(all_data)
@@ -221,9 +251,9 @@ def main(argv=None):
         except getopt.error, msg:
              raise Usage(msg)
 
-        print argv[1], argv[2]
+        print argv[1:]
          
-        print globals()[argv[1]](argv[2])
+        print globals()[argv[1]](argv[2], argv[3], argv[4])
     except Usage, err:
         print err.msg
         print >>sys.stderr, "for help use --help"
