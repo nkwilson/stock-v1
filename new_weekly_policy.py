@@ -86,7 +86,7 @@ def new_weekly_policy ():
         total_cost=0 # total cost of holding until now, must be less than total_money
         do_half_buy=0
         do_steady_buy=1
-        show_detail=1
+        show_detail=0
         show_signal=1
         show_summary=0
         total_op_count=0
@@ -237,6 +237,7 @@ for s in stocks:
 
 for job in jobs:
         ret = job()
+print ''
 
 def local_func(stock, name):
         data=pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
@@ -244,11 +245,12 @@ def local_func(stock, name):
         print name
         new_weekly_policy()
 
-jobs = []
+#use pp for following computing is not so good        
 for s in stocks:
-        jobs.append(job_server.submit(local_func, (s[0], s[1]), (), ("new_weekly_policy",)))
+        data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
-for job in jobs:
-        ret = job()
-        break
+        print s[1]
+        new_weekly_policy()
+
+
 
