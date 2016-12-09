@@ -99,24 +99,31 @@ def calculate_stock_signal_new(hist_data):
 def stock_signal_new_4(stock, type, start, end):
     filename='%s%s-all-data.csv' % (stock, type)
 
+    if end == '':
+        end=pandas.datetime.now()
+    else:
+        end=pandas.datetime.strptime(end, '%Y-%m-%d')
+
+    if start == '':
+        start=end-datetime.timedelta(365)
+
+    print start, end
+
     need_update=True
     if os.path.isfile(filename):
         all_data=pandas.read_csv(filename, index_col=0)
         
         saved_end=all_data.index[all_data.index.size - 1]
-        if end == '':
-            end=pandas.datetime.now()
-        else:
-            end=pandas.datetime.strptime(end, '%Y-%m-%d')
         if end > pandas.datetime.now():
             end=pandas.datetime.now()
-            
+
         if cmp(type, 'w')==0: # need week data
             delta=datetime.timedelta(-end.weekday())
             end+=delta
 
         need_update=cmp(saved_end, end.strftime('%Y-%m-%d'))!=0
 
+    print need_update
     if need_update:
         hist_data=StockPrice.StockPrice_4(stock, type, start, end)
         
@@ -153,7 +160,7 @@ def stock_signal_new_2(stock, type):
 def stock_signal_d_new(stock):
     return stock_signal_new_2(stock, 'd')
 
-def stock_signal_w_new(stock, start='', end=''):
+def stock_signal_w_new(stock, start, end):
     return stock_signal_new_4(stock, 'w', start, end)
 
 def stock_signal_d_new_sum(stock):
@@ -208,7 +215,7 @@ def stock_signal_d_new_find_candidate(stock, start='2016-01-01', end='2016-12-31
         if all_data['signal'][i]==pick_it:
             return all_data.select(lambda x: True if x==all_data.index[i] else False)[['signal','Adj Close', 'EMA', 'buy', 'sell', 'profit']]
         
-def stock_signal_w_new_find_candidate(stock, start='2016-01-01', end='2016-12-31'):
+def stock_signal_w_new_find_candidate(stock, start='2016-01-01', end=''):
     all_data=stock_signal_w_new(stock, start, end)
 
     count=all_data['signal'].count()
