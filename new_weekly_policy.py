@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+import getopt
 
 import pandas
 import numpy
@@ -73,26 +75,26 @@ stocks=[
         ['150153', '创业板B', '2016-09-01', ''],
 ]
 
-def new_weekly_policy ():
-        lodgers=None
+lodgers=None
 
-        only_lastest_weeks = 5000 # lastest 50 weeks
-        selling_good_deals=-1
-        next_buy=-1
-        next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
-        next_steady_buy=-1 # buy one cost 
-        global_tendency=0
-        deal_cost=7000
-        total_money=5*deal_cost # all of my money
-        total_cost=0 # total cost of holding until now, must be less than total_money
-        do_half_buy=0
-        do_steady_buy=1
-        show_detail=0
-        show_signal=1
-        show_summary=0
-        total_op_count=0
-        show_verbose=0
+only_lastest_weeks = 5000 # lastest 50 weeks
+selling_good_deals=-1
+next_buy=-1
+next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
+next_steady_buy=-1 # buy one cost 
+global_tendency=0
+deal_cost=7000
+total_money=5*deal_cost # all of my money
+total_cost=0 # total cost of holding until now, must be less than total_money
+do_half_buy=0
+do_steady_buy=1
+show_detail=0
+show_signal=1
+show_summary=0
+total_op_count=0
+show_verbose=0
 
+def new_weekly_policy (data):
         count = data['signal'].count()
 
         # if no volume, return now
@@ -232,27 +234,48 @@ job_server = pp.Server(ppservers=ppservers)
 
 def local_func1(stock, start, end):
         StockSignal.stock_signal_w_new_find_candidate(stock, start, end)
+
+def one_stock(stock, start, end):
+        local_func1(stock, start, end)
+        data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
+
+        print stock
+        new_weekly_policy(data)
         
-for s in stocks:
-        jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
+def __main():
+        for s in stocks:
+                jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
 
-job_server.wait()
+        job_server.wait()
 
-def local_func(stock, name):
-        data=pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
+        #use pp for following computing is not so good
+        for s in stocks:
+                data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
-        print name
-        new_weekly_policy()
+                print s[1]
+                new_weekly_policy(data)
 
-#use pp for following computing is not so good
-for s in stocks:
-        data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+                
+def main(argv=None):
+    print argv
+    
+    if len(argv) == 1:
+        __main()
+        return
 
-        print s[1]
-        new_weekly_policy()
+    try:
+        print globals()[argv[1]](argv[2], argv[3], argv[4])
+    except Usage, err:
+        print err.msg
+        print >>sys.stderr, "for help use --help"
+        return 2
 
-        if s[0]=='000333':
-                break
+if __name__ == "__main__":
+        sys.exit(main(sys.argv))
+
         
         
 
