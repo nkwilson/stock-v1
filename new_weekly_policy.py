@@ -6,6 +6,7 @@ import pandas
 import numpy
 import StockSignal
 import pp
+import datetime
 
 #data=pandas.read_csv('600663.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600547.SSw-all-data.csv', index_col=0).sort_index()
@@ -88,13 +89,18 @@ total_money=5*deal_cost # all of my money
 total_cost=0 # total cost of holding until now, must be less than total_money
 do_half_buy=0
 do_steady_buy=1
-show_detail=0
+show_detail=1
 show_signal=1
 show_summary=0
 total_op_count=0
 show_verbose=0
 
 def new_weekly_policy (data):
+        global next_buy, selling_good_deals, next_half_buy, next_steady_buy
+        global global_tendency, lodgers, total_op_count, total_cost
+        global deal_cost, total_money, do_half_buy, do_steady_buy
+        global show_detail, show_signal, show_summary, show_verbose
+        
         count = data['signal'].count()
 
         # if no volume, return now
@@ -168,12 +174,15 @@ def new_weekly_policy (data):
             if show_verbose > 0 :
                 print 'signal %d close_s %d' % (data['signal'][i], data['close_s'][i]) 
 
-            if data['signal'][i] < 0:
+            if data['signal'][i] < 0 and data['EMA_s'][i] < 0:
                 selling_good_deals=1
             elif data['signal'][i] > 0:
                 next_buy=1
             if data['close_s'][i] == 0:
-                next_buy=1 if total_money > total_cost else 0
+                if total_money > total_cost:
+                        next_buy=1
+                else:
+                        selling_good_deals=1
             elif global_tendency < 1:
                 selling_good_deals=1
             elif do_half_buy > 0:
@@ -247,7 +256,8 @@ def __main():
                 jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
 
         job_server.wait()
-
+        print ''
+        
         #use pp for following computing is not so good
         for s in stocks:
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
@@ -259,19 +269,27 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
                 
-def main(argv=None):
+def main(argv):
     print argv
-    
+
     if len(argv) == 1:
         __main()
         return
 
-    try:
-        print globals()[argv[1]](argv[2], argv[3], argv[4])
-    except Usage, err:
-        print err.msg
-        print >>sys.stderr, "for help use --help"
-        return 2
+    # 2 args: one_stock ######, last year
+    if len(argv) == 3:
+            end = pandas.datetime.now();
+            start=end-datetime.timedelta(365)
+            
+            globals()[argv[1]](argv[2],start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
+    # 3 args: one_stock ######, start, until now
+    elif len(argv) == 4:
+            globals()[argv[1]](argv[2], argv[3], pandas.datetime.now().strftime('%Y-%m-%d'))
+    elif len(argv) == 5:
+    # 4 args: one_stock ######, start, end
+            globals()[argv[1]](argv[2], argv[3], argv[4])
+    else:
+            print "Usage: program [one_stock [stock [start [end]]]]"
 
 if __name__ == "__main__":
         sys.exit(main(sys.argv))
