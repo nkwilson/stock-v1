@@ -14,7 +14,7 @@ import ForceIndex2
 import EMA
 
 count=0
-period=5
+period=40
 
 def KDJ_signal(hist_data):
     data=KDJ2.KDJ(hist_data,8)
@@ -107,8 +107,6 @@ def stock_signal_new_4(stock, type, start, end):
     if start == '':
         start=end-datetime.timedelta(365)
 
-    print start, end
-
     need_update=True
     if os.path.isfile(filename):
         all_data=pandas.read_csv(filename, index_col=0)
@@ -118,12 +116,13 @@ def stock_signal_new_4(stock, type, start, end):
             end=pandas.datetime.now()
 
         if cmp(type, 'w')==0: # need week data
-            delta=datetime.timedelta(-end.weekday())
-            end+=delta
+            if end.weekday() >=5:
+                end+=datetime.timedelta(-end.weekday()+5)
+            else:
+                end+=datetime.timedelta(-end.weekday()-3)                
 
-        need_update=cmp(saved_end, end.strftime('%Y-%m-%d'))!=0
+        need_update=cmp(saved_end, end.strftime('%Y-%m-%d'))
 
-    print need_update
     if need_update:
         hist_data=StockPrice.StockPrice_4(stock, type, start, end)
         
