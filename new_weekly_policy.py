@@ -193,7 +193,7 @@ def new_weekly_policy (data):
             global_tendency=data['signal'][i]
 
         # generate signal for next operation, buy and/or sell?
-        if show_signal > 0:
+        if show_signal > 0 and not isinstance(lodgers, type(None)):
             last=data['open'].count()-1
             price=data.iloc[last]['open']
             sellings=lodgers.select(lambda x: True if (lodgers.loc[x]['sell-date'] == data.index[last] and lodgers.loc[x]['sell-price'] > 0)
