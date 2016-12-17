@@ -76,33 +76,33 @@ stocks=[
         ['150153', '创业板B', '2016-09-01', ''],
 ]
 
-lodgers=None
-
-only_lastest_weeks = 5000 # lastest 50 weeks
-selling_good_deals=-1
-next_buy=-1
-next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
-next_steady_buy=-1 # buy one cost 
-global_tendency=0
-deal_cost=7000
-total_money=5*deal_cost # all of my money
-total_cost=0 # total cost of holding until now, must be less than total_money
-do_half_buy=0
-do_steady_buy=1
-show_detail=1
-show_signal=1
-show_summary=0
-total_op_count=0
-show_verbose=0
-
 def new_weekly_policy (data):
-        global next_buy, selling_good_deals, next_half_buy, next_steady_buy
-        global global_tendency, lodgers, total_op_count, total_cost
-        global deal_cost, total_money, do_half_buy, do_steady_buy
-        global show_detail, show_signal, show_summary, show_verbose
+        # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
+        # global global_tendency, lodgers, total_op_count, total_cost
+        # global deal_cost, total_money, do_half_buy, do_steady_buy
+        # global show_detail, show_signal, show_summary, show_verbose
         
-        count = data['signal'].count()
+        lodgers=None
 
+        only_lastest_weeks = 5000 # lastest 50 weeks
+        selling_good_deals=-1
+        next_buy=-1
+        next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
+        next_steady_buy=-1 # buy one cost 
+        global_tendency=0
+        deal_cost=7000
+        total_money=5*deal_cost # all of my money
+        total_cost=0 # total cost of holding until now, must be less than total_money
+        do_half_buy=0
+        do_steady_buy=1
+        show_detail=0
+        show_signal=1
+        show_summary=0
+        total_op_count=0
+        show_verbose=0
+
+        count = data['signal'].count()
+        
         # if no volume, return now
         if data['volume'][count-1] == 0:
                 return
@@ -252,14 +252,15 @@ def one_stock(stock, start, end):
         new_weekly_policy(data)
         
 def __main():
-        for s in stocks:
-                jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
-
-        job_server.wait()
-        print ''
+#        for s in stocks:
+#                jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
+#
+#        job_server.wait()
+#        print ''
         
         #use pp for following computing is not so good
         for s in stocks:
+                local_func1(s[0], s[2], s[3]);
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1]
