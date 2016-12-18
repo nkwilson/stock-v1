@@ -91,39 +91,36 @@ def new_weekly_policy (data):
         next_steady_buy=-1 # buy one cost 
         global_tendency=0
         deal_cost=7000
-        total_money=5*deal_cost # all of my money
+        total_money=10*deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
         do_half_buy=0
         do_steady_buy=1
-        show_detail=0
+        show_detail=1
         show_signal=1
-        show_summary=0
+        show_summary=1
         total_op_count=0
         show_verbose=0
 
         count = data['signal'].count()
         
         # if no volume, return now
-        if data['volume'][count-1] == 0:
+        if data['Volume'][count-1] == 0:
                 return
         
         for i in range(count):
             if show_verbose > 0 :
                 print '### round %d' % i 
-                print data.iloc[i][['open', 'volume']] 
-            if data['volume'][i] == 0:
+                print data.iloc[i][['Open', 'Volume']] 
+            if data['Volume'][i] == 0:
                 continue
 
-            if i < (count - only_lastest_weeks):
-                continue
-        
             if selling_good_deals == 0 and next_buy==0 and next_half_buy==0 and next_steady_buy == 0:
                 continue
 
             if selling_good_deals > 0 and not isinstance(lodgers, type(None)):
                 # find those holding deals, sell-price is empty
                deals=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price'] == 0 else False)
-               to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price'] < data['open'][i] else False)
+               to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price'] < data['Open'][i] else False)
                if isinstance(to_sold_deals, type(None)):
                    continue;
 
@@ -133,8 +130,8 @@ def new_weekly_policy (data):
                for j in range(to_sold_deals['price'].count()):
                    #           print data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
-                   lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['open'][i]
-                   lodgers.loc[to_sold_deals.index[j]]['profit']=(data['open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
+                   lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
+                   lodgers.loc[to_sold_deals.index[j]]['profit']=(data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
 
                if show_verbose > 0 :
@@ -144,13 +141,13 @@ def new_weekly_policy (data):
 
             if next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0:
                 new_row_data=pandas.DataFrame(index=data.index[i:i+1], columns=['price', 'count', 'total', 'total-cost', 'sell-date', 'sell-price', 'profit'])
-                new_row_data['price'][0]=data['open'][i]
-                count=int(deal_cost / data['open'][i]/100.0) * 100
+                new_row_data['price'][0]=data['Open'][i]
+                count=int(deal_cost / data['Open'][i]/100.0) * 100
                 if next_half_buy > 0 and count >= 200:
                     count=count / 2
 
                 new_row_data['count'][0]=count
-                new_row_data['total'][0]=new_row_data['count'][0] * data['open'][i]
+                new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
                 #        new_row_data['signal'][0]=0
                 #        new_row_data['close_s'][0]=0
                 new_row_data['sell-date'][0]=data.index[i]
@@ -172,30 +169,31 @@ def new_weekly_policy (data):
             next_steady_buy=-1
 
             if show_verbose > 0 :
-                print 'signal %d close_s %d' % (data['signal'][i], data['close_s'][i]) 
+                print 'signal %d close_s %d EMA_s %d' % (data['signal'][i], data['close_s'][i], data['EMA_s'][i]) 
 
-            if data['signal'][i] < 0 and data['EMA_s'][i] < 0:
+            if data['signal'][i] < 0:
                 selling_good_deals=1
-            elif data['signal'][i] > 0:
+            elif data['signal'][i] > 0 and total_money > total_cost:
                 next_buy=1
-            if data['close_s'][i] == 0:
-                if total_money > total_cost:
-                        next_buy=1
-                else:
-                        selling_good_deals=1
-            elif global_tendency < 1:
-                selling_good_deals=1
-            elif do_half_buy > 0:
-                next_half_buy=1
-            elif do_steady_buy > 0:
-                next_steady_buy=1
+            else :
+                    if global_tendency < 1:
+                            selling_good_deals=1
 
-            global_tendency=data['signal'][i]
+                    if total_money > total_cost:
+                            if data['close_s'][i] == 0:
+                                    next_buy=1
+                            elif do_half_buy > 0:
+                                    next_half_buy=1
+                            elif do_steady_buy > 0:
+                                    next_steady_buy=1
+
+            global_tendency = data['EMA_s'][i]
+            
 
         # generate signal for next operation, buy and/or sell?
         if show_signal > 0 and not isinstance(lodgers, type(None)):
-            last=data['open'].count()-1
-            price=data.iloc[last]['open']
+            last=data['Open'].count()-1
+            price=data.iloc[last]['Open']
             sellings=lodgers.select(lambda x: True if (lodgers.loc[x]['sell-date'] == data.index[last] and lodgers.loc[x]['sell-price'] > 0)
                                                    else False)['count']
             #    print sellings
@@ -208,8 +206,8 @@ def new_weekly_policy (data):
             #         total_op_count -= sellings.sum()
 
         if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0) and show_signal > 0:
-            last=data['open'].count()-1
-            count=int(deal_cost / data.iloc[last]['open']/100.0) * 100
+            last=data['Open'].count()-1
+            count=int(deal_cost / data.iloc[last]['Open']/100.0) * 100
             if next_half_buy > 0 and count >= 200:
                 count=count / 2
             
@@ -223,8 +221,8 @@ def new_weekly_policy (data):
           print 'selling %d next_buy %d next_half_buy %d global %d' % (selling_good_deals, next_buy, next_half_buy, global_tendency) 
 
         if show_summary > 0:
-            last=data['open'].count()-1
-            price=data.iloc[last]['open']
+            last=data['Open'].count()-1
+            price=data.iloc[last]['Open']
             holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)
             total_profit=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit'].sum()
             total_profit2=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit']/lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total']
@@ -252,15 +250,14 @@ def one_stock(stock, start, end):
         new_weekly_policy(data)
         
 def __main():
-#        for s in stocks:
-#                jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
-#
-#        job_server.wait()
-#        print ''
+        for s in stocks:
+                jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
+
+        job_server.wait()
+        print ''
         
         #use pp for following computing is not so good
         for s in stocks:
-                local_func1(s[0], s[2], s[3]);
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1]
