@@ -14,7 +14,7 @@ import ForceIndex2
 import EMA
 
 count=0
-period=40
+period=20
 
 def KDJ_signal(hist_data):
     data=KDJ2.KDJ(hist_data,8)
