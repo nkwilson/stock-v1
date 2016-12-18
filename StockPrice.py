@@ -9,7 +9,7 @@ import urllib2
 import os
 import datetime
 
-price_source='tushare' 
+price_source='tushare_new' 
 
 def StockPrice_old(stock):
     data=tushare.get_hist_data(stock, start='2015-01-01',end='2015-12-31')
@@ -31,6 +31,25 @@ def StockPrice_yahoo(stock, type, start, end):
     f=urllib2.urlopen(url, timeout=2)
     return pandas.read_csv(f, index_col=0).sort_index()
 
+def StockPrice_tushare_new(stock, type, start, end):
+    # maybe '300027.SZ' pattern, strip '.SZ' suffix
+    stock=stock[0:6]
+
+    data=tushare.get_k_data(stock, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'), ktype=type)
+    values=data['open'].count();
+    data.index=pandas.DatetimeIndex(data['date'])
+    new_data=pandas.DataFrame(numpy.zeros(values * 6).reshape(values, 6), index=data.index, 
+                              columns=[['Open', 'High','Close', 'Low', 'Adj Close', 'Volume']])
+
+    new_data['Open']=data['open']
+    new_data['High']=data['high']
+    new_data['Close']=data['close']
+    new_data['Low']=data['low']
+    new_data['Adj Close']=data['close']
+    new_data['Volume']=data['volume']
+
+    return new_data.sort_index(ascending=True)
+    
 def StockPrice_tushare(stock, type, start, end):
     # maybe '300027.SZ' pattern, strip '.SZ' suffix
     stock=stock[0:6]
