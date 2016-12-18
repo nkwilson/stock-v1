@@ -86,12 +86,15 @@ def new_weekly_policy (data):
 
         only_lastest_weeks = 5000 # lastest 50 weeks
         selling_good_deals=-1
+        with_profit=0.03
+        force_selling_good_deals=-1 # if total_cost is reach, then sell profit more than 10%
+        forced_with_profit=0.13
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
         next_steady_buy=-1 # buy one cost 
         global_tendency=0
-        deal_cost=7000
-        total_money=10*deal_cost # all of my money
+        deal_cost=70000
+        total_money=5*deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
         do_half_buy=0
         do_steady_buy=1
@@ -117,10 +120,13 @@ def new_weekly_policy (data):
             if selling_good_deals == 0 and next_buy==0 and next_half_buy==0 and next_steady_buy == 0:
                 continue
 
-            if selling_good_deals > 0 and not isinstance(lodgers, type(None)):
+            if (selling_good_deals > 0 or force_selling_good_deals > 0) and not isinstance(lodgers, type(None)):
                 # find those holding deals, sell-price is empty
                deals=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price'] == 0 else False)
-               to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price'] < data['Open'][i] else False)
+               if selling_good_deals > 0:
+                       to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+with_profit) < data['Open'][i] else False)
+               else:
+                       to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+forced_with_profit) < data['Open'][i] else False)                       
                if isinstance(to_sold_deals, type(None)):
                    continue;
 
@@ -138,7 +144,8 @@ def new_weekly_policy (data):
                 print lodgers[['price','count','total','sell-date','sell-price']] 
 
             selling_good_deals=-1
-
+            force_selling_good_deals=-1
+            
             if next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0:
                 new_row_data=pandas.DataFrame(index=data.index[i:i+1], columns=['price', 'count', 'total', 'total-cost', 'sell-date', 'sell-price', 'profit'])
                 new_row_data['price'][0]=data['Open'][i]
@@ -176,17 +183,19 @@ def new_weekly_policy (data):
             elif data['signal'][i] > 0 and total_money > total_cost:
                 next_buy=1
             else :
-                    if global_tendency < 1:
-                            selling_good_deals=1
-
-                    if total_money > total_cost:
-                            if data['close_s'][i] == 0:
-                                    next_buy=1
-                            elif do_half_buy > 0:
-                                    next_half_buy=1
-                            elif do_steady_buy > 0:
-                                    next_steady_buy=1
-
+                if global_tendency < 1:
+                        selling_good_deals=1
+                
+                if total_money > total_cost:
+                        if data['close_s'][i] == 0:
+                                next_buy=1
+                        elif do_half_buy > 0:
+                                next_half_buy=1
+                        elif do_steady_buy > 0:
+                                next_steady_buy=1
+                elif selling_good_deals < 1:
+                        force_selling_good_deals=1
+                        
             global_tendency = data['EMA_s'][i]
             
 
