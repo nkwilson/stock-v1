@@ -237,8 +237,11 @@ def new_weekly_policy (data):
             total_profit2=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit']/lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total']
             total_flows=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total'].sum()
 
-            print '### flows %d profit %d rate %.3f rate2 %.3f holding %d(=%d) pending %d' % (total_flows, total_profit, total_profit/total_flows, total_profit2.sum() / total_profit2.count(),
-                                                                                              holdings['count'].sum(), holdings['total'].sum(), holdings['count'].sum() * price - holdings['total'].sum())
+            if total_flows > 0:
+                    print '### flows %d profit %d rate %.3f rate2 %.3f holding %d(=%d) pending %d' % (total_flows, total_profit, total_profit/total_flows, total_profit2.sum() / total_profit2.count(),
+                                                                                                      holdings['count'].sum(),
+                                                                                                      holdings['total'].sum(),
+                                                                                                      holdings['count'].sum() * price - holdings['total'].sum())
 
         if show_detail > 0:
             print lodgers
