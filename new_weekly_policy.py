@@ -88,22 +88,22 @@ def new_weekly_policy (data):
         selling_good_deals=-1
         with_profit=0.03
         force_selling_good_deals=-1 # if total_cost is reach, then sell profit more than 10%
-        forced_with_profit=0.13
+        forced_with_profit=0.12
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
         next_steady_buy=-1 # buy one cost 
         global_tendency=0
         deal_cost=90000
-        total_money=4*deal_cost # all of my money
+        total_money=5*deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
         current_profit=0 
         do_half_buy=0
         do_steady_buy=1
-        show_detail=1
+        show_detail=0
         show_signal=1
-        show_summary=1
+        show_summary=0
         total_op_count=0
-        show_verbose=1
+        show_verbose=0
         profit_invested=1  # using profit to buy more stocks
         count = data['signal'].count()
         # if no volume, return now
@@ -141,9 +141,10 @@ def new_weekly_policy (data):
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
                    # if with big profit, increase total_money
                    if current_profit > 2*deal_cost and profit_invested == 1:
-                           total_money += deal_cost
-                           current_profit-= deal_cost
-                   print total_money, current_profit
+                     total_money += deal_cost
+                     current_profit-= deal_cost
+                   if show_verbose > 0:
+                     print total_money, current_profit
                if show_verbose > 0 :
                 print lodgers[['price','count','total','sell-date','sell-price']] 
             selling_good_deals=-1
