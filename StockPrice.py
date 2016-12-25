@@ -24,6 +24,7 @@ def StockPrice(stock):
     # for i in range(data.columns.values.size):
     #     data.columns.values[i]=data.columns.values[i].lower()
     return data
+
 # tushare data version
 def StockPrice_yahoo(stock, type, start, end):
     url='http://real-chart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv' % (stock, start.month-1, start.day, start.year, end.month-1, end.day, end.year, type)

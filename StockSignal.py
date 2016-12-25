@@ -147,7 +147,7 @@ def stock_signal_new_2(stock, type):
 
         need_update=cmp(saved_end, real_end.strftime('%Y-%m-%d'))!=0
 
-    if need_update:
+    if need_update or true:
         hist_data=StockPrice.StockPrice_2(stock, type)
         
         all_data=calculate_stock_signal_new(hist_data)
@@ -158,6 +158,9 @@ def stock_signal_new_2(stock, type):
 
 def stock_signal_d_new(stock):
     return stock_signal_new_2(stock, 'd')
+
+def stock_signal_d_new_2(stock, start, end):
+    return stock_signal_new_4(stock, 'd', start, end)
 
 def stock_signal_w_new(stock, start, end):
     return stock_signal_new_4(stock, 'w', start, end)
@@ -204,8 +207,8 @@ def do_pick_out(all_data):
             pick_it = -1
     return pick_it
 
-def stock_signal_d_new_find_candidate(stock, start='2016-01-01', end='2016-12-31'):
-    all_data=stock_signal_d_new(stock)
+def stock_signal_d_new_find_candidate(stock, start='2016-01-01', end=''):
+    all_data=stock_signal_d_new_2(stock, start, end)
 
     count=all_data['signal'].count()
     pick_it = do_pick_out(all_data)
