@@ -63,13 +63,13 @@ stocks=[
 #        ['600779', '水井坊', '2016-09-01', ''],
 #        ['600887', '伊利股份', '2016-09-01', ''],
 #        ['300160', '秀强股份', '2016-09-01', ''],
-        ['510050',  '50ETF', '2016-12-01', ''],
-        ['510300',  '300ETF', '2016-12-01', ''],
-        ['510500',  '500ETF', '2016-12-01', ''],
+        ['510050',  '50ETF', '2016-01-01', ''],
+        ['510300',  '300ETF', '2016-01-01', ''],
+        ['510500',  '500ETF', '2016-01-01', ''],
 #        ['518800', '黄金基金', '2016-09-01', ''],
 #        ['159920', '恒生ETF', '2016-09-01', ''],
 #        ['510900', 'H股ETF', '2016-09-01', ''],
-        ['159915', '创业板', '2016-12-01', ''],
+        ['159915', '创业板', '2016-01-01', ''],
 #        ['159902', '中小板', '2016-09-01', ''],
 #        ['150023', '深成指B', '2016-09-01', ''],
 #        ['150201', '券商B', '2016-09-01', ''],
@@ -86,21 +86,21 @@ def new_weekly_policy (data):
         
         only_lastest_weeks = 5000 # lastest 50 weeks
         selling_good_deals=-1
-        with_profit=0.03
+        with_profit=0.06
         force_selling_good_deals=-1 # if total_cost is reach, then sell profit more than 10%
-        forced_with_profit=0.13
+        forced_with_profit=0.6
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
         next_steady_buy=-1 # buy one cost 
         global_tendency=0
-        deal_cost=90000
-        deal_count=5  # at most this many deals
+        deal_cost=37000
+        deal_count=12  # at most this many deals
         total_money=deal_count * deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
         current_profit=0 
         do_half_buy=0
         do_steady_buy=1
-        show_detail=1
+        show_detail=0
         show_signal=1
         show_summary=1
         total_op_count=0
@@ -245,7 +245,7 @@ def local_func1(stock, start, end):
 
 def local_func_d(stock, start, end):
         StockSignal.stock_signal_d_new_find_candidate(stock, start, end)
-        
+
 def one_stock(stock, start, end):
         local_func1(stock, start, end)
         data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
@@ -277,7 +277,9 @@ def __main():
 class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
-                
+
+#pandas.read_csv('510300w-all-data.csv', index_col=0)[['EMA', 'signal']][-32:].plot(kind='bar',figsize=(6,3.5),title='ETF300').figure.show()
+
 def main(argv):
     print argv
 
