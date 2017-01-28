@@ -220,7 +220,7 @@ def new_weekly_policy (data):
                 print '+%d' % count
         if (total_op_count != 0):
                 print '%d' % total_op_count
-        if show_summary > 0:
+        if show_summary > 0 and not isinstance(lodgers, type(None)):
             last=data['Open'].count()-1
             price=data.iloc[last]['Open']
             holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)
