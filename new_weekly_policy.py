@@ -109,7 +109,7 @@ def new_weekly_policy (data):
         profit_multi=3 # must left that much as cash
         count = data['signal'].count()
         # if no volume, return now
-        if data['Volume'][count-1] == 0:
+        if count < 1 or data['Volume'][count-1] == 0:
                 return
         for i in range(count):
             if show_verbose > 0 :
