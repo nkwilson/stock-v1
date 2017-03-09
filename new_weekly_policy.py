@@ -56,8 +56,8 @@ stocks=[
 #        ['511010',  '国债ETF', '2016-12-01', ''],
 #        ['600547', '山东黄金', '2016-11-01', ''],
 #        ['000333', '美的集团', '2016-09-01', ''],
-#        ['002407', '多佛多', '2016-09-01', ''],
-#        ['002460', '赣锋锂业', '2016-09-01', ''],
+#        ['002407', '多佛多', '2016-01-01', ''],
+#        ['002460', '赣锋锂业', '2016-01-01', ''],
 #        ['000799', '酒鬼酒', '2016-09-01', ''],
 #        ['600519', '贵州茅台', '2016-09-01', ''],
 #        ['600779', '水井坊', '2016-09-01', ''],
@@ -66,7 +66,7 @@ stocks=[
         ['510050',  '50ETF', '2016-01-01', ''],
         ['510300',  '300ETF', '2016-01-01', ''],
         ['510500',  '500ETF', '2016-01-01', ''],
-#        ['518800', '黄金基金', '2016-09-01', ''],
+#        ['518800', '黄金基金', '2016-01-01', ''],
 #        ['159920', '恒生ETF', '2016-09-01', ''],
 #        ['510900', 'H股ETF', '2016-09-01', ''],
         ['159915', '创业板', '2016-01-01', ''],
@@ -100,7 +100,7 @@ def new_weekly_policy (data):
         current_profit=0 
         do_half_buy=0
         do_steady_buy=1
-        show_detail=0
+        show_detail=1
         show_signal=1
         show_summary=1
         total_op_count=0
@@ -278,7 +278,8 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-#pandas.read_csv('510300w-all-data.csv', index_col=0)[['EMA', 'signal']][-32:].plot(kind='bar',figsize=(6,3.5),title='ETF300').figure.show()
+#pandas.read_csv('510300w-all-data.csv', index_col=0)[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(20,12),title='ETF300').figure.show()
+#figure.savefig('a.svg', format='svg')
 
 def main(argv):
     print argv
