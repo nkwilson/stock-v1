@@ -241,22 +241,23 @@ jobs = []
 job_server = pp.Server(ppservers=ppservers)
 
 def local_func1(stock, start, end):
-        StockSignal.stock_signal_w_new_find_candidate(stock, start, end)
+        #StockSignal.stock_signal_w_new_find_candidate(stock, start, end)
+        return StockSignal.stock_signal_w_new(stock, start, end).sort_index()
 
 def local_func_d(stock, start, end):
         StockSignal.stock_signal_d_new_find_candidate(stock, start, end)
 
 def one_stock(stock, start, end):
-        local_func1(stock, start, end)
-        data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
+        data = local_func1(stock, start, end)
+        #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
-	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(18,12),title='%s' % stock).figure.savefig('%s.pdf' % stock)
+	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.pdf' % stock, bbox_inches='tight')
         new_weekly_policy(data)
 
 def one_stock_d(stock, start, end):
-        local_func_d(stock, start, end)
-        data = pandas.read_csv('%sd-all-data.csv' % stock, index_col=0).sort_index()
+        data = local_func_d(stock, start, end)
+        #data = pandas.read_csv('%sd-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
         new_weekly_policy(data)
@@ -273,7 +274,7 @@ def __main():
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1],s[0]
-		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(18,12),title='%s' % s[0]).figure.savefig('%s.pdf' % s[0])
+		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s.pdf' % s[0], bbox_inches='tight')
                 new_weekly_policy(data)
 
 class Usage(Exception):
@@ -281,7 +282,7 @@ class Usage(Exception):
         self.msg = msg
 
 #pandas.read_csv('510300w-all-data.csv', index_col=0)[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(20,12),title='ETF300').figure.show()
-#figure.savefig('a.svg', format='svg')
+#figure.savefig('a.svg', format='svg', bbox_inches='tight')
 
 def main(argv):
     print argv
