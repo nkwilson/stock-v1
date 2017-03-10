@@ -272,7 +272,8 @@ def __main():
         for s in stocks:
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
-                print s[1]
+                print s[1],s[0]
+		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(18,12),title='%s' % s[0]).figure.savefig('%s.pdf' % s[0])
                 new_weekly_policy(data)
 
 class Usage(Exception):
