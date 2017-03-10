@@ -251,6 +251,7 @@ def one_stock(stock, start, end):
         data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
+	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(18,12),title='%s' % stock).figure.savefig('%s.pdf' % stock)
         new_weekly_policy(data)
 
 def one_stock_d(stock, start, end):
