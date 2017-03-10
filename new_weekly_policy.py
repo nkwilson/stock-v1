@@ -100,7 +100,7 @@ def new_weekly_policy (data):
         current_profit=0 
         do_half_buy=0
         do_steady_buy=1
-        show_detail=1
+        show_detail=0
         show_signal=1
         show_summary=1
         total_op_count=0
