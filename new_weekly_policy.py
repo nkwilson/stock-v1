@@ -109,7 +109,7 @@ def new_weekly_policy (data):
         profit_multi=3 # must left that much as cash
         count = data['signal'].count()
         # if no volume, return now
-        if data['Volume'][count-1] == 0:
+        if count < 1 or data['Volume'][count-1] == 0:
                 return
         for i in range(count):
             if show_verbose > 0 :
@@ -220,7 +220,7 @@ def new_weekly_policy (data):
                 print '+%d' % count
         if (total_op_count != 0):
                 print '%d' % total_op_count
-        if show_summary > 0:
+        if show_summary > 0 and not isinstance(lodgers, type(None)):
             last=data['Open'].count()-1
             price=data.iloc[last]['Open']
             holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)

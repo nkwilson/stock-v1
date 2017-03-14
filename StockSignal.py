@@ -110,6 +110,9 @@ def stock_signal_new_4(stock, type, start, end):
     need_update=True
     if os.path.isfile(filename):
         all_data=pandas.read_csv(filename, index_col=0)
+
+        if isinstance(all_data, type(None)) or all_data.index.size < 1:
+            return type(None)
         
         saved_end=all_data.index[all_data.index.size - 1]
         if end > pandas.datetime.now():
@@ -221,6 +224,9 @@ def stock_signal_w_new_find_candidate(stock, start='2016-01-01', end=''):
     all_data=stock_signal_w_new(stock, start, end)
 
     count=all_data['signal'].count()
+    if count < 1 :
+        return type(None)
+    
     pick_it = do_pick_out(all_data)
 
     for i in range(count-1, 0, -1):
