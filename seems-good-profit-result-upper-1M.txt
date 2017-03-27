@@ -1,0 +1,41 @@
+$ for i in $(cat seems-good.txt); do python new_weekly_policy.py one_stock $i '2014-01-01'; done 
+['new_weekly_policy.py', 'one_stock', '000065', '2014-01-01']
+000065
++1100
+### flows 2641423 profit 1139766 rate 0.431 rate2 0.430 holding 22700(=641566) pending 80293 left 942199
+['new_weekly_policy.py', 'one_stock', '000928', '2014-01-01']
+000928
+### flows 2229228 profit 1122529 rate 0.504 rate2 0.504 holding 89000(=1478190) pending 360550 left 88339
+['new_weekly_policy.py', 'one_stock', '000980', '2014-01-01']
+000980
++2200
+### flows 2675081 profit 1133805 rate 0.424 rate2 0.424 holding 43800(=652466) pending 79869 left 925338
+['new_weekly_policy.py', 'one_stock', '002212', '2014-01-01']
+002212
++2000
+### flows 2745280 profit 1288420 rate 0.469 rate2 0.469 holding 46100(=795923) pending 29266 left 936497
+['new_weekly_policy.py', 'one_stock', '002434', '2014-01-01']
+002434
++2200
+### flows 3258982 profit 1241080 rate 0.381 rate2 0.381 holding 47400(=724752) pending 38862 left 960328
+['new_weekly_policy.py', 'one_stock', '300116', '2014-01-01']
+300116
++1900
+### flows 2854677 profit 1352848 rate 0.474 rate2 0.475 holding 52200(=1042192) pending -45171 left 754656
+['new_weekly_policy.py', 'one_stock', '300317', '2014-01-01']
+300317
++1000
+### flows 2377665 profit 1010852 rate 0.425 rate2 0.425 holding 17500(=671568) pending -28093 left 783284
+['new_weekly_policy.py', 'one_stock', '600069', '2014-01-01']
+600069
++3200
+### flows 2871182 profit 1085230 rate 0.378 rate2 0.378 holding 111800(=986202) pending 280492 left 543028
+['new_weekly_policy.py', 'one_stock', '600487', '2014-01-01']
+600487
++1700
+### flows 2375845 profit 1218906 rate 0.513 rate2 0.513 holding 79200(=1366891) pending 263836 left 296015
+['new_weekly_policy.py', 'one_stock', '600569', '2014-01-01']
+600569
+### flows 2323574 profit 1108176 rate 0.477 rate2 0.477 holding 419400(=1436083) pending 23429 left 116093
+yubin@ubuntu:~/Codes/github.com/stock-v1$ 
+$ 
