@@ -1,0 +1,368 @@
+yubin@ubuntu:~/Codes/github.com/stock-v1/xx/yy$ 
+$ for i in $(cd ..; ls *.png); do python ../../new_weekly_policy.py one_stock ${i%%.png} '2014-01-01'; done
+['../../new_weekly_policy.py', 'one_stock', '000065', '2014-01-01']
+000065
++1100
+### flows 2641423 profit 1139766 rate 0.431 rate2 0.430 holding 22700(=641566) pending 80293 left 942199
+['../../new_weekly_policy.py', 'one_stock', '000517', '2014-01-01']
+000517
+### flows 2688090 profit 1273576 rate 0.474 rate2 0.473 holding 300100(=1614710) pending 86856 left 102866
+['../../new_weekly_policy.py', 'one_stock', '000584', '2014-01-01']
+000584
++3000
+### flows 1680787 profit 1145368 rate 0.681 rate2 0.679 holding 84200(=1194124) pending -168568 left 395244
+['../../new_weekly_policy.py', 'one_stock', '000595', '2014-01-01']
+000595
+-17100
+### flows 3788555 profit 1758825 rate 0.464 rate2 0.464 holding 36600(=366131) pending -12941 left 1836694
+['../../new_weekly_policy.py', 'one_stock', '000656', '2014-01-01']
+000656
++6400
+### flows 3163934 profit 1424458 rate 0.450 rate2 0.451 holding 153500(=1064012) pending -176782 left 804445
+['../../new_weekly_policy.py', 'one_stock', '000659', '2014-01-01']
+000659
++6100
+### flows 2947608 profit 1142134 rate 0.387 rate2 0.388 holding 140600(=881070) pending -37470 left 705064
+['../../new_weekly_policy.py', 'one_stock', '000710', '2014-01-01']
+000710
++800
+### flows 2667840 profit 1210961 rate 0.454 rate2 0.452 holding 10600(=455464) pending 13798 left 1199497
+['../../new_weekly_policy.py', 'one_stock', '000767', '2014-01-01']
+000767
+### flows 2098160 profit 1012843 rate 0.483 rate2 0.483 holding 238000(=1358961) pending -435521 left 97882
+['../../new_weekly_policy.py', 'one_stock', '000768', '2014-01-01']
+000768
+### flows 2950391 profit 1022889 rate 0.347 rate2 0.345 holding 49700(=1348859) pending -153574 left 118029
+['../../new_weekly_policy.py', 'one_stock', '000797', '2014-01-01']
+000797
++2000
+### flows 3379665 profit 1310921 rate 0.388 rate2 0.388 holding 72700(=1474490) pending -130267 left 280430
+['../../new_weekly_policy.py', 'one_stock', '000885', '2014-01-01']
+000885
+-4700
+### flows 2913609 profit 1115688 rate 0.383 rate2 0.382 holding 70600(=1301751) pending 487958 left 257937
+['../../new_weekly_policy.py', 'one_stock', '000928', '2014-01-01']
+000928
+### flows 2229228 profit 1122529 rate 0.504 rate2 0.504 holding 89000(=1478190) pending 360550 left 88339
+['../../new_weekly_policy.py', 'one_stock', '000930', '2014-01-01']
+000930
+### flows 2414671 profit 1261898 rate 0.523 rate2 0.522 holding 108300(=1596898) pending -61204 left 109000
+['../../new_weekly_policy.py', 'one_stock', '000961', '2014-01-01']
+000961
++3600
+### flows 2645402 profit 1214404 rate 0.459 rate2 0.459 holding 118300(=1023212) pending 165702 left 635192
+['../../new_weekly_policy.py', 'one_stock', '000980', '2014-01-01']
+000980
++2200
+### flows 2675081 profit 1133805 rate 0.424 rate2 0.424 holding 43800(=652466) pending 79869 left 925338
+['../../new_weekly_policy.py', 'one_stock', '000981', '2014-01-01']
+000981
++3700
+### flows 2276771 profit 1062761 rate 0.467 rate2 0.466 holding 80600(=841409) pending -53141 left 665352
+['../../new_weekly_policy.py', 'one_stock', '002034', '2014-01-01']
+002034
++600
+### flows 2361096 profit 1219102 rate 0.516 rate2 0.513 holding 34600(=1363687) pending 574950 left 299415
+['../../new_weekly_policy.py', 'one_stock', '002043', '2014-01-01']
+002043
++2700
+### flows 3154882 profit 1458746 rate 0.462 rate2 0.461 holding 61800(=798932) pending 25480 left 1103814
+['../../new_weekly_policy.py', 'one_stock', '002053', '2014-01-01']
+002053
+### flows 2454913 profit 1061595 rate 0.432 rate2 0.432 holding 95400(=1376716) pending 329989 left 128879
+['../../new_weekly_policy.py', 'one_stock', '002075', '2014-01-01']
+002075
++2200
+### flows 1284203 profit 1210339 rate 0.942 rate2 0.941 holding 89700(=1238149) pending 232930 left 416189
+['../../new_weekly_policy.py', 'one_stock', '002093', '2014-01-01']
+002093
+### flows 2672929 profit 1411887 rate 0.528 rate2 0.528 holding 134600(=1744740) pending -326056 left 111146
+['../../new_weekly_policy.py', 'one_stock', '002098', '2014-01-01']
+002098
++2300
+### flows 2889929 profit 1250327 rate 0.433 rate2 0.433 holding 61400(=1018512) pending -45322 left 675814
+['../../new_weekly_policy.py', 'one_stock', '002105', '2014-01-01']
+002105
+### flows 3189752 profit 1228421 rate 0.385 rate2 0.385 holding 138200(=1561566) pending 315189 left 110854
+['../../new_weekly_policy.py', 'one_stock', '002136', '2014-01-01']
+002136
++1800
+### flows 3467474 profit 1004655 rate 0.290 rate2 0.289 holding 34500(=611639) pending 68701 left 837016
+['../../new_weekly_policy.py', 'one_stock', '002163', '2014-01-01']
+002163
++3600
+### flows 3447633 profit 1012993 rate 0.294 rate2 0.294 holding 69200(=836626) pending -140474 left 620367
+['../../new_weekly_policy.py', 'one_stock', '002169', '2014-01-01']
+002169
++1700
+### flows 2901437 profit 1030491 rate 0.355 rate2 0.354 holding 50900(=1175705) pending -124111 left 298786
+['../../new_weekly_policy.py', 'one_stock', '002182', '2014-01-01']
+002182
++1800
+### flows 3643668 profit 1044249 rate 0.287 rate2 0.286 holding 26100(=541419) pending -5847 left 946829
+['../../new_weekly_policy.py', 'one_stock', '002195', '2014-01-01']
+002195
+### flows 2042953 profit 1059652 rate 0.519 rate2 0.518 holding 78800(=1398932) pending -500612 left 104720
+['../../new_weekly_policy.py', 'one_stock', '002210', '2014-01-01']
+002210
+### flows 2622315 profit 1175477 rate 0.448 rate2 0.449 holding 79900(=1486453) pending 134717 left 133023
+['../../new_weekly_policy.py', 'one_stock', '002212', '2014-01-01']
+002212
++2000
+### flows 2745280 profit 1288420 rate 0.469 rate2 0.469 holding 46100(=795923) pending 29266 left 936497
+['../../new_weekly_policy.py', 'one_stock', '002245', '2014-01-01']
+002245
++3600
+### flows 2853523 profit 1066591 rate 0.374 rate2 0.374 holding 104200(=1129327) pending -66487 left 381263
+['../../new_weekly_policy.py', 'one_stock', '002265', '2014-01-01']
+002265
++1400
+### flows 3417220 profit 1131555 rate 0.331 rate2 0.331 holding 20500(=530881) pending -6901 left 1044674
+['../../new_weekly_policy.py', 'one_stock', '002268', '2014-01-01']
+002268
+### flows 2453136 profit 1223043 rate 0.499 rate2 0.497 holding 36000(=1562417) pending -424817 left 104626
+['../../new_weekly_policy.py', 'one_stock', '002329', '2014-01-01']
+002329
+### flows 2956098 profit 1152142 rate 0.390 rate2 0.389 holding 87800(=1513529) pending -304523 left 82613
+['../../new_weekly_policy.py', 'one_stock', '002346', '2014-01-01']
+002346
++1100
+### flows 3230272 profit 1413797 rate 0.438 rate2 0.440 holding 7900(=281994) pending -16554 left 1575803
+['../../new_weekly_policy.py', 'one_stock', '002352', '2014-01-01']
+002352
++500
+### flows 3760970 profit 2390178 rate 0.636 rate2 0.630 holding 1100(=67558) pending 1302 left 2766620
+['../../new_weekly_policy.py', 'one_stock', '002407', '2014-01-01']
+002407
++1100
+### flows 2711309 profit 1384327 rate 0.511 rate2 0.509 holding 39300(=1372937) pending -158567 left 455390
+['../../new_weekly_policy.py', 'one_stock', '002448', '2014-01-01']
+002448
+### flows 2304715 profit 1035946 rate 0.449 rate2 0.449 holding 94100(=1344189) pending -287446 left 135757
+['../../new_weekly_policy.py', 'one_stock', '002460', '2014-01-01']
+002460
++1100
+### flows 2961160 profit 1198248 rate 0.405 rate2 0.403 holding 35500(=1132701) pending 5783 left 509547
+['../../new_weekly_policy.py', 'one_stock', '002488', '2014-01-01']
+002488
+### flows 2660969 profit 1216540 rate 0.457 rate2 0.456 holding 62800(=1531654) pending -609750 left 128886
+['../../new_weekly_policy.py', 'one_stock', '002568', '2014-01-01']
+002568
++1700
+### flows 3183903 profit 1495591 rate 0.470 rate2 0.468 holding 56100(=1638662) pending -462245 left 300929
+['../../new_weekly_policy.py', 'one_stock', '002592', '2014-01-01']
+002592
++1200
+### flows 2632048 profit 1505467 rate 0.572 rate2 0.567 holding 41300(=1609597) pending -340448 left 339870
+['../../new_weekly_policy.py', 'one_stock', '002593', '2014-01-01']
+002593
+### flows 2719167 profit 1354392 rate 0.498 rate2 0.498 holding 192500(=1676347) pending -328847 left 122044
+['../../new_weekly_policy.py', 'one_stock', '002616', '2014-01-01']
+002616
+### flows 2363900 profit 1148475 rate 0.486 rate2 0.487 holding 61800(=1491719) pending -15935 left 100756
+['../../new_weekly_policy.py', 'one_stock', '002634', '2014-01-01']
+002634
++3300
+### flows 3298613 profit 1079508 rate 0.327 rate2 0.327 holding 95200(=1092367) pending -43263 left 431140
+['../../new_weekly_policy.py', 'one_stock', '002651', '2014-01-01']
+002651
++2500
+### flows 3543913 profit 1008311 rate 0.285 rate2 0.285 holding 40200(=649447) pending -74587 left 802864
+['../../new_weekly_policy.py', 'one_stock', '002677', '2014-01-01']
+002677
++2800
+### flows 2671490 profit 1070314 rate 0.401 rate2 0.400 holding 101900(=1276605) pending 39942 left 237708
+['../../new_weekly_policy.py', 'one_stock', '002695', '2014-01-01']
+002695
++1400
+### flows 2482705 profit 1358901 rate 0.547 rate2 0.548 holding 22300(=606981) pending -46805 left 1195920
+['../../new_weekly_policy.py', 'one_stock', '002699', '2014-01-01']
+002699
+### flows 2635003 profit 1213680 rate 0.461 rate2 0.458 holding 39200(=1542431) pending -162591 left 115249
+['../../new_weekly_policy.py', 'one_stock', '002709', '2014-01-01']
+002709
++600
+### flows 3242890 profit 1055980 rate 0.326 rate2 0.327 holding 16100(=920090) pending -51495 left 579890
+['../../new_weekly_policy.py', 'one_stock', '300031', '2014-01-01']
+300031
+-1700
+### flows 1782849 profit 1005351 rate 0.564 rate2 0.564 holding 52100(=1315960) pending -151004 left 133391
+['../../new_weekly_policy.py', 'one_stock', '300063', '2014-01-01']
+300063
++1300
+### flows 2448487 profit 1783638 rate 0.728 rate2 0.725 holding 32100(=1090909) pending -215863 left 1136729
+['../../new_weekly_policy.py', 'one_stock', '300072', '2014-01-01']
+300072
++700
+### flows 2020210 profit 1035161 rate 0.512 rate2 0.513 holding 23500(=1035385) pending 57364 left 443776
+['../../new_weekly_policy.py', 'one_stock', '300073', '2014-01-01']
+300073
++600
+### flows 3387120 profit 1219436 rate 0.360 rate2 0.361 holding 11700(=705495) pending -16482 left 957941
+['../../new_weekly_policy.py', 'one_stock', '300098', '2014-01-01']
+300098
++2800
+### flows 3143774 profit 1199997 rate 0.382 rate2 0.381 holding 73700(=1122069) pending -165443 left 521927
+['../../new_weekly_policy.py', 'one_stock', '300116', '2014-01-01']
+300116
++1900
+### flows 2854677 profit 1352848 rate 0.474 rate2 0.475 holding 52200(=1042192) pending -45171 left 754656
+['../../new_weekly_policy.py', 'one_stock', '300136', '2014-01-01']
+300136
+-21100
+### flows 2806756 profit 1473280 rate 0.525 rate2 0.524 holding 57600(=1188200) pending 548439 left 729080
+['../../new_weekly_policy.py', 'one_stock', '300159', '2014-01-01']
+300159
+-2700
+### flows 2046191 profit 1530717 rate 0.748 rate2 0.745 holding 102300(=1837155) pending -323115 left 137562
+['../../new_weekly_policy.py', 'one_stock', '300174', '2014-01-01']
+300174
++500
+### flows 3430175 profit 1687162 rate 0.492 rate2 0.493 holding 22300(=1080404) pending 366865 left 1050757
+['../../new_weekly_policy.py', 'one_stock', '300175', '2014-01-01']
+300175
++2300
+### flows 2271352 profit 1206886 rate 0.531 rate2 0.531 holding 90100(=1162555) pending 250212 left 488330
+['../../new_weekly_policy.py', 'one_stock', '300176', '2014-01-01']
+300176
+-20000
+### flows 2885078 profit 1540798 rate 0.534 rate2 0.534 holding 27600(=924519) pending 390620 left 1060278
+['../../new_weekly_policy.py', 'one_stock', '300180', '2014-01-01']
+300180
++1300
+### flows 2083622 profit 1009841 rate 0.485 rate2 0.485 holding 55200(=1109252) pending 372867 left 344589
+['../../new_weekly_policy.py', 'one_stock', '300188', '2014-01-01']
+300188
+### flows 2673313 profit 1013469 rate 0.379 rate2 0.379 holding 48900(=1353194) pending -372260 left 104274
+['../../new_weekly_policy.py', 'one_stock', '300222', '2014-01-01']
+300222
++1500
+### flows 2168084 profit 1341882 rate 0.619 rate2 0.620 holding 53600(=1449787) pending -196619 left 336095
+['../../new_weekly_policy.py', 'one_stock', '300235', '2014-01-01']
+300235
+-3200
+### flows 2670113 profit 1129654 rate 0.423 rate2 0.424 holding 51300(=1384865) pending -154691 left 188788
+['../../new_weekly_policy.py', 'one_stock', '300266', '2014-01-01']
+300266
+### flows 1950558 profit 1020252 rate 0.523 rate2 0.522 holding 32600(=1345549) pending 368558 left 118703
+['../../new_weekly_policy.py', 'one_stock', '300281', '2014-01-01']
+300281
++1900
+### flows 3318190 profit 1006001 rate 0.303 rate2 0.303 holding 30200(=610789) pending -43633 left 839211
+['../../new_weekly_policy.py', 'one_stock', '300317', '2014-01-01']
+300317
++1000
+### flows 2377665 profit 1010852 rate 0.425 rate2 0.425 holding 17500(=671568) pending -28093 left 783284
+['../../new_weekly_policy.py', 'one_stock', '300327', '2014-01-01']
+300327
++900
+### flows 2871706 profit 1082820 rate 0.377 rate2 0.377 holding 27000(=1101947) pending -51917 left 424872
+['../../new_weekly_policy.py', 'one_stock', '300359', '2014-01-01']
+300359
+### flows 2313305 profit 1323529 rate 0.572 rate2 0.571 holding 45900(=1652274) pending -822402 left 115254
+['../../new_weekly_policy.py', 'one_stock', '300376', '2014-01-01']
+300376
++700
+### flows 3279733 profit 1031363 rate 0.314 rate2 0.315 holding 10400(=451191) pending 49049 left 1024172
+['../../new_weekly_policy.py', 'one_stock', '300377', '2014-01-01']
+300377
++900
+### flows 3075043 profit 1510710 rate 0.491 rate2 0.489 holding 39700(=1789873) pending -296359 left 164837
+['../../new_weekly_policy.py', 'one_stock', '600035', '2014-01-01']
+600035
+### flows 1915133 profit 1040337 rate 0.543 rate2 0.543 holding 225500(=1395832) pending -69892 left 88504
+['../../new_weekly_policy.py', 'one_stock', '600069', '2014-01-01']
+600069
++3200
+### flows 2871182 profit 1085230 rate 0.378 rate2 0.378 holding 111800(=986202) pending 280492 left 543028
+['../../new_weekly_policy.py', 'one_stock', '600131', '2014-01-01']
+600131
++3300
+### flows 3076294 profit 1516822 rate 0.493 rate2 0.493 holding 89700(=1020470) pending -31976 left 940352
+['../../new_weekly_policy.py', 'one_stock', '600184', '2014-01-01']
+600184
+### flows 2061341 profit 1054530 rate 0.512 rate2 0.512 holding 51800(=1392701) pending -111687 left 105828
+['../../new_weekly_policy.py', 'one_stock', '600198', '2014-01-01']
+600198
+### flows 2605675 profit 1031681 rate 0.396 rate2 0.397 holding 61500(=1364097) pending -321672 left 111584
+['../../new_weekly_policy.py', 'one_stock', '600202', '2014-01-01']
+600202
++2700
+### flows 2271333 profit 1062808 rate 0.468 rate2 0.468 holding 80700(=1049604) pending 26933 left 457204
+['../../new_weekly_policy.py', 'one_stock', '600240', '2014-01-01']
+600240
+### flows 2375503 profit 1218111 rate 0.513 rate2 0.513 holding 115500(=1521703) pending -195763 left 140408
+['../../new_weekly_policy.py', 'one_stock', '600280', '2014-01-01']
+600280
++4400
+### flows 2454294 profit 1018753 rate 0.415 rate2 0.415 holding 102300(=1019239) pending -171172 left 443513
+['../../new_weekly_policy.py', 'one_stock', '600301', '2014-01-01']
+600301
+### flows 2668873 profit 1069236 rate 0.401 rate2 0.400 holding 101600(=1377833) pending -66177 left 135402
+['../../new_weekly_policy.py', 'one_stock', '600308', '2014-01-01']
+600308
+### flows 2024318 profit 1160292 rate 0.573 rate2 0.574 holding 290400(=1505066) pending 280894 left 99226
+['../../new_weekly_policy.py', 'one_stock', '600487', '2014-01-01']
+600487
++1700
+### flows 2375845 profit 1218906 rate 0.513 rate2 0.513 holding 79200(=1366891) pending 263836 left 296015
+['../../new_weekly_policy.py', 'one_stock', '600491', '2014-01-01']
+600491
++3200
+### flows 2746991 profit 1024309 rate 0.373 rate2 0.372 holding 82700(=1091411) pending -138707 left 376898
+['../../new_weekly_policy.py', 'one_stock', '600528', '2014-01-01']
+600528
+### flows 2407247 profit 1060075 rate 0.440 rate2 0.441 holding 82000(=1372751) pending -59111 left 131324
+['../../new_weekly_policy.py', 'one_stock', '600568', '2014-01-01']
+600568
++1800
+### flows 2251142 profit 1051403 rate 0.467 rate2 0.467 holding 31700(=715680) pending -92458 left 779722
+['../../new_weekly_policy.py', 'one_stock', '600569', '2014-01-01']
+600569
+### flows 2323574 profit 1108176 rate 0.477 rate2 0.477 holding 419400(=1436083) pending 23429 left 116093
+['../../new_weekly_policy.py', 'one_stock', '600682', '2014-01-01']
+600682
+### flows 1745711 profit 1199472 rate 0.687 rate2 0.684 holding 47900(=1414525) pending 403279 left 228947
+['../../new_weekly_policy.py', 'one_stock', '600698', '2014-01-01']
+600698
++2900
+### flows 3597724 profit 1464933 rate 0.407 rate2 0.408 holding 75900(=800794) pending 166931 left 1108139
+['../../new_weekly_policy.py', 'one_stock', '600701', '2014-01-01']
+600701
++2400
+### flows 2150986 profit 2795431 rate 1.300 rate2 1.291 holding 94500(=1623346) pending -214351 left 1616085
+['../../new_weekly_policy.py', 'one_stock', '600735', '2014-01-01']
+600735
++1900
+### flows 2957422 profit 1210959 rate 0.409 rate2 0.409 holding 47200(=970659) pending -55451 left 684300
+['../../new_weekly_policy.py', 'one_stock', '600760', '2014-01-01']
+600760
++1200
+### flows 3099980 profit 1270599 rate 0.410 rate2 0.410 holding 52900(=1042707) pending 544293 left 671892
+['../../new_weekly_policy.py', 'one_stock', '601012', '2014-01-01']
+601012
++2400
+### flows 2629549 profit 1164624 rate 0.443 rate2 0.443 holding 93200(=1409232) pending -11232 left 199391
+['../../new_weekly_policy.py', 'one_stock', '601116', '2014-01-01']
+601116
++1000
+### flows 2298633 profit 2070163 rate 0.901 rate2 0.905 holding 11000(=413852) pending -40401 left 2100311
+['../../new_weekly_policy.py', 'one_stock', '601186', '2014-01-01']
+601186
+### flows 2084518 profit 1019474 rate 0.489 rate2 0.489 holding 90100(=1340350) pending -181664 left 123123
+['../../new_weekly_policy.py', 'one_stock', '601566', '2014-01-01']
+601566
++2200
+### flows 1888241 profit 1014163 rate 0.537 rate2 0.537 holding 65000(=1231439) pending -143339 left 226723
+['../../new_weekly_policy.py', 'one_stock', '601618', '2014-01-01']
+601618
+### flows 2504145 profit 1350676 rate 0.539 rate2 0.539 holding 323000(=1687221) pending -75451 left 107455
+['../../new_weekly_policy.py', 'one_stock', '601669', '2014-01-01']
+601669
+### flows 2276478 profit 1136147 rate 0.499 rate2 0.498 holding 182700(=1463110) pending -111130 left 117037
+['../../new_weekly_policy.py', 'one_stock', '601727', '2014-01-01']
+601727
++4300
+### flows 2381166 profit 1079772 rate 0.453 rate2 0.453 holding 91300(=1085403) pending -309353 left 438368
+yubin@ubuntu:~/Codes/github.com/stock-v1/xx/yy$ 
+$ 
