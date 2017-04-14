@@ -278,7 +278,7 @@ def __main():
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1],s[0]
-		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s.pdf' % s[0], bbox_inches='tight')
+		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.pdf' % (s[0], s[1]), bbox_inches='tight')
                 new_weekly_policy(data)
 
 class Usage(Exception):
