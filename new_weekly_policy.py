@@ -40,6 +40,7 @@ import datetime
 
 # copied from scan-these-stocks.py
 stocks=[
+        # code, name, start, end
         ['600887', '伊利股份', '2014-01-01', ''],
         ['600487', '亨通光电', '2014-01-01', ''],        
         ['600240', '华电资本', '2014-01-01', ''],
