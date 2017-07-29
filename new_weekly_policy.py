@@ -81,7 +81,7 @@ stocks=[
 #        ['600779', '水井坊', '2016-09-01', '', 0, 0, ''],
 ]
 
-def new_weekly_policy (data):
+def new_weekly_policy (stock, data):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
@@ -107,7 +107,7 @@ def new_weekly_policy (data):
         do_steady_buy=1
         show_detail=0
         show_signal=1
-        show_summary=1
+        show_summary=0
         total_op_count=0
         show_verbose=0
         profit_invested=1  # using profit to buy more stocks
@@ -222,9 +222,9 @@ def new_weekly_policy (data):
             if next_half_buy > 0 and count >= 200:
                 count=count / 2
             if count > 0 and total_op_count == 0:
-                print '+%d' % count
+                print ' buy +%d, at %f' % (count, data.iloc[last]['Adj Close'])
         if (total_op_count != 0):
-                print '%d' % total_op_count
+                print 'sell %d, at %f' % (total_op_count, data.iloc[last]['Adj Close'])
         if show_summary > 0 and not isinstance(lodgers, type(None)):
             last=data['Open'].count()-1
             price=data.iloc[last]['Open']
@@ -238,6 +238,8 @@ def new_weekly_policy (data):
                                                                                                               holdings['total'].sum(),
                                                                                                               holdings['count'].sum() * price - holdings['total'].sum(),
                                                                                                               total_money-total_cost+current_profit)
+        lodgers.to_csv('%s-lodgers.csv' % stock)
+        
         if show_detail > 0:
             print lodgers
 ppservers = ()
@@ -258,14 +260,14 @@ def one_stock(stock, start, end):
 
         print stock
 	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.pdf' % stock, bbox_inches='tight')
-        new_weekly_policy(data)
+        new_weekly_policy(stock, data)
 
 def one_stock_d(stock, start, end):
         data = local_func_d(stock, start, end)
         #data = pandas.read_csv('%sd-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
-        new_weekly_policy(data)
+        new_weekly_policy(stock, data)
         
 def __main():
         for s in stocks:
@@ -280,7 +282,7 @@ def __main():
 
                 print s[1],s[0]
 		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.pdf' % (s[0], s[1]), bbox_inches='tight')
-                new_weekly_policy(data)
+                new_weekly_policy(s[0], data)
 
 class Usage(Exception):
     def __init__(self, msg):
