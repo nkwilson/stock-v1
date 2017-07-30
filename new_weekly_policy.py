@@ -81,7 +81,7 @@ stocks=[
 #        ['600779', '水井坊', '2016-09-01', '', 0, 0, ''],
 ]
 
-def new_weekly_policy (stock, data):
+def new_weekly_policy (stock, data, total_money=100000):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
@@ -98,9 +98,10 @@ def new_weekly_policy (stock, data):
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
         next_steady_buy=-1 # buy one cost 
         global_tendency=0
-        deal_cost=37000
-        deal_count=12  # at most this many deals
-        total_money=deal_count * deal_cost # all of my money
+#        deal_cost=37000 # calculated from input total_money
+        deal_count=8  # at most this many deals
+        deal_cost = total_money / deal_count
+        # total_money=deal_count * deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
         current_profit=0 
         do_half_buy=0
