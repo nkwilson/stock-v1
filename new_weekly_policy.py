@@ -161,7 +161,14 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8):
             selling_good_deals=-1
             force_selling_good_deals=-1
             if next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0:
-                new_row_data=pandas.DataFrame(index=data.index[i:i+1], columns=['price', 'count', 'total', 'total-cost', 'sell-date', 'sell-price', 'profit'])
+                new_row_data=pandas.DataFrame(index=data.index[i:i+1],
+                                              columns=['price',
+                                                       'count',
+                                                       'total',
+                                                       'total-cost',
+                                                       'sell-date',
+                                                       'sell-price',
+                                                       'profit'])
                 new_row_data['price'][0]=data['Open'][i]
                 count=int(deal_cost / data['Open'][i]/100.0) * 100
                 if next_half_buy > 0 and count >= 200:
