@@ -148,7 +148,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8):
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
                    lodgers.loc[to_sold_deals.index[j]]['profit']=(data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
-                   lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
+                   lodgers.loc[to_sold_deals.index[j]]['profit-rate']='%0.2f' % (lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total'])
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
                    # if with big profit, increase total_money
