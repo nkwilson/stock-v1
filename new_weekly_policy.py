@@ -40,19 +40,19 @@ import datetime
 
 # copied from scan-these-stocks.py
 stocks=[
-        # code, name, start, end, budget, iterations, first-buy  #, more-budget
+        # code, name, start, end, budget, deal-count, first-buy  #, more-budget
 #        ['600887', '伊利股份', '2014-01-01', '', 0, 0, ''],
-        ['600487', '亨通光电', '2014-01-01', '', 0, 0, ''],        
+        ['600487', '亨通光电', '2014-01-01', '', 100000, 8, ''],        
 #        ['600240', '华电资本', '2014-01-01', '', 0, 0, ''],
-        ['601669', '中国电建', '2014-01-01', '', 0, 0, ''],
-        ['600660', '福耀玻璃', '2014-01-01', '', 0, 0, ''],
+        ['601669', '中国电建', '2014-01-01', '', 100000, 0, ''],
+        ['600660', '福耀玻璃', '2014-01-01', '', 100000, 0, ''],
 #        ['600519', '贵州茅台', '2014-01-01', '', 0, 0, ''],
 #        ['300017', '网宿科技', '2014-01-01', '', 0, 0, ''],
 #        ['000333', '美的集团', '2014-01-01', '', 0, 0, ''],
 #        ['002407', '多佛多', '2014-01-01', '', 0, 0, ''],
-        ['002460', '赣锋锂业', '2014-01-01', '', 0, 0, ''],
+        ['002460', '赣锋锂业', '2014-01-01', '', 100000, 0, ''],
 #        ['000651', '格力电器', '2014-01-01', '', 0, 0, ''],
-        ['002415', '海康威视', '2014-01-01', '', 0, 0, ''],
+        ['002415', '海康威视', '2014-01-01', '', 100000, 0, ''],
 #        ['510050',  '50ETF', '2014-01-01', '', 0, 0, ''],
 #        ['510300',  '300ETF', '2014-01-01', '', 0, 0, ''],
 #        ['510500',  '500ETF', '2014-01-01', '', 0, 0, ''],
@@ -81,13 +81,16 @@ stocks=[
 #        ['600779', '水井坊', '2016-09-01', '', 0, 0, ''],
 ]
 
-def new_weekly_policy (stock, data, total_money=100000):
+def new_weekly_policy (stock, data, total_money=100000, deal_count=8):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
         # global show_detail, show_signal, show_summary, show_verbose
         
         lodgers=None
+
+        if deal_count == 0: # fast return
+                return
         
         only_lastest_weeks = 5000 # lastest 50 weeks
         selling_good_deals=-1
@@ -99,7 +102,7 @@ def new_weekly_policy (stock, data, total_money=100000):
         next_steady_buy=-1 # buy one cost 
         global_tendency=0
 #        deal_cost=37000 # calculated from input total_money
-        deal_count=8  # at most this many deals
+#        deal_count=8  # at most this many deals # input argument with default value
         deal_cost = total_money / deal_count
         # total_money=deal_count * deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
@@ -272,6 +275,8 @@ def one_stock_d(stock, start, end):
         
 def __main():
         for s in stocks:
+                if s[5] == 0:  # deal_cost is zero, continue
+                        continue
                 jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
 
         job_server.wait()
@@ -279,11 +284,16 @@ def __main():
         
         #use pp for following computing is not so good
         for s in stocks:
+                if s[5] == 0: # deal_cost is zero, continue
+                        continue
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1],s[0]
 		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.pdf' % (s[0], s[1]), bbox_inches='tight')
-                new_weekly_policy(s[0], data)
+                if s[4] > 0:
+                        new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5])
+                else:
+                        new_weekly_policy(s[0], data, deal_count=s[5])                        
 
 class Usage(Exception):
     def __init__(self, msg):
