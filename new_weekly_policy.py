@@ -42,17 +42,17 @@ import datetime
 stocks=[
         # code, name, start, end, budget, deal-count, first-buy  #, more-budget
 #        ['600887', '伊利股份', '2014-01-01', '', 0, 0, ''],
-        ['600487', '亨通光电', '2014-01-01', '', 100000, 8, ''],        
+        ['600487', '亨通光电', '2014-01-01', '', 100000, 0, '2017-01-01'],        
 #        ['600240', '华电资本', '2014-01-01', '', 0, 0, ''],
-        ['601669', '中国电建', '2014-01-01', '', 100000, 0, ''],
-        ['600660', '福耀玻璃', '2014-01-01', '', 100000, 0, ''],
+        ['601669', '中国电建', '2014-01-01', '', 100000, 0, '2017-01-01'],
+        ['600660', '福耀玻璃', '2014-01-01', '', 100000, 0, '2017-01-01'],
 #        ['600519', '贵州茅台', '2014-01-01', '', 0, 0, ''],
 #        ['300017', '网宿科技', '2014-01-01', '', 0, 0, ''],
 #        ['000333', '美的集团', '2014-01-01', '', 0, 0, ''],
 #        ['002407', '多佛多', '2014-01-01', '', 0, 0, ''],
-        ['002460', '赣锋锂业', '2014-01-01', '', 100000, 0, ''],
+        ['002460', '赣锋锂业', '2014-01-01', '', 100000, 0, '2017-01-01'],
 #        ['000651', '格力电器', '2014-01-01', '', 0, 0, ''],
-        ['002415', '海康威视', '2014-01-01', '', 100000, 0, ''],
+        ['002415', '海康威视', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['510050',  '50ETF', '2014-01-01', '', 0, 0, ''],
 #        ['510300',  '300ETF', '2014-01-01', '', 0, 0, ''],
 #        ['510500',  '500ETF', '2014-01-01', '', 0, 0, ''],
@@ -81,7 +81,7 @@ stocks=[
 #        ['600779', '水井坊', '2016-09-01', '', 0, 0, ''],
 ]
 
-def new_weekly_policy (stock, data, total_money=100000, deal_count=8):
+def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=''):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
@@ -111,15 +111,20 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8):
         do_steady_buy=1
         show_detail=0
         show_signal=1
-        show_summary=0
+        show_summary=1
         total_op_count=0
         show_verbose=0
         profit_invested=1  # using profit to buy more stocks
         profit_multi=3 # must left that much as cash
+
         count = data['signal'].count()
         # if no volume, return now
         if count < 1 or data['Volume'][count-1] == 0:
                 return
+
+        # if non-empty, buy at no early that it else use the start date
+        first_buy_at = data.index[0] if len(first_buy) == 0 else first_buy #pandas.datetime.strptime(first_buy, '%Y-%m-%d')
+        
         for i in range(count):
             if show_verbose > 0 :
                 print '### round %d' % i 
@@ -161,7 +166,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8):
                 print lodgers[['price','count','total','sell-date','sell-price']] 
             selling_good_deals=-1
             force_selling_good_deals=-1
-            if next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0:
+            if first_buy_at < data.index[i] and (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
                 new_row_data=pandas.DataFrame(index=data.index[i:i+1],
                                               columns=['price',
                                                        'count',
@@ -301,9 +306,9 @@ def __main():
                 print s[1],s[0]
 		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.pdf' % (s[0], s[1]), bbox_inches='tight')
                 if s[4] > 0:
-                        new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5])
+                        new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
-                        new_weekly_policy(s[0], data, deal_count=s[5])                        
+                        new_weekly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
 
 class Usage(Exception):
     def __init__(self, msg):
