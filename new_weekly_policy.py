@@ -153,7 +153,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
                    lodgers.loc[to_sold_deals.index[j]]['profit']=(data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
-                   lodgers.loc[to_sold_deals.index[j]]['profit-rate']='%0.2f' % (lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total'])
+                   lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
                    # if with big profit, increase total_money
@@ -175,7 +175,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                        'sell-date',
                                                        'sell-price',
                                                        'profit',
-                                                       'profit-rate'])
+                                                       'profit-rate',
+                                                       'pending-rate'])
                 new_row_data['price'][0]=data['Open'][i]
                 count=int(deal_cost / data['Open'][i]/100.0) * 100
                 if next_half_buy > 0 and count >= 200:
@@ -187,7 +188,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 new_row_data['sell-date'][0]=data.index[i]
                 new_row_data['sell-price'][0]=0
                 new_row_data['profit'][0]=0
-                new_row_data['profit-rate'][0]=0        
+                new_row_data['profit-rate'][0]=0
+                new_row_data['pending-rate'][0]=0
                 total_cost += new_row_data['total'][0]
                 new_row_data['total-cost'][0]=total_cost
                 if isinstance(lodgers, type(None)):
@@ -257,6 +259,14 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                                                                               holdings['total'].sum(),
                                                                                                               holdings['count'].sum() * price - holdings['total'].sum(),
                                                                                                               total_money-total_cost+current_profit)
+
+        # calculate pending-rate now
+        for i in range(lodgers['price'].count()):
+                if lodgers.iloc[i]['sell-price'] > 0:
+                        continue
+
+                lodgers.iloc[i]['pending-rate'] = '%0.2f' % ((data.iloc[data['Open'].count()-1]['Adj Close']-lodgers.iloc[i]['price'])/lodgers.iloc[i]['price'])
+
         lodgers.to_csv('%s-lodgers.csv' % stock)
         
         if show_detail > 0:
