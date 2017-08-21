@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 import sys
 import getopt
@@ -42,7 +43,7 @@ import datetime
 stocks=[
         # code, name, start, end, budget, deal-count, first-buy  #, more-budget
 #        ['600887', '伊利股份', '2014-01-01', '', 0, 0, ''],
-        ['600487', '亨通光电', '2014-01-01', '', 100000, 8, '2017-01-01'],        
+        ['600487', '亨通光电', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['600240', '华电资本', '2014-01-01', '', 0, 0, ''],
         ['601669', '中国电建', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600660', '福耀玻璃', '2014-01-01', '', 100000, 8, '2017-01-01'],
@@ -53,10 +54,10 @@ stocks=[
         ['002460', '赣锋锂业', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['000651', '格力电器', '2014-01-01', '', 0, 0, ''],
         ['002415', '海康威视', '2014-01-01', '', 100000, 8, '2017-01-01'],
-#        ['510050',  '50ETF', '2014-01-01', '', 0, 0, ''],
+        ['510050',  '50ETF', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['510300',  '300ETF', '2014-01-01', '', 0, 0, ''],
-#        ['510500',  '500ETF', '2014-01-01', '', 0, 0, ''],
-#        ['159915', '创业板', '2014-01-01', '', 0, 0, ''],
+        ['510500',  '500ETF', '2014-01-01', '', 100000, 8, '2017-07-01'],
+        ['159915', '创业板', '2014-01-01', '', 100000, 8, '2017-07-01'],
 #        ['150201', '券商B', '2014-01-01', '', 0, 0, ''],
 #        ['150153', '创业板B', '2014-01-01', '', 0, 0, ''],
 #        ['159902', '中小板', '2016-09-01', '', 0, 0, ''],
@@ -86,12 +87,12 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
         # global show_detail, show_signal, show_summary, show_verbose
-        
+
         lodgers=None
 
         if deal_count == 0: # fast return
                 return
-        
+
         only_lastest_weeks = 5000 # lastest 50 weeks
         selling_good_deals=-1
         with_profit=0.06
@@ -99,14 +100,14 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         forced_with_profit=0.6
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
-        next_steady_buy=-1 # buy one cost 
+        next_steady_buy=-1 # buy one cost
         global_tendency=0
 #        deal_cost=37000 # calculated from input total_money
 #        deal_count=8  # at most this many deals # input argument with default value
         deal_cost = total_money / deal_count
         # total_money=deal_count * deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
-        current_profit=0 
+        current_profit=0
         do_half_buy=0
         do_steady_buy=1
         show_detail=0
@@ -124,11 +125,11 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
 
         # if non-empty, buy at no early that it else use the start date
         first_buy_at = data.index[0] if len(first_buy) == 0 else first_buy #pandas.datetime.strptime(first_buy, '%Y-%m-%d')
-        
+
         for i in range(count):
             if show_verbose > 0 :
-                print '### round %d' % i 
-                print data.iloc[i][['Open', 'Volume']] 
+                print '### round %d' % i
+                print data.iloc[i][['Open', 'Volume']]
             if data['Volume'][i] == 0:
                 continue
             if selling_good_deals == 0 and force_selling_good_deals == 0 and next_buy==0 and next_half_buy==0 and next_steady_buy == 0:
@@ -140,7 +141,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                if selling_good_deals > 0:
                        to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+with_profit) < data['Open'][i] else False)
                else:
-                       to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+forced_with_profit) < data['Open'][i] else False)                       
+                       to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+forced_with_profit) < data['Open'][i] else False)
                if isinstance(to_sold_deals, type(None)):
                    continue;
                if show_verbose > 0:
@@ -163,7 +164,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    if show_verbose > 0:
                      print total_money, current_profit
                if show_verbose > 0 :
-                print lodgers[['price','count','total','sell-date','sell-price']] 
+                print lodgers[['price','count','total','sell-date','sell-price']]
             selling_good_deals=-1
             force_selling_good_deals=-1
             if first_buy_at < data.index[i] and (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
@@ -201,7 +202,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
             next_half_buy=-1
             next_steady_buy=-1
             if show_verbose > 0 :
-                print 'signal %d close_s %d EMA_s %d global %d' % (data['signal'][i], data['close_s'][i], data['EMA_s'][i], global_tendency) 
+                print 'signal %d close_s %d EMA_s %d global %d' % (data['signal'][i], data['close_s'][i], data['EMA_s'][i], global_tendency)
             if data['signal'][i] < 0:
                 selling_good_deals=1
             elif data['signal'][i] > 0 and (total_money - total_cost) > deal_cost:
@@ -221,7 +222,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
             global_tendency = data['EMA_s'][i]
             if show_verbose > 0:
                 print 'selling %d force_selling %d next_buy %d next_half_buy %d global %d' % (selling_good_deals,
-                                                                                              force_selling_good_deals, 
+                                                                                              force_selling_good_deals,
                                                                                         next_buy, next_half_buy, global_tendency)
         # generate signal for next operation, buy and/or sell?
         if show_signal > 0 and not isinstance(lodgers, type(None)):
@@ -268,7 +269,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 lodgers.iloc[i]['pending-rate'] = '%0.2f' % ((data.iloc[data['Open'].count()-1]['Adj Close']-lodgers.iloc[i]['price'])/lodgers.iloc[i]['price'])
 
         lodgers.to_csv('%s-lodgers.csv' % stock)
-        
+
         if show_detail > 0:
             print lodgers
 ppservers = ()
@@ -297,7 +298,7 @@ def one_stock_d(stock, start, end):
 
         print stock
         new_weekly_policy(stock, data)
-        
+
 def __main():
         for s in stocks:
                 if s[5] == 0:  # deal_cost is zero, continue
@@ -306,7 +307,7 @@ def __main():
 
         job_server.wait()
         print ''
-        
+
         #use pp for following computing is not so good
         for s in stocks:
                 if s[5] == 0: # deal_cost is zero, continue
@@ -338,7 +339,7 @@ def main(argv):
     if len(argv) == 3:
             end = pandas.datetime.now();
             start=end-datetime.timedelta(365)
-            
+
             globals()[argv[1]](argv[2],start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
     # 3 args: one_stock ######, start, until now
     elif len(argv) == 4:
@@ -351,8 +352,3 @@ def main(argv):
 
 if __name__ == "__main__":
         sys.exit(main(sys.argv))
-
-        
-        
-
-
