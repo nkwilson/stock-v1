@@ -33,12 +33,15 @@ RUN  apt-get -y install s-nail && apt-get autoclean && apt-get autoremove && apt
 RUN  locale-gen zh_CN.UTF-8
 
 RUN  cd stock-v1 && git pull
+
+ENV LANG=zh_CN.UTF-8
+ENV LC_ALL=zh_CN.UTF-8
 	
-ENTRYPOINT cd stock-v1 && git pull && export LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 && bash run-in-docker.sh
+CMD cd stock-v1 && git pull && bash run-in-docker.sh
 
 EOF
 
 docker build -t ubuntu:tushare-1 .
 popd
 
-docker run --rm ubuntu:tushare-1
+docker run -it --rm ubuntu:tushare-1
