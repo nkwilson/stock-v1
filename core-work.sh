@@ -2,9 +2,6 @@
 
 BASEDIR=$(dirname $(realpath $0))
 
-echo $LC_ALL
-echo $LANG
-
 export DISPLAY=:1
 Xvfb :1 -screen 0 1024x768x16 &
 
