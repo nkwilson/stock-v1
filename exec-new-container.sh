@@ -28,11 +28,17 @@ RUN  pip install requests && \
      pip install matplotlib && \
      git clone -b adx https://github.com/nkwilson/stock-v1.git
 
-ENTRYPOINT cd stock-v1 && git pull && run-in-docker.sh
+RUN  apt-get -y install s-nail && apt-get autoclean && apt-get autoremove && apt-get clean
+
+RUN  locale-gen zh_CN.UTF-8
+
+RUN  cd stock-v1 && git pull
+	
+ENTRYPOINT cd stock-v1 && git pull && export LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 && bash run-in-docker.sh
 
 EOF
 
 docker build -t ubuntu:tushare-1 .
 popd
 
-docker exec ubuntu:tushare-1
+docker run --rm ubuntu:tushare-1
