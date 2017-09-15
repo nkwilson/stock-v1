@@ -1,6 +1,6 @@
 #!/bin/bash
 
 bash core-work.sh > summary
-bash send-mail.sh summary
+bash -x send-mail.sh summary
 
 
