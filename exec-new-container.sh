@@ -1,6 +1,9 @@
 #!/bin/bash
 
-cat - > tushare.Dockerfile <<EOF
+mkdir xxx
+pushd xxx
+
+cat - > Dockerfile <<EOF
 FROM ubuntu
 
 WORKDIR /root
@@ -26,10 +29,6 @@ EXEC cd stock-v1 && run-in-docker.sh
 
 EOF
 
-mkdir xxx
-cp tushare.Dockerfile xxx/Dockerfile
-
-pushd xxx
 docker build -t ubuntu:tushare-1 .
 popd
 
