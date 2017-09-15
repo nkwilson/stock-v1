@@ -30,7 +30,7 @@ mkdir xxx
 cp tushare.Dockerfile xxx/Dockerfile
 
 pushd xxx
-docker build -t ubuntu:tushare .
+docker build -t ubuntu:tushare-1 .
 popd
 
-docker exec -it --rm ubuntu:tushare 
+docker exec -it --rm ubuntu:tushare-1
