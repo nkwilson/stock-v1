@@ -112,7 +112,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         do_steady_buy=1
         show_detail=0
         show_signal=1
-        show_summary=1
+        show_summary=0
         total_op_count=0
         show_verbose=0
         profit_invested=1  # using profit to buy more stocks
