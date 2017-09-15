@@ -8,5 +8,14 @@ RUN  pip install lxml &&      pip install pandas
 
 RUN  pip install requests &&      pip install astropy &&      pip install bs4 &&      pip install tushare &&      pip install pp &&      pip install matplotlib &&      git clone -b adx https://github.com/nkwilson/stock-v1.git
 
-ENTRYPOINT cd stock-v1 && git pull && run-in-docker.sh
+RUN  apt-get -y install s-nail && apt-get autoclean && apt-get autoremove && apt-get clean
+
+RUN  locale-gen zh_CN.UTF-8
+
+RUN  touch a && rm -f a && cd stock-v1 && git pull
+
+ENV LANG=zh_CN.UTF-8
+ENV LC_ALL=zh_CN.UTF-8
+	
+CMD cd stock-v1 && git pull && bash -x run-in-docker.sh
 
