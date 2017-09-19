@@ -30,6 +30,8 @@ RUN  pip install requests && \
 
 RUN  apt-get -y install s-nail && apt-get autoclean && apt-get autoremove && apt-get clean
 
+RUN  apt-get -y install locales && apt-get autoclean && apt-get autoremove && apt-get clean
+
 RUN  locale-gen zh_CN.UTF-8
 
 RUN  touch a && rm -f a && cd stock-v1 && git pull
