@@ -289,7 +289,7 @@ def one_stock(stock, start, end):
         #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
-	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.pdf' % stock, bbox_inches='tight')
+	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.png' % stock, bbox_inches='tight')
         new_weekly_policy(stock, data)
 
 def one_stock_d(stock, start, end):
@@ -315,7 +315,7 @@ def __main():
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1],s[0]
-		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.pdf' % (s[0], s[1]), bbox_inches='tight')
+		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
                 if s[4] > 0:
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
