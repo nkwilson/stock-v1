@@ -4,7 +4,7 @@ mkdir xxx
 pushd xxx
 
 cat - > Dockerfile <<EOF
-FROM ubuntu
+FROM ubuntu:latest
 
 WORKDIR /root
 
@@ -13,8 +13,6 @@ RUN  echo 'Asia/ShangHai' > /etc/timezone  && \
      sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
      apt-get update && \
      apt-get -y install python-pip python-tk git command-not-found xvfb &&\
-     apt-get autoclean && \
-     apt-get autoremove && \
      pip install --upgrade pip
 
 RUN  pip install lxml && \
@@ -28,17 +26,19 @@ RUN  pip install requests && \
      pip install matplotlib && \
      git clone -b adx https://github.com/nkwilson/stock-v1.git
 
-RUN  apt-get -y install s-nail && apt-get autoclean && apt-get autoremove && apt-get clean
+RUN  apt-get -y install s-nail
 
-RUN  apt-get -y install locales && apt-get autoclean && apt-get autoremove && apt-get clean
+RUN  apt-get -y install locales
+
+RUN  apt-get autoclean && apt-get autoremove && apt-get clean
 
 RUN  locale-gen zh_CN.UTF-8
 
-RUN  touch a && rm -f a && cd stock-v1 && git pull
+RUN  cd stock-v1 && git log -1 --oneline > old && git pull && git log -1 --oneline > new && diff -q old new || touch file-$(date '+%S')
 
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
-	
+
 CMD cd stock-v1 && git pull && bash -x run-in-docker.sh
 
 EOF
