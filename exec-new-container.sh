@@ -37,7 +37,7 @@ RUN  locale-gen zh_CN.UTF-8
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
      
-CMD bash -x run-in-docker.sh
+CMD git clone -b adx https://github.com/nkwilson/stock-v1.git && cd stock-v1 && bash -x run-in-docker.sh
 
 EOF
 
