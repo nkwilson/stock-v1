@@ -44,4 +44,4 @@ EOF
 docker build -t ubuntu:tushare-1 .
 popd
 
-docker run -it --rm ubuntu:tushare-1
+docker run --rm ubuntu:tushare-1
