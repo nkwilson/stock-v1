@@ -323,7 +323,9 @@ def __main():
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1],s[0]
-		data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
+                plot_data=data[['EMA', 'signal']][-60:]
+                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
+                plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
                 if s[4] > 0:
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
