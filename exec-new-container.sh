@@ -1,10 +1,21 @@
 #!/bin/bash
 
+# if Docker.keep exist, then run immediately
+test -f Docker.keep && docker run --rm ubuntu:tushare-16.04
+
+# if Docker.update not exist, exit now
+test ! -f Docker.update && exit
+
+# update Docker image
+
 mkdir xxx
 pushd xxx
 
+
 cat - > Dockerfile <<EOF
-FROM ubuntu:latest
+#FROM ubuntu:latest
+#FROM ubuntu:17.04
+FROM ubuntu:16.04
 
 WORKDIR /root
 
@@ -36,12 +47,17 @@ RUN  locale-gen zh_CN.UTF-8
 
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
+
+RUN pip uninstall -y numpy pandas
+RUN apt-get -y install python-numpy python-pandas
      
 CMD git clone -b adx https://github.com/nkwilson/stock-v1.git && cd stock-v1 && bash -x run-in-docker.sh
 
 EOF
 
-docker build -t ubuntu:tushare-1 .
+#docker build -t ubuntu:tushare-1 .
+#docker build -t ubuntu:tushare-17.04 .
+docker build -t ubuntu:tushare-16.04 .
 popd
 
-docker run --rm ubuntu:tushare-1
+docker run --rm ubuntu:tushare-16.04

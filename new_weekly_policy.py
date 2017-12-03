@@ -8,6 +8,7 @@ import numpy
 import StockSignal
 import pp
 import datetime
+import tushare
 
 #data=pandas.read_csv('600663.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600547.SSw-all-data.csv', index_col=0).sort_index()
@@ -299,6 +300,12 @@ def one_stock_d(stock, start, end):
         print stock
         new_weekly_policy(stock, data)
 
+def all_stocks():
+	_stocks=tushare.get_stock_basics()
+	tmpl=stocks[0]
+
+
+
 def __main():
         for s in stocks:
                 if s[5] == 0:  # deal_cost is zero, continue
@@ -307,6 +314,7 @@ def __main():
 
         job_server.wait()
         print ''
+        job_server.print_stats()
 
         #use pp for following computing is not so good
         for s in stocks:
