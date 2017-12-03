@@ -43,6 +43,7 @@ import tushare
 # copied from scan-these-stocks.py
 stocks=[
         # code, name, start, end, budget, deal-count, first-buy  #, more-budget
+        ['600276', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600887', '伊利股份', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600487', '亨通光电', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['600240', '华电资本', '2014-01-01', '', 0, 0, ''],
@@ -290,7 +291,11 @@ def one_stock(stock, start, end):
         #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
-	data[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.png' % stock, bbox_inches='tight')
+#        plot_data=data[['EMA', 'signal']][-60:]
+#        plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
+        plot_data=data[['price', 'signal']][-60:]
+        plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
+	plot_data.plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.png' % stock, bbox_inches='tight')
         new_weekly_policy(stock, data)
 
 def one_stock_d(stock, start, end):
@@ -323,8 +328,10 @@ def __main():
                 data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
 
                 print s[1],s[0]
-                plot_data=data[['EMA', 'signal']][-60:]
-                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
+#                plot_data=data[['EMA', 'signal']][-60:]
+#                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
+                plot_data=data[['price', 'signal']][-60:]
+                plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
                 plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
                 if s[4] > 0:
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
