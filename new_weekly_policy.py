@@ -307,9 +307,28 @@ def one_stock_d(stock, start, end):
 
 def all_stocks():
 	_stocks=tushare.get_stock_basics()
-	tmpl=stocks[0]
+        for s in _stocks.index:
+                if _stocks.ix[s].profit <= 0:
+                        continue
 
+                jobs.append(job_server.submit(local_func1, (s, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
 
+        for s in _stocks.index:
+                if _stocks.ix[s].profit <= 0:
+                        continue
+
+                data=pandas.read_csv('%sw-all-data.csv' % s, index_col=0).sort_index()
+
+                print _stocks.ix[s].name
+                plot_data=data[['price', 'signal']][-60:]
+                plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
+                figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
+                figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
+                figure=None
+
+                new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
+
+import matplotlib.pyplot as pyplot
 
 def __main():
         for s in stocks:
@@ -317,11 +336,14 @@ def __main():
                         continue
                 jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
 
-        job_server.wait()
+        #job_server.wait()
         print ''
         job_server.print_stats()
-
+	
+	pyplot.ioff()
         #use pp for following computing is not so good
+	start=1
+	pyplot.figure(figsize=(2048,768))
         for s in stocks:
                 if s[5] == 0: # deal_cost is zero, continue
                         continue
@@ -332,11 +354,20 @@ def __main():
 #                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
                 plot_data=data[['price', 'signal']][-60:]
                 plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
-                plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
+                #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
+                #figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
+                #figure=None
+		pyplot.subplot(20, 1, start)
+		start+=1
+		count=plot_data['price'].count()
+		pyplot.plot(range(count), plot_data['price'], range(count), plot_data['signal'])
+
                 if s[4] > 0:
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
                         new_weekly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
+	pyplot.savefig('stocks.png')
+	pyplot.close()
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -352,8 +383,11 @@ def main(argv):
         __main()
         return
 
+    # 1 args: all_stocks
+    if len(argv) == 2:
+            globals()[argv[1]]()
     # 2 args: one_stock ######, last year
-    if len(argv) == 3:
+    elif len(argv) == 3:
             end = pandas.datetime.now();
             start=end-datetime.timedelta(365)
 
