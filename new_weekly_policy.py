@@ -61,10 +61,10 @@ stocks=[
         ['002460', '赣锋锂业', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['000651', '格力电器', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['002415', '海康威视', '2014-01-01', '', 100000, 8, '2017-01-01'],
-        ['510050',  '50ETF', '2014-01-01', '', 100000, 8, '2017-01-01'],
+#        ['510050',  '50ETF', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['510300',  '300ETF', '2014-01-01', '', 0, 0, ''],
-        ['510500',  '500ETF', '2014-01-01', '', 100000, 8, '2017-07-01'],
-        ['159915', '创业板', '2014-01-01', '', 100000, 8, '2017-07-01'],
+#        ['510500',  '500ETF', '2014-01-01', '', 100000, 8, '2017-07-01'],
+#        ['159915', '创业板', '2014-01-01', '', 100000, 8, '2017-07-01'],
 #        ['150201', '券商B', '2014-01-01', '', 0, 0, ''],
 #        ['150153', '创业板B', '2014-01-01', '', 0, 0, ''],
 #        ['159902', '中小板', '2016-09-01', '', 0, 0, ''],
@@ -88,6 +88,30 @@ stocks=[
 #        ['000799', '酒鬼酒', '2016-09-01', '', 0, 0, ''],
 #        ['600779', '水井坊', '2016-09-01', '', 0, 0, ''],
 ]
+
+stocks2=[
+        ['000663', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['000886', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002008', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002027', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002038', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002061', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002081', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002341', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002507', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['002656', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['300122', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['300136', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['300323', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['300373', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['600584', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['600703', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['601012', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['601100', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['603019', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['603688', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['603866', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],	
+	] 
 
 def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=''):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
@@ -300,7 +324,20 @@ def one_stock(stock, start, end):
 #        plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
         plot_data=data[['price', 'signal']][-60:]
         plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
-	plot_data.plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.png' % stock, bbox_inches='tight')
+
+#	plot_data.plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.png' % stock, bbox_inches='tight')
+
+	count=plot_data['price'].count()
+	pyplot.plot(range(count), plot_data['price'], '.')
+        up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+        pyplot.plot(range(count), up_data, '^')
+        down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+        pyplot.plot(range(count), down_data, 'v')
+        pyplot.plot(range(count), plot_data['signal'])
+	pyplot.title(s[0])
+	pyplot.savefig('%s.png' % s)
+	pyplot.close()
+        
         new_weekly_policy(stock, data)
 
 def one_stock_d(stock, start, end):
@@ -332,20 +369,27 @@ def all_stocks():
                 data=pandas.read_csv(csv_file, index_col=0).sort_index()
 
                 print _stocks.ix[s].name
-                plot_data=data[['price', 'signal']][-60:]
+                plot_data=data[['price', 'signal']]#[-60:]
                 plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
                 #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
                 #figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
                 #figure=None
 		count=plot_data['price'].count()
-		pyplot.plot(range(count), plot_data['price'], range(count), plot_data['signal'])
+		pyplot.plot(range(count), plot_data['price'], '.')
+                up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+                pyplot.plot(range(count), up_data, '^')
+                down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+                pyplot.plot(range(count), down_data, 'v')
+                pyplot.plot(range(count), plot_data['signal'])
 		pyplot.title(s)
 		pyplot.savefig('%s.png' % s)
 		pyplot.close()
-
+                
                 new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
 
 def __main():
+#        stocks = stocks2
+        
         for s in stocks:
                 if s[5] == 0:  # deal_cost is zero, continue
                         continue
@@ -376,14 +420,19 @@ def __main():
 		pyplot.subplot(stocks_count, 1, start)
 		start+=1
 		count=plot_data['price'].count()
-		pyplot.plot(range(count), plot_data['price'], range(count), plot_data['signal'])
+		pyplot.plot(range(count), plot_data['price'], '.')
+                up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+                pyplot.plot(range(count), up_data, '^')
+                down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+                pyplot.plot(range(count), down_data, 'v')
+                pyplot.plot(range(count), plot_data['signal'])
 		pyplot.title(s[0])
 
                 if s[4] > 0:
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
                         new_weekly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
-	#pyplot.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
+	#pyplot.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.1,
         #            wspace=0.35)   # none effect
 	pyplot.savefig('stocks.png')
 	pyplot.close()
