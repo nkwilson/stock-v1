@@ -10,6 +10,11 @@ import pp
 import datetime
 import tushare
 
+import os.path as path
+import time
+
+import matplotlib.pyplot as pyplot
+
 #data=pandas.read_csv('600663.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600547.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('000002.SZw-all-data.csv', index_col=0).sort_index()
@@ -313,22 +318,32 @@ def all_stocks():
 
                 jobs.append(job_server.submit(local_func1, (s, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
 
+	pyplot.ioff()
+	pyplot.figure(figsize=(12,6))
         for s in _stocks.index:
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-                data=pandas.read_csv('%sw-all-data.csv' % s, index_col=0).sort_index()
+		csv_file='%sw-all-data.csv' % s
+		while not path.exists(csv_file):
+			print 'waiting for %s' % csv_file
+			time.sleep(1)
+
+                data=pandas.read_csv(csv_file, index_col=0).sort_index()
 
                 print _stocks.ix[s].name
                 plot_data=data[['price', 'signal']][-60:]
                 plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
-                figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
-                figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
-                figure=None
+                #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
+                #figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
+                #figure=None
+		count=plot_data['price'].count()
+		pyplot.plot(range(count), plot_data['price'], range(count), plot_data['signal'])
+		pyplot.title(s)
+		pyplot.savefig('%s.png' % s)
+		pyplot.close()
 
                 new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
-
-import matplotlib.pyplot as pyplot
 
 def __main():
         for s in stocks:
@@ -343,7 +358,8 @@ def __main():
 	pyplot.ioff()
         #use pp for following computing is not so good
 	start=1
-	pyplot.figure(figsize=(2048,768))
+	stocks_count = len(stocks)
+	pyplot.figure(figsize=(8,8*stocks_count))
         for s in stocks:
                 if s[5] == 0: # deal_cost is zero, continue
                         continue
@@ -357,15 +373,18 @@ def __main():
                 #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
                 #figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
                 #figure=None
-		pyplot.subplot(20, 1, start)
+		pyplot.subplot(stocks_count, 1, start)
 		start+=1
 		count=plot_data['price'].count()
 		pyplot.plot(range(count), plot_data['price'], range(count), plot_data['signal'])
+		pyplot.title(s[0])
 
                 if s[4] > 0:
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
                         new_weekly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
+	#pyplot.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
+        #            wspace=0.35)   # none effect
 	pyplot.savefig('stocks.png')
 	pyplot.close()
 
