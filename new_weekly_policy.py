@@ -292,6 +292,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                                                                               holdings['count'].sum() * price - holdings['total'].sum(),
                                                                                                               total_money-total_cost+current_profit)
 
+        if isinstance(lodgers, type(None)):
+                return
+        
         # calculate pending-rate now
         for i in range(lodgers['price'].count()):
                 if lodgers.iloc[i]['sell-price'] > 0:
@@ -303,6 +306,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
 
         if show_detail > 0:
             print lodgers
+
 ppservers = ()
 jobs = []
 
@@ -361,6 +365,9 @@ def all_stocks():
                 if _stocks.ix[s].profit <= 0:
                         continue
 
+#                if path.exists('%s.png' % s):
+#                        continue
+                
 		csv_file='%sw-all-data.csv' % s
 		while not path.exists(csv_file):
 			print 'waiting for %s' % csv_file
