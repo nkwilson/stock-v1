@@ -482,12 +482,23 @@ def __main():
 		pyplot.subplot(stocks_count, 1, start)
 		start+=1
 		count=plot_data['price'].count()
-		pyplot.plot(range(count), plot_data['price'], '.')
                 up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-                pyplot.plot(range(count), up_data, '^')
                 down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-                pyplot.plot(range(count), down_data, 'v')
-                pyplot.plot(range(count), plot_data['signal'])
+
+                _style = 'bar'
+
+                # plot as point
+                if cmp(_style, 'point') == 0 :
+	                pyplot.plot(range(count), plot_data['price'], '.')
+                        pyplot.plot(range(count), up_data, color='^')
+                        pyplot.plot(range(count), down_data, 'v')
+                        pyplot.plot(range(count), plot_data['signal'])
+                elif cmp(_style, 'bar') == 0 :
+		        pyplot.bar(range(count),plot_data['price'])
+		        pyplot.bar(range(count),up_data)
+		        pyplot.bar(range(count),down_data)
+                        #pyplot.bar(range(count),plot_data['signal'])
+
 		pyplot.title(s[0])
 
                 if s[4] > 0:
