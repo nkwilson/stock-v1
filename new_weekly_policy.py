@@ -490,14 +490,15 @@ def __main():
                 # plot as point
                 if cmp(_style, 'point') == 0 :
 	                pyplot.plot(range(count), plot_data['price'], '.')
-                        pyplot.plot(range(count), up_data, color='^')
+                        pyplot.plot(range(count), up_data, '^')
                         pyplot.plot(range(count), down_data, 'v')
                         pyplot.plot(range(count), plot_data['signal'])
                 elif cmp(_style, 'bar') == 0 :
-		        pyplot.bar(range(count),plot_data['price'])
-		        pyplot.bar(range(count),up_data)
-		        pyplot.bar(range(count),down_data)
+		        pyplot.bar(range(count),plot_data['price'], label='code = %s' % s[0])
+		        pyplot.bar(range(count),up_data, label='buy')
+		        pyplot.bar(range(count),down_data, label='sell')
                         #pyplot.bar(range(count),plot_data['signal'])
+                        pyplot.legend()
 
 		pyplot.title(s[0])
 
