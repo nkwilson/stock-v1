@@ -463,7 +463,7 @@ def __main():
 	
 	pyplot.ioff()
         #use pp for following computing is not so good
-	start=1
+	start=0
 	stocks_count = len(stocks)
 	pyplot.figure(figsize=(15,6*stocks_count))
         for s in stocks:
@@ -479,8 +479,8 @@ def __main():
                 #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
                 #figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
                 #figure=None
-		pyplot.subplot(stocks_count, 1, start)
 		start+=1
+		pyplot.subplot(stocks_count, 1, start)
 		count=plot_data['price'].count()
                 up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
                 down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
@@ -494,7 +494,7 @@ def __main():
                         pyplot.plot(range(count), down_data, 'v')
                         pyplot.plot(range(count), plot_data['signal'])
                 elif cmp(_style, 'bar') == 0 :
-		        pyplot.bar(range(count),plot_data['price'], label='code = %s' % s[0])
+		        pyplot.bar(range(count),plot_data['price'], label='code = %s (%d/%d)' % (s[0], start, stocks_count))
 		        pyplot.bar(range(count),up_data, label='buy')
 		        pyplot.bar(range(count),down_data, label='sell')
                         #pyplot.bar(range(count),plot_data['signal'])
