@@ -450,7 +450,7 @@ def all_stocks():
                 new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
 
 def __main():
-#        stocks = stocks5
+#        stocks = stocks3
         
         for s in stocks:
                 if s[5] == 0:  # deal_cost is zero, continue
@@ -498,7 +498,7 @@ def __main():
 		        pyplot.bar(range(count),up_data, label='buy')
 		        pyplot.bar(range(count),down_data, label='sell')
                         #pyplot.bar(range(count),plot_data['signal'])
-                        pyplot.legend()
+                        pyplot.legend(loc='upper left')
 
 		pyplot.title(s[0])
 
