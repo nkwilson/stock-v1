@@ -465,7 +465,7 @@ def __main():
         #use pp for following computing is not so good
 	start=1
 	stocks_count = len(stocks)
-	pyplot.figure(figsize=(6,6*stocks_count))
+	pyplot.figure(figsize=(15,6*stocks_count))
         for s in stocks:
                 if s[5] == 0: # deal_cost is zero, continue
                         continue
@@ -474,7 +474,7 @@ def __main():
                 print s[1],s[0]
 #                plot_data=data[['EMA', 'signal']][-60:]
 #                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
-                plot_data=data[['price', 'signal']][-60:]
+                plot_data=data[['price', 'signal']]#[-60:]
                 plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
                 #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
                 #figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
@@ -505,8 +505,7 @@ def __main():
                         new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
                         new_weekly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
-	#pyplot.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.1,
-        #            wspace=0.35)   # none effect
+	pyplot.subplots_adjust(left=0.05, top=0.99, bottom=0.01, right=0.95, hspace=0.1, wspace=0.1) 
 	pyplot.savefig('stocks.png')
 	pyplot.close()
 
