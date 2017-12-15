@@ -48,6 +48,7 @@ import matplotlib.pyplot as pyplot
 # copied from scan-these-stocks.py
 stocks=[
         # code, name, start, end, budget, deal-count, first-buy  #, more-budget
+        ['600521', '华海药业', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600276', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600887', '伊利股份', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600487', '亨通光电', '2014-01-01', '', 100000, 8, '2017-01-01'],
@@ -372,29 +373,40 @@ def local_func_d(stock, start, end):
         StockSignal.stock_signal_d_new_find_candidate(stock, start, end)
 
 def one_stock(stock, start, end):
+        print stock,start, end
         data = local_func1(stock, start, end)
         #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
         print stock
 #        plot_data=data[['EMA', 'signal']][-60:]
 #        plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
-        plot_data=data[['price', 'signal']][-60:]
+        plot_data=data[['price', 'signal']]#[-60:]
         plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
 
-#	plot_data.plot(kind='bar',figsize=(12,6),title='%s' % stock).figure.savefig('%s.png' % stock, bbox_inches='tight')
-
 	count=plot_data['price'].count()
-	pyplot.plot(range(count), plot_data['price'], '.')
         up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-        pyplot.plot(range(count), up_data, '^')
         down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-        pyplot.plot(range(count), down_data, 'v')
-        pyplot.plot(range(count), plot_data['signal'])
-	pyplot.title(s[0])
-	pyplot.savefig('%s.png' % s)
-	pyplot.close()
+
+        _style = 'bar'
         
-        new_weekly_policy(stock, data)
+        # plot as point
+        if cmp(_style, 'point') == 0 :
+	        pyplot.plot(range(count), plot_data['price'], '.')
+                pyplot.plot(range(count), up_data, '^')
+                pyplot.plot(range(count), down_data, 'v')
+                pyplot.plot(range(count), plot_data['signal'])
+        elif cmp(_style, 'bar') == 0 :
+		pyplot.bar(range(count),plot_data['price'], label='code = %s (%d/%d)' % (stock, 1, 1))
+		pyplot.bar(range(count),up_data, label='buy')
+		pyplot.bar(range(count),down_data, label='sell')
+                #pyplot.bar(range(count),plot_data['signal'])
+                pyplot.legend(loc='upper left')
+
+	pyplot.title(stock)
+	pyplot.savefig('%s.png' % stock)
+	pyplot.close()
+
+        new_weekly_policy(stock, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
 
 def one_stock_d(stock, start, end):
         data = local_func_d(stock, start, end)
@@ -404,24 +416,27 @@ def one_stock_d(stock, start, end):
         new_weekly_policy(stock, data)
 
 def all_stocks():
+        stocks_count = 0
 	_stocks=tushare.get_stock_basics()
         for s in _stocks.index:
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-#                if not path.exists('%s.png' %s):
-#                        continue
+                if not path.exists('selected/%s.png' %s):
+                        continue
 
+                stocks_count+=1
                 jobs.append(job_server.submit(local_func1, (s, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
 
 	pyplot.ioff()
-	pyplot.figure(figsize=(12,6))
+	pyplot.figure(figsize=(18,6))
+        start = 0
         for s in _stocks.index:
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-#                if not path.exists('%s.png' % s):
-#                        continue
+                if not path.exists('selected/%s.png' % s):
+                        continue
                 
 		csv_file='%sw-all-data.csv' % s
 		while not path.exists(csv_file):
@@ -437,15 +452,19 @@ def all_stocks():
                 #figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
                 #figure=None
 		count=plot_data['price'].count()
-		pyplot.plot(range(count), plot_data['price'], '.')
                 up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-                pyplot.plot(range(count), up_data, '^')
                 down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-                pyplot.plot(range(count), down_data, 'v')
-                pyplot.plot(range(count), plot_data['signal'])
+
+                start += 1
+		pyplot.bar(range(count),plot_data['price'], label='code = %s (%d/%d)' % (s, start, stocks_count))
+		pyplot.bar(range(count),up_data, label='buy')
+		pyplot.bar(range(count),down_data, label='sell')
+                #pyplot.bar(range(count),plot_data['signal'])
+                pyplot.legend(loc='upper left')
+                
 		pyplot.title(s)
-#		pyplot.savefig('%s-2.png' % s)
-		pyplot.close()
+		pyplot.savefig('%s.png' % s)
+		pyplot.clf() # clear current figure
                 
                 new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
 
@@ -457,7 +476,7 @@ def __main():
                         continue
                 jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
 
-#        job_server.wait()
+        job_server.wait()
         print ''
         job_server.print_stats()
 	
