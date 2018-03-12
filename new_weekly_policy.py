@@ -1,5 +1,6 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import sys
 import getopt
 
@@ -13,7 +14,10 @@ import tushare
 import os.path as path
 import time
 
+import matplotlib as mpl
+
 import matplotlib.pyplot as pyplot
+
 
 #data=pandas.read_csv('600663.SSw-all-data.csv', index_col=0).sort_index()
 #data=pandas.read_csv('600547.SSw-all-data.csv', index_col=0).sort_index()
@@ -68,6 +72,7 @@ stocks=[
         ['601318', '中国平安', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600298', '安琪酵母', '2014-01-01', '', 100000, 8, '2017-01-01'],
         ['600036', '招商银行', '2014-01-01', '', 100000, 8, '2017-01-01'],
+        ['300176', '鸿特精密', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['510050',  '50ETF', '2014-01-01', '', 100000, 8, '2017-01-01'],
 #        ['510300',  '300ETF', '2014-01-01', '', 0, 0, ''],
 #        ['510500',  '500ETF', '2014-01-01', '', 100000, 8, '2017-07-01'],
@@ -519,7 +524,8 @@ def __main():
                         pyplot.plot(range(count), down_data, 'v')
                         pyplot.plot(range(count), plot_data['signal'])
                 elif cmp(_style, 'bar') == 0 :
-		        pyplot.bar(range(count),plot_data['price'], label='code = %s (%d/%d)' % (s[0], start, stocks_count))
+                        tt = u'code = %s %s (%d/%d)' % (s[0], s[1].decode('utf-8'), start, stocks_count)
+		        pyplot.bar(range(count),plot_data['price'], label=tt)
 		        pyplot.bar(range(count),up_data, label='buy')
 		        pyplot.bar(range(count),down_data, label='sell')
                         #pyplot.bar(range(count),plot_data['signal'])
@@ -544,6 +550,12 @@ class Usage(Exception):
 
 def main(argv):
     print argv
+
+    mpl.rcParams['font.sans-serif'] = ['AR PL KaitiM GB'] # SimHei is common Chinese font on macOS. ttc is not ok.
+#fonts-arphic-gkai00mp/xenial 2.11-15 all
+#  "AR PL KaitiM GB" Chinese TrueType font by Arphic Technology
+
+# after install new font, must delete this file: /root/.cache/matplotlib/fontList.cache  to let matplotlib update font cache
 
     if len(argv) == 1:
         __main()
