@@ -50,6 +50,8 @@ ENV LC_ALL=zh_CN.UTF-8
 
 RUN pip uninstall -y numpy pandas
 RUN apt-get -y install python-numpy python-pandas
+
+RUN apt-get -y install fonts-arphic-gkai00mp && apt-get clean
      
 CMD git clone -b adx https://github.com/nkwilson/stock-v1.git && cd stock-v1 && bash -x run-in-docker.sh
 
