@@ -212,7 +212,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         show_verbose=0
         profit_invested=1  # using profit to buy more stocks
         profit_multi=3 # must left that much as cash
-
+        virt_profit=0 # all profit since time 0
+        virt_total=0 # current holding shares value plut virtal profit
+        
         count = data['signal'].count()
         # if no volume, return now
         if count < 1 or data['Volume'][count-1] == 0:
@@ -248,10 +250,23 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    #           print data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
-                   lodgers.loc[to_sold_deals.index[j]]['profit']=(data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
+                   l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
+                   lodgers.loc[to_sold_deals.index[j]]['profit']= l_profit
                    lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
+
+                   if virt_total == 0:
+                           virt_total = total_money + l_profit
+                   else:
+                           virt_total += l_profit
+
+                   virt_profit += l_profit
+
+                   # only update when first buy. 
+                   # lodgers.loc[to_sold_deals.index[j]]['virt-total']=virt_total
+                   # lodgers.loc[to_sold_deals.index[j]]['virt-profit']=virt_profit
+                   
                    # if with big profit, increase total_money
                    if current_profit > profit_multi * deal_cost and profit_invested == 1:
                      total_money += deal_cost
@@ -260,6 +275,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                      print total_money, current_profit
                if show_verbose > 0 :
                 print lodgers[['price','count','total','sell-date','sell-price']]
+
             selling_good_deals=-1
             force_selling_good_deals=-1
             if first_buy_at < data.index[i] and (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
@@ -268,6 +284,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                        'count',
                                                        'total',
                                                        'total-cost',
+                                                       'virt-total',
+                                                       'virt-profit',
                                                        'sell-date',
                                                        'sell-price',
                                                        'profit',
@@ -288,14 +306,19 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 new_row_data['pending-rate'][0]=0
                 total_cost += new_row_data['total'][0]
                 new_row_data['total-cost'][0]=total_cost
+                new_row_data['virt-total'][0]=virt_total
+                new_row_data['virt-profit'][0]=virt_profit
+
                 if isinstance(lodgers, type(None)):
                     lodgers=new_row_data
                 else:
                     lodgers=lodgers.append(new_row_data)
                     #        print lodgers
+
             next_buy=-1
             next_half_buy=-1
             next_steady_buy=-1
+
             if show_verbose > 0 :
                 print 'signal %d close_s %d EMA_s %d global %d' % (data['signal'][i], data['close_s'][i], data['EMA_s'][i], global_tendency)
             if data['signal'][i] < 0:
@@ -314,6 +337,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                 next_steady_buy=1
                 elif selling_good_deals < 1:
                         force_selling_good_deals=1
+
             global_tendency = data['EMA_s'][i]
             if show_verbose > 0:
                 print 'selling %d force_selling %d next_buy %d next_half_buy %d global %d' % (selling_good_deals,
@@ -388,7 +412,10 @@ def one_stock(stock, start, end):
         data = local_func1(stock, start, end)
         #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
+        new_weekly_policy(stock, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])        
         print stock
+        return
+
 #        plot_data=data[['EMA', 'signal']][-60:]
 #        plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
         plot_data=data[['price', 'signal']]#[-60:]
