@@ -214,7 +214,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         profit_multi=3 # must left that much as cash
         virt_profit=0 # all profit since time 0
         virt_total=0 # current holding shares value plut virtal profit
-        
+        sold_value=0 # saved all sold shares until now
+
         count = data['signal'].count()
         # if no volume, return now
         if count < 1 or data['Volume'][count-1] == 0:
@@ -239,17 +240,21 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                        to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+with_profit) < data['Open'][i] else False)
                else:
                        to_sold_deals=deals.select(lambda x: True if deals.loc[x]['price']*(1+forced_with_profit) < data['Open'][i] else False)
+
                if isinstance(to_sold_deals, type(None)):
                    continue;
+
                if show_verbose > 0:
                 if to_sold_deals['price'].count() == 0:
                   print "Nothing to sold"
                 else:
                   print to_sold_deals[['price','count','total']]
+
                for j in range(to_sold_deals['price'].count()):
                    #           print data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
+                   sold_value += data['Open'][i] * to_sold_deals['count'][j]
                    l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
                    lodgers.loc[to_sold_deals.index[j]]['profit']= l_profit
                    lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
@@ -288,11 +293,12 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                        'profit-rate',
                                                        'pending-rate'])
 
+                    new_row_data['price'][0]=data['Open'][i]
                     new_row_data['virt-total'][0]=0
                     new_row_data['virt-profit'][0]=0
+                    new_row_data['pending-rate'][0]=0
 
                     if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
-                        new_row_data['price'][0]=data['Open'][i]
                         count=int(deal_cost / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
@@ -300,7 +306,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
                         #        new_row_data['signal'][0]=0
                         #        new_row_data['close_s'][0]=0
-                        new_row_data['sell-date'][0]=data.index[i]
+                        new_row_data['sell-date'][0]=0
                         new_row_data['sell-price'][0]=0
                         new_row_data['profit'][0]=0
                         new_row_data['profit-rate'][0]=0
@@ -351,10 +357,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                             # select all pending share, calculate their virtual total value according to current price
                             cur_price = data.iloc[i]['Open']
         
-                            
-                            l_virt_total=l_deals['count'].sum() * cur_price
+                            l_virt_total=l_deals['count'].sum() * cur_price + sold_value
 
-                            lodgers.iloc[lodgers['virt-total'].count() - 1]['virt-total'] = l_virt_total + virt_profit
+                            lodgers.iloc[lodgers['virt-total'].count() - 1]['virt-total'] = l_virt_total
                             lodgers.iloc[lodgers['virt-total'].count() - 1]['virt-profit'] = virt_profit
         
 
