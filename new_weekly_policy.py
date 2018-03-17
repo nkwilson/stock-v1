@@ -313,7 +313,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['pending-rate'][0]=0
                         total_cost += new_row_data['total'][0]
                         new_row_data['total-cost'][0]=total_cost
-                        # leave it to later
+
+                        # exclude current cost from sold_value
+                        if sold_value > 0:
+                                sold_value -= new_row_data['total'][0]
 
                     if isinstance(lodgers, type(None)):
                             lodgers=new_row_data
