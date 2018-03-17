@@ -256,11 +256,6 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
 
-                   if virt_total == 0:
-                           virt_total = total_money + l_profit
-                   else:
-                           virt_total += l_profit
-
                    virt_profit += l_profit
 
                    # only update when first buy. 
@@ -278,9 +273,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
 
             selling_good_deals=-1
             force_selling_good_deals=-1
-            if first_buy_at < data.index[i] and (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
-                new_row_data=pandas.DataFrame(index=data.index[i:i+1],
-                                              columns=['price',
+
+            if first_buy_at < data.index[i] :
+                    new_row_data=pandas.DataFrame(index=data.index[i:i+1],
+                                                  columns=['price',
                                                        'count',
                                                        'total',
                                                        'total-cost',
@@ -291,30 +287,33 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                        'profit',
                                                        'profit-rate',
                                                        'pending-rate'])
-                new_row_data['price'][0]=data['Open'][i]
-                count=int(deal_cost / data['Open'][i]/100.0) * 100
-                if next_half_buy > 0 and count >= 200:
-                    count=count / 2
-                new_row_data['count'][0]=count
-                new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
-                #        new_row_data['signal'][0]=0
-                #        new_row_data['close_s'][0]=0
-                new_row_data['sell-date'][0]=data.index[i]
-                new_row_data['sell-price'][0]=0
-                new_row_data['profit'][0]=0
-                new_row_data['profit-rate'][0]=0
-                new_row_data['pending-rate'][0]=0
-                total_cost += new_row_data['total'][0]
-                new_row_data['total-cost'][0]=total_cost
-                new_row_data['virt-total'][0]=virt_total
-                new_row_data['virt-profit'][0]=virt_profit
 
-                if isinstance(lodgers, type(None)):
-                    lodgers=new_row_data
-                else:
-                    lodgers=lodgers.append(new_row_data)
-                    #        print lodgers
+                    new_row_data['virt-total'][0]=0
+                    new_row_data['virt-profit'][0]=0
 
+                    if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
+                        new_row_data['price'][0]=data['Open'][i]
+                        count=int(deal_cost / data['Open'][i]/100.0) * 100
+                        if next_half_buy > 0 and count >= 200:
+                            count=count / 2
+                        new_row_data['count'][0]=count
+                        new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
+                        #        new_row_data['signal'][0]=0
+                        #        new_row_data['close_s'][0]=0
+                        new_row_data['sell-date'][0]=data.index[i]
+                        new_row_data['sell-price'][0]=0
+                        new_row_data['profit'][0]=0
+                        new_row_data['profit-rate'][0]=0
+                        new_row_data['pending-rate'][0]=0
+                        total_cost += new_row_data['total'][0]
+                        new_row_data['total-cost'][0]=total_cost
+                        # leave it to later
+
+                    if isinstance(lodgers, type(None)):
+                            lodgers=new_row_data
+                    else:
+                            lodgers=lodgers.append(new_row_data)
+                    
             next_buy=-1
             next_half_buy=-1
             next_steady_buy=-1
@@ -342,7 +341,23 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
             if show_verbose > 0:
                 print 'selling %d force_selling %d next_buy %d next_half_buy %d global %d' % (selling_good_deals,
                                                                                               force_selling_good_deals,
-                                                                                        next_buy, next_half_buy, global_tendency)
+                                                                                              next_buy, next_half_buy, global_tendency)
+
+            if not isinstance(lodgers, type(None)):
+                    print lodgers['virt-total'].count()
+                    
+                    l_deals=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price'] == 0 else False)
+                    if l_deals['sell-price'].count() > 0:
+                            # select all pending share, calculate their virtual total value according to current price
+                            cur_price = data.iloc[i]['Open']
+        
+                            
+                            l_virt_total=l_deals['count'].sum() * cur_price
+
+                            lodgers.iloc[lodgers['virt-total'].count() - 1]['virt-total'] = l_virt_total + virt_profit
+                            lodgers.iloc[lodgers['virt-total'].count() - 1]['virt-profit'] = virt_profit
+        
+
         # generate signal for next operation, buy and/or sell?
         if show_signal > 0 and not isinstance(lodgers, type(None)):
             last=data['Open'].count()-1
