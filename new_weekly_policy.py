@@ -353,8 +353,6 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                                                               next_buy, next_half_buy, global_tendency)
 
             if not isinstance(lodgers, type(None)):
-                    print lodgers['virt-total'].count()
-                    
                     l_deals=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price'] == 0 else False)
                     if l_deals['sell-price'].count() > 0:
                             # select all pending share, calculate their virtual total value according to current price
@@ -436,8 +434,7 @@ def one_stock(stock, start, end):
         #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
         new_weekly_policy(stock, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])        
-        print stock
-        return
+
 
 #        plot_data=data[['EMA', 'signal']][-60:]
 #        plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
