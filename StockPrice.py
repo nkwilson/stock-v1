@@ -32,6 +32,53 @@ def StockPrice_yahoo(stock, type, start, end):
     f=urllib2.urlopen(url, timeout=2)
     return pandas.read_csv(f, index_col=0).sort_index()
 
+# retrieve k_data strictly
+def StockPrice_tushare_k_data(stock, type, start, end, with_return=False):
+    # append to file name
+    suffix='-k-data'
+
+    # maybe '300027.SZ' pattern, strip '.SZ' suffix
+    # stock=stock[0:6]
+
+    # data=tushare.get_k_data(stock, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'), ktype=type)
+
+    filename='%s-%s%s.csv' % (stock, type, suffix)
+
+    data=None
+    old_start = start
+    old_end = end
+    
+    #TODO: exception?
+    if not os.path.isfile(filename):
+        data = tushare.get_k_data(stock, start, end, ktype=type)
+    else:
+        data=pandas.read_csv(filename, index_col=0)
+
+        print data.index
+        old_start=data.index[0]
+        old_end=data.index[data.index.size - 1]
+        print old_start, old_end
+
+        # need older data
+        if cmp(start, old_start) < 0:
+            older_data=tushare.get_k_data(stock, start, old_start, ktype=type)
+            print older_data
+            if older_data != None:
+                older_data.set_index('date', inplace=True)
+                data=pandas.concat([older_data, data]) 
+                
+        # need recently data
+        if cmp(old_end, end) < 0:
+            newer_data=tushare.get_k_data(stock, old_end, end, ktype=type)
+            print newer_data
+            if newer_data != None:
+                newer_data.set_index('date', inplace=True)
+                data=pandas.concat([data, newer_data])
+
+        data.to_csv(filename, index=False)
+    
+    return data if with_return else True   
+
 def StockPrice_tushare_new(stock, type, start, end):
     # maybe '300027.SZ' pattern, strip '.SZ' suffix
     stock=stock[0:6]
@@ -49,6 +96,9 @@ def StockPrice_tushare_new(stock, type, start, end):
     new_data['Adj Close']=data['close']
     new_data['Volume']=data['volume']
 
+    # clean big data
+    data = None
+    
     return new_data.sort_index(ascending=True)
     
 def StockPrice_tushare(stock, type, start, end):
