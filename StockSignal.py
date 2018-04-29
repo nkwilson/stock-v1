@@ -63,11 +63,30 @@ def adj_close_signal_new(hist_data):
         data['close_s'][i]=1 if hist_data['Adj Close'][i]>hist_data['Adj Close'][i-1] else 0
     return data
 
-def calculate_stock_signal_new(hist_data):
+def calculate_stock_signal_new(hist_data, fileprefix=''):
     count=hist_data['Open'].count()
 
-    all_data=hist_data.join(KDJ2.KDJ(hist_data,period)).join(RSI2.RSI(hist_data,period)).join(ForceIndex2.FI(hist_data,period)).join(EMA.EMA(hist_data,period))
-    all_data=all_data.join(adj_close_signal_new(hist_data))
+    if fileprefix != '':
+        kdj=KDJ2.KDJ(hist_data,period)
+        kdj.to_csv('%s-kdj.csv' % (fileprefix))
+
+        rsi=RSI2.RSI(hist_data,period)
+        rsi.to_csv('%s-rsi.csv' % (fileprefix))
+
+        fi=ForceIndex2.FI(hist_data,period)
+        fi.to_csv('%s-forceindex.csv' % (fileprefix))
+
+        ema=EMA.EMA(hist_data,period)
+        ema.to_csv('%s-ema.csv' % (fileprefix))
+
+        adj_close=adj_close_signal_new(hist_data)
+        adj_close.to_csv('%s-adj_close.csv' % (fileprefix))
+        
+        all_data=hist_data.join(kdj).join(rsi).join(fi).join(ema)
+        all_data=all_data.join(adj_close)
+    else:
+        all_data=hist_data.join(KDJ2.KDJ(hist_data,period)).join(RSI2.RSI(hist_data,period)).join(ForceIndex2.FI(hist_data,period)).join(EMA.EMA(hist_data,period))
+        all_data=all_data.join(adj_close_signal_new(hist_data))
 
     data=pandas.DataFrame(numpy.zeros(hist_data['Open'].count()*5).reshape(count,5),index=hist_data.index,columns=['signal','price','buy','sell','profit'])
 
@@ -93,7 +112,9 @@ def calculate_stock_signal_new(hist_data):
 	            j=j-1
                 data['profit'][i]=(data['sell'][i]-data['buy'][j])/data['buy'][j]
                 data['signal'][i]=-1
-                
+
+    data.to_csv('%s-signal.csv' % (fileprefix))
+    
     return all_data.join(data)
 
 def stock_signal_new_4(stock, type, start, end):
@@ -127,9 +148,12 @@ def stock_signal_new_4(stock, type, start, end):
         need_update=cmp(saved_end, end.strftime('%Y-%m-%d'))
 
     if need_update:
+        fileprefix='%s-%s' % (stock, type)
         hist_data=StockPrice.StockPrice_4(stock, type, start, end)
+
+        hist_data.to_csv('%s-price.csv' % (fileprefix))
         
-        all_data=calculate_stock_signal_new(hist_data)
+        all_data=calculate_stock_signal_new(hist_data, fileprefix)
         
         all_data.to_csv(filename)
     
