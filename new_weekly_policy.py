@@ -473,14 +473,14 @@ def one_stock_d(stock, start, end):
         print stock
         new_weekly_policy(stock, data)
 
-def all_stocks():
+def all_stocks(selected=False):
         stocks_count = 0
 	_stocks=tushare.get_stock_basics()
         for s in _stocks.index:
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-                if not path.exists('selected/%s.png' %s):
+                if selected == True and not path.exists('selected/%s.png' %s):
                         continue
 
                 stocks_count+=1
@@ -493,7 +493,7 @@ def all_stocks():
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-                if not path.exists('selected/%s.png' % s):
+                if selected == True and not path.exists('selected/%s.png' % s):
                         continue
                 
 		csv_file='%sw-all-data.csv' % s
@@ -526,6 +526,10 @@ def all_stocks():
                 
                 new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
 
+def selected():
+        all_stocks(selected=True)
+        
+                
 def __main():
 #        stocks = stocks3
         
@@ -608,7 +612,7 @@ def main(argv):
         __main()
         return
 
-    # 1 args: all_stocks
+    # 1 args: all_stocks | selected
     if len(argv) == 2:
             globals()[argv[1]]()
     # 2 args: one_stock ######, last year
