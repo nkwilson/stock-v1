@@ -15,7 +15,7 @@ import os.path as path
 import time
 import random
 
-import matplotlib as mpl
+import matplotlib
 
 import matplotlib.pyplot as pyplot
 
@@ -474,7 +474,12 @@ def one_stock_d(stock, start, end):
         print stock
         new_weekly_policy(stock, data)
 
+def processed(s, name, total_money, deal_count, first_buy, csv_file='', start=0, stocks_count=0):
+        print '%s done' % s
+
 def process_one_stock(s, name, total_money, deal_count, first_buy, csv_file='', start=0, stocks_count=0):
+        print '%s processing...' % s
+
         data=pandas.read_csv(csv_file, index_col=0).sort_index()
 
         plot_data=data[['price', 'signal']]#[-60:]
@@ -485,20 +490,23 @@ def process_one_stock(s, name, total_money, deal_count, first_buy, csv_file='', 
 	count=plot_data['price'].count()
         up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
         down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+
+	matplotlib.pyplot.ioff()
+	matplotlib.pyplot.figure(figsize=(18,6))
         
         tt = u'code = %s %s (%d/%d)' % (s, name.decode('utf-8'), start, stocks_count)
-	pyplot.bar(range(count),plot_data['price'], label=tt)
-	pyplot.bar(range(count),up_data, label='buy')
-	pyplot.bar(range(count),down_data, label='sell')
+	matplotlib.pyplot.bar(range(count),plot_data['price'], label=tt)
+	matplotlib.pyplot.bar(range(count),up_data, label='buy')
+	matplotlib.pyplot.bar(range(count),down_data, label='sell')
         #pyplot.bar(range(count),plot_data['signal'])
-        pyplot.legend(loc='upper left')
+        matplotlib.pyplot.legend(loc='upper left')
         
-	pyplot.title(s)
-	pyplot.savefig('%s-%s.png' % (s,name))
-	pyplot.clf() # clear current figure
+	matplotlib.pyplot.title(s)
+	matplotlib.pyplot.savefig('%s-%s.png' % (s,name))
+	matplotlib.pyplot.clf() # clear current figure
+        matplotlib.pyplot.close()
         
-        new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
-        
+        new_weekly_policy(s, data, total_money, deal_count, first_buy)
         
 def all_stocks(choice='all'):
         stocks_count = 0
@@ -519,7 +527,7 @@ def all_stocks(choice='all'):
                if _stocks.ix[s].profit <= 0:
                        continue
                
-               existed = path.exists('selected/%s.png' %s)
+               existed = path.exists('selected/%s-%s.png' % (s,_stocks.ix[s].name))
                if selected == True and existed == False: 
                        continue
                if deselected == True and existed == True:
@@ -538,15 +546,13 @@ def all_stocks(choice='all'):
 
         l_job_server = pp.Server(ppservers=l_ppservers)
                 
-	pyplot.ioff()
-	pyplot.figure(figsize=(18,6))
         start = 0
 
         for s in _stocks.index:
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-                existed = path.exists('selected/%s.png' %s)
+                existed = path.exists('selected/%s-%s.png' % (s,_stocks.ix[s].name))
                 if selected == True and existed == False: 
                         continue
                 if deselected == True and existed == True:
@@ -557,16 +563,19 @@ def all_stocks(choice='all'):
                 name= _stocks.ix[s].name
 
 		csv_file='%sw-all-data.csv' % s
-                stop = 10
+                stop = 5
 		while not path.exists(csv_file) and stop > 0:
                         # wait random seceonds
                         secs=random.random() * 10
-			print 'waiting %ds for %s ' % (secs, csv_file)
+			print 'waiting %ds for %s (#%d) ' % (secs, csv_file, stop)
 			time.sleep(secs)
                         stop -= 1
 
                 l_jobs.append(l_job_server.submit(process_one_stock,
-                                                  (s, name, stocks[0][4], stocks[0][5], stocks[0][6], csv_file, start, stocks_count), (), ("StockSignal", "pandas", )))
+                                                  args=(s, name, stocks[0][4], stocks[0][5], stocks[0][6], csv_file, start, stocks_count),
+                                                  modules=("StockSignal", "pandas", "matplotlib.pyplot", "new_weekly_policy")))
+                #process_one_stock(s, name, stocks[0][4], stocks[0][5], stocks[0][6], csv_file, start, stocks_count)
+
         l_job_server.wait()
         print ''
         l_job_server.print_stats()
@@ -650,7 +659,7 @@ class Usage(Exception):
 def main(argv):
     print argv
 
-    mpl.rcParams['font.sans-serif'] = ['AR PL KaitiM GB'] # SimHei is common Chinese font on macOS. ttc is not ok.
+    matplotlib.rcParams['font.sans-serif'] = ['AR PL KaitiM GB'] # SimHei is common Chinese font on macOS. ttc is not ok.
 #fonts-arphic-gkai00mp/xenial 2.11-15 all
 #  "AR PL KaitiM GB" Chinese TrueType font by Arphic Technology
 
