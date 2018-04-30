@@ -13,6 +13,7 @@ import tushare
 
 import os.path as path
 import time
+import random
 
 import matplotlib as mpl
 
@@ -473,62 +474,109 @@ def one_stock_d(stock, start, end):
         print stock
         new_weekly_policy(stock, data)
 
-def all_stocks(selected=False):
+def process_one_stock(s, name, total_money, deal_count, first_buy, csv_file='', start=0, stocks_count=0):
+        data=pandas.read_csv(csv_file, index_col=0).sort_index()
+
+        plot_data=data[['price', 'signal']]#[-60:]
+        plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
+        #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
+        #figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
+        #figure=None
+	count=plot_data['price'].count()
+        up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+        down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
+        
+        tt = u'code = %s %s (%d/%d)' % (s, name.decode('utf-8'), start, stocks_count)
+	pyplot.bar(range(count),plot_data['price'], label=tt)
+	pyplot.bar(range(count),up_data, label='buy')
+	pyplot.bar(range(count),down_data, label='sell')
+        #pyplot.bar(range(count),plot_data['signal'])
+        pyplot.legend(loc='upper left')
+        
+	pyplot.title(s)
+	pyplot.savefig('%s-%s.png' % (s,name))
+	pyplot.clf() # clear current figure
+        
+        new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
+        
+        
+def all_stocks(choice='all'):
         stocks_count = 0
 	_stocks=tushare.get_stock_basics()
+
+        selected = False;
+        deselected = False;
+        existed = False;
+        
+        print 'choice = %s' % choice
+        
+        if cmp(choice, 'selected') == 0:
+                selected = True;
+        elif cmp(choice, 'deselected') == 0:
+                deselected = True;
+ 
         for s in _stocks.index:
-                if _stocks.ix[s].profit <= 0:
-                        continue
+               if _stocks.ix[s].profit <= 0:
+                       continue
+               
+               existed = path.exists('selected/%s.png' %s)
+               if selected == True and existed == False: 
+                       continue
+               if deselected == True and existed == True:
+                       continue
+               
+               stocks_count+=1
 
-                if selected == True and not path.exists('selected/%s.png' %s):
-                        continue
+	       csv_file='%sw-all-data.csv' % s
+	       if path.exists(csv_file):
+                       continue
+               
+               jobs.append(job_server.submit(local_func1, (s, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
 
-                stocks_count+=1
-                jobs.append(job_server.submit(local_func1, (s, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
+        l_ppservers = ()
+        l_jobs = []
 
+        l_job_server = pp.Server(ppservers=l_ppservers)
+                
 	pyplot.ioff()
 	pyplot.figure(figsize=(18,6))
         start = 0
+
         for s in _stocks.index:
                 if _stocks.ix[s].profit <= 0:
                         continue
 
-                if selected == True and not path.exists('selected/%s.png' % s):
+                existed = path.exists('selected/%s.png' %s)
+                if selected == True and existed == False: 
                         continue
-                
-		csv_file='%sw-all-data.csv' % s
-		while not path.exists(csv_file):
-			print 'waiting for %s' % csv_file
-			time.sleep(1)
-
-                data=pandas.read_csv(csv_file, index_col=0).sort_index()
-
-                print _stocks.ix[s].name
-                plot_data=data[['price', 'signal']]#[-60:]
-                plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
-                #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
-                #figure.savefig('%s-%s.png' % (s, _stocks.ix[s].name), bbox_inches='tight')
-                #figure=None
-		count=plot_data['price'].count()
-                up_data=[ 1 if a > 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-                down_data=[ 1 if a < 0 else 0 for a in plot_data['signal'] ] * plot_data['price']
-
+                if deselected == True and existed == True:
+                        continue
+ 
                 start += 1
-		pyplot.bar(range(count),plot_data['price'], label='code = %s (%d/%d)' % (s, start, stocks_count))
-		pyplot.bar(range(count),up_data, label='buy')
-		pyplot.bar(range(count),down_data, label='sell')
-                #pyplot.bar(range(count),plot_data['signal'])
-                pyplot.legend(loc='upper left')
-                
-		pyplot.title(s)
-		pyplot.savefig('%s.png' % s)
-		pyplot.clf() # clear current figure
-                
-                new_weekly_policy(s, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
+                # name is not the real name
+                name= _stocks.ix[s].name
 
+		csv_file='%sw-all-data.csv' % s
+                stop = 10
+		while not path.exists(csv_file) and stop > 0:
+                        # wait random seceonds
+                        secs=random.random() * 10
+			print 'waiting %ds for %s ' % (secs, csv_file)
+			time.sleep(secs)
+                        stop -= 1
+
+                l_jobs.append(l_job_server.submit(process_one_stock,
+                                                  (s, name, stocks[0][4], stocks[0][5], stocks[0][6], csv_file, start, stocks_count), (), ("StockSignal", "pandas", )))
+        l_job_server.wait()
+        print ''
+        l_job_server.print_stats()
+
+                
 def selected():
-        all_stocks(selected=True)
-        
+        all_stocks(choice='selected')
+
+def deselected():
+        all_stocks(choice='deselected')
                 
 def __main():
 #        stocks = stocks3
