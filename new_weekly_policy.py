@@ -434,9 +434,6 @@ def one_stock(stock, start, end):
         data = local_func1(stock, start, end)
         #data = pandas.read_csv('%sw-all-data.csv' % stock, index_col=0).sort_index()
 
-        new_weekly_policy(stock, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])        
-
-
 #        plot_data=data[['EMA', 'signal']][-60:]
 #        plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
         plot_data=data[['price', 'signal']]#[-60:]
