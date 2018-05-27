@@ -178,7 +178,7 @@ stocks5=[
         ['601398', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
 	] 
 
-def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=''):
+def new_monthly_policy (stock, data, total_money=100000, deal_count=8, first_buy=''):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
@@ -426,8 +426,9 @@ def local_func1(stock, start, end):
         #StockSignal.stock_signal_w_new_find_candidate(stock, start, end)
         return StockSignal.stock_signal_w_new(stock, start, end).sort_index()
 
-def local_func_d(stock, start, end):
-        StockSignal.stock_signal_d_new_find_candidate(stock, start, end)
+def local_func4(stock, period, start, end):
+        #StockSignal.stock_signal_w_new_find_candidate(stock, start, end)
+        return StockSignal.stock_signal_new_4(stock, period, start, end).sort_index()
 
 def one_stock(stock, start, end):
         print stock,start, end
@@ -464,13 +465,6 @@ def one_stock(stock, start, end):
 
         new_weekly_policy(stock, data, total_money=stocks[0][4], deal_count=stocks[0][5], first_buy=stocks[0][6])
 
-def one_stock_d(stock, start, end):
-        data = local_func_d(stock, start, end)
-        #data = pandas.read_csv('%sd-all-data.csv' % stock, index_col=0).sort_index()
-
-        print stock
-        new_weekly_policy(stock, data)
-
 def processed(s, name, total_money, deal_count, first_buy, csv_file='', start=0, stocks_count=0):
         print '%s done' % s
 
@@ -504,8 +498,12 @@ def process_one_stock(s, name, total_money, deal_count, first_buy, csv_file='', 
         matplotlib.pyplot.close()
         
         new_weekly_policy(s, data, total_money, deal_count, first_buy)
-        
-def all_stocks(choice='all'):
+
+def csv_file_all_data(stock, period):
+        csv_file='%s%s-all-data.csv' % (stock, period)
+        return csv_file
+
+def all_stocks(choice='all', period='M'):
         stocks_count = 0
 	_stocks=tushare.get_stock_basics()
 
@@ -513,7 +511,7 @@ def all_stocks(choice='all'):
         deselected = False;
         existed = False;
         
-        print 'choice = %s' % choice
+        print 'choice = %s, period = %s ' % (choice, period)
         
         if cmp(choice, 'selected') == 0:
                 selected = True;
@@ -532,11 +530,12 @@ def all_stocks(choice='all'):
                
                stocks_count+=1
 
-	       csv_file='%sw-all-data.csv' % s
+	       csv_file=csv_file_all_data(s, period)
+
 	       if path.exists(csv_file):
                        continue
                
-               jobs.append(job_server.submit(local_func1, (s, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
+               jobs.append(job_server.submit(local_func4, (s, period, stocks[0][2], stocks[0][3]), (), ("StockSignal", "pandas", )))
 
         l_ppservers = ()
         l_jobs = []
@@ -559,7 +558,8 @@ def all_stocks(choice='all'):
                 # name is not the real name
                 name= _stocks.ix[s].name
 
-		csv_file='%sw-all-data.csv' % s
+	        csv_file=csv_file_all_data(s, period)
+                
                 stop = 5
 		while not path.exists(csv_file) and stop > 0:
                         # wait random seceonds
@@ -570,27 +570,22 @@ def all_stocks(choice='all'):
 
                 l_jobs.append(l_job_server.submit(process_one_stock,
                                                   args=(s, name, stocks[0][4], stocks[0][5], stocks[0][6], csv_file, start, stocks_count),
-                                                  modules=("StockSignal", "pandas", "matplotlib.pyplot", "new_weekly_policy")))
+                                                  modules=("StockSignal", "pandas", "matplotlib.pyplot", "new_monthly_policy")))
                 #process_one_stock(s, name, stocks[0][4], stocks[0][5], stocks[0][6], csv_file, start, stocks_count)
 
         l_job_server.wait()
         print ''
         l_job_server.print_stats()
 
-                
-def selected():
-        all_stocks(choice='selected')
 
-def deselected():
-        all_stocks(choice='deselected')
-                
-def __main():
+# period = 'w' | 'M'         
+def __main2(period='w'):
 #        stocks = stocks3
         
         for s in stocks:
                 if s[5] == 0:  # deal_cost is zero, continue
                         continue
-                jobs.append(job_server.submit(local_func1, (s[0], s[2], s[3]), (), ("StockSignal", "pandas", )))
+                jobs.append(job_server.submit(local_func4, (s[0], period, s[2], s[3]), (), ("StockSignal", "pandas", )))
 
         job_server.wait()
         print ''
@@ -604,7 +599,10 @@ def __main():
         for s in stocks:
                 if s[5] == 0: # deal_cost is zero, continue
                         continue
-                data=pandas.read_csv('%sw-all-data.csv' % s[0], index_col=0).sort_index()
+
+	        csv_file=csv_file_all_data(s[0], period)                
+
+                data=pandas.read_csv(csv_file, index_col=0).sort_index()
 
                 print s[1],s[0]
 #                plot_data=data[['EMA', 'signal']][-60:]
@@ -639,9 +637,9 @@ def __main():
 		pyplot.title(s[0])
 
                 if s[4] > 0:
-                        new_weekly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
+                        new_monthly_policy(s[0], data, total_money=s[4], deal_count=s[5], first_buy=s[6])
                 else:
-                        new_weekly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
+                        new_monthly_policy(s[0], data, deal_count=s[5], first_buy=s[6])
 	pyplot.subplots_adjust(left=0.05, top=0.99, bottom=0.01, right=0.95, hspace=0.1, wspace=0.1) 
 	pyplot.savefig('stocks.png')
 	pyplot.close()
@@ -649,6 +647,18 @@ def __main():
 class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
+
+def selected():
+        all_stocks(choice='selected')
+
+def deselected():
+        all_stocks(choice='deselected')
+
+def monthly():
+        __main2(period='M')
+
+def __main():
+        __main2(period='w')
 
 #pandas.read_csv('510300w-all-data.csv', index_col=0)[['EMA', 'signal']][-60:].plot(kind='bar',figsize=(20,12),title='ETF300').figure.show()
 #figure.savefig('a.svg', format='svg', bbox_inches='tight')
@@ -666,7 +676,7 @@ def main(argv):
         __main()
         return
 
-    # 1 args: all_stocks | selected
+    # 1 args: all_stocks | selected | monthly
     if len(argv) == 2:
             globals()[argv[1]]()
     # 2 args: one_stock ######, last year
