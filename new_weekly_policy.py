@@ -656,8 +656,9 @@ def __main():
                 print s[1],s[0]
 #                plot_data=data[['EMA', 'signal']][-60:]
 #                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
-                plot_data=data[['price', 'signal']]#[-60:]
+                plot_data=data[['price', 'signal', 'EMA']]#[-60:]
                 plot_data['price']=plot_data['price']/max(plot_data['price']) * 10
+                plot_data['EMA']=plot_data['EMA']/max(plot_data['EMA']) * 10
                 #figure=plot_data.plot(kind='bar',figsize=(12,6),title='%s' % s[0]).figure
                 #figure.savefig('%s-%s.png' % (s[0], s[1]), bbox_inches='tight')
                 #figure=None
@@ -681,6 +682,7 @@ def __main():
 		        pyplot.bar(range(count),up_data, label='buy')
 		        pyplot.bar(range(count),down_data, label='sell')
                         #pyplot.bar(range(count),plot_data['signal'])
+                        pyplot.plot(range(count),plot_data['EMA'], label='EMA')
                         pyplot.legend(loc='upper left')
 
 		pyplot.title(s[0])
