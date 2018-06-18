@@ -268,6 +268,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                 lodgers.loc[l_index]['sell-date']=data.index[i]
                                 lodgers.loc[l_index]['tt-profit']= l_profit
                                 lodgers.loc[l_index]['tt-profit-rate']=l_profit/lodgers.loc[l_index]['total']
+                                lodgers.loc[l_index]['total-count']-=to_sold_deals['count'][j]
                                 total_tt_cost-=lodgers.loc[l_index]['total']
                                 current_tt_profit += l_profit
                                 virt_tt_profit += l_profit
@@ -307,6 +308,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
                    lodgers.loc[to_sold_deals.index[j]]['profit']= l_profit
                    lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
+                   lodgers.loc[to_sold_deals.index[j]]['total-count']-=to_sold_deals['count'][j]
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
 
@@ -332,6 +334,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     new_row_data=pandas.DataFrame(index=data.index[i:i+1],
                                                   columns=['price',
                                                        'count',
+                                                       'total-count',
                                                        'total',
                                                        'total-cost',
                                                        'virt-total',
@@ -348,12 +351,16 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     new_row_data['virt-total'][0]=0
                     new_row_data['virt-profit'][0]=0
                     new_row_data['pending-rate'][0]=0
+                    new_row_data['total-count'][0]=0
+                    new_row_data['total-cost'][0]=0
+                    new_row_data['price'][0]=data['Open'][i]
                     if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
                         new_row_data['price'][0]=data['Open'][i]
                         count=int(deal_cost / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
                         new_row_data['count'][0]=count
+                        new_row_data['total-count'][0]=count
                         new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
                         #        new_row_data['signal'][0]=0
                         #        new_row_data['close_s'][0]=0
@@ -373,11 +380,15 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['tt-profit'][0]=0
                         count=int(tt_deal_cost/data['Open'][i]/100.0)*100
                         new_row_data['count'][0]=count
+                        new_row_data['total-count'][0]=count
                         new_row_data['total'][0]=count * data['Open'][i]
                         total_tt_cost+=count * data['Open'][i]
                     if isinstance(lodgers, type(None)):
                             lodgers=new_row_data
                     else:
+                            if new_row_data['total-cost'][0]==0 :
+                                    new_row_data['total-cost'][0]=lodgers['total-cost'][lodgers['total-cost'].count()-1]
+                            new_row_data['total-count'][0]+=lodgers['total-count'][lodgers['total-count'].count()-1]
                             lodgers=lodgers.append(new_row_data)
             next_buy=-1
             next_half_buy=-1
