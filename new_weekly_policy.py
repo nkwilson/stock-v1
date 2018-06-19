@@ -260,11 +260,12 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                 if to_sold_deals['tt-price'].count() == 0:
                                         print "Nothing to tt"
                                 else:
-                                        print to_sold_deals[['tt-price','count','total']]
+                                        print to_sold_deals[['price','count','total']]
                         for j in range(to_sold_deals['tt-price'].count()):
                                 l_index=to_sold_deals.index[j]
                                 sold_tt_value += data['Open'][i] * to_sold_deals['count'][j]
-                                l_profit = (data['Open'][i]-to_sold_deals['tt-price'][j])*to_sold_deals['count'][j]
+                                l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
+                                lodgers.loc[l_index]['tt-price']=data['Open'][i] # updated to sold price
                                 lodgers.loc[l_index]['sell-date']=data.index[i]
                                 lodgers.loc[l_index]['tt-profit']= l_profit
                                 lodgers.loc[l_index]['tt-profit-rate']=l_profit/lodgers.loc[l_index]['total']
@@ -355,12 +356,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     new_row_data['total-cost'][0]=0
                     new_row_data['price'][0]=data['Open'][i]
                     if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
-                        new_row_data['price'][0]=data['Open'][i]
                         count=int(deal_cost / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
                         new_row_data['count'][0]=count
-                        new_row_data['total-count'][0]=count
                         new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
                         #        new_row_data['signal'][0]=0
                         #        new_row_data['close_s'][0]=0
@@ -376,11 +375,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         if sold_value > 0:
                                 sold_value -= new_row_data['total'][0]
                     elif next_tt_buy > 0: # do tt buying
-                        new_row_data['tt-price'][0]=data['Open'][i]
+                        new_row_data['tt-price'][0]=data['Open'][i]                            
                         new_row_data['tt-profit'][0]=0
                         count=int(tt_deal_cost/data['Open'][i]/100.0)*100
                         new_row_data['count'][0]=count
-                        new_row_data['total-count'][0]=count
                         new_row_data['total'][0]=count * data['Open'][i]
                         total_tt_cost+=count * data['Open'][i]
                         new_row_data['total-cost'][0]=total_tt_cost+total_cost
