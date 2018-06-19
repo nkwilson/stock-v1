@@ -383,12 +383,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['total-count'][0]=count
                         new_row_data['total'][0]=count * data['Open'][i]
                         total_tt_cost+=count * data['Open'][i]
+                        new_row_data['total-cost'][0]=total_tt_cost+total_cost
                     if isinstance(lodgers, type(None)):
                             lodgers=new_row_data
                     else:
-                            if new_row_data['total-cost'][0]==0 :
-                                    new_row_data['total-cost'][0]=lodgers['total-cost'][lodgers['total-cost'].count()-1]
-                            new_row_data['total-count'][0]+=lodgers['total-count'][lodgers['total-count'].count()-1]
                             lodgers=lodgers.append(new_row_data)
             next_buy=-1
             next_half_buy=-1
