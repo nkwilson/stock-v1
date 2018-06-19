@@ -476,9 +476,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         for i in range(lodgers['price'].count()):
                 if lodgers.iloc[i]['sell-price'] > 0:
                         continue
-                if lodgers.iloc[i]['tt-price'] > 0:
+                if lodgers.iloc[i]['tt-price'] > 0 and lodgers.iloc[i]['tt-profit'] > 0:
                         continue
-                lodgers.iloc[i]['pending-rate'] = '%0.2f' % ((data.iloc[data['Open'].count()-1]['Adj Close']-lodgers.iloc[i]['price'])/lodgers.iloc[i]['price'])
+                if lodgers.iloc[i]['count'] > 0:
+                        lodgers.iloc[i]['pending-rate'] = '%0.2f' % ((data.iloc[data['Open'].count()-1]['Adj Close']-lodgers.iloc[i]['price'])/lodgers.iloc[i]['price'])
 
         lodgers.to_csv('%s-lodgers.csv' % stock)
 
