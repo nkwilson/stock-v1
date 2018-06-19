@@ -247,6 +247,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         # if non-empty, buy at no early that it else use the start date
         first_buy_at = data.index[0] if len(first_buy) == 0 else first_buy #pandas.datetime.strptime(first_buy, '%Y-%m-%d')
 
+        # record sold count recently
+        sold_count=0
         for i in range(count):
             if show_verbose > 0 :
                 print '### round %d' % i
@@ -261,7 +263,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                         print "Nothing to tt"
                                 else:
                                         print to_sold_deals[['price','count','total']]
+                        sold_count=0
                         for j in range(to_sold_deals['tt-price'].count()):
+                                sold_count+=to_sold_deals['count'][j]
                                 l_index=to_sold_deals.index[j]
                                 sold_tt_value += data['Open'][i] * to_sold_deals['count'][j]
                                 l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
@@ -269,7 +273,6 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                 lodgers.loc[l_index]['sell-date']=data.index[i]
                                 lodgers.loc[l_index]['tt-profit']= l_profit
                                 lodgers.loc[l_index]['tt-profit-rate']=l_profit/lodgers.loc[l_index]['total']
-                                lodgers.loc[l_index]['total-count']-=to_sold_deals['count'][j]
                                 total_tt_cost-=lodgers.loc[l_index]['total']
                                 current_tt_profit += l_profit
                                 virt_tt_profit += l_profit
@@ -306,10 +309,10 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
                    sold_value += data['Open'][i] * to_sold_deals['count'][j]
+                   sold_count += to_sold_deals['count'][j]
                    l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
                    lodgers.loc[to_sold_deals.index[j]]['profit']= l_profit
                    lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
-                   lodgers.loc[to_sold_deals.index[j]]['total-count']-=to_sold_deals['count'][j]
                    total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
 
@@ -352,10 +355,14 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     new_row_data['virt-total'][0]=0
                     new_row_data['virt-profit'][0]=0
                     new_row_data['pending-rate'][0]=0
+                    new_row_data['count'][0]=0
                     new_row_data['total-count'][0]=0
                     new_row_data['total-cost'][0]=0
                     new_row_data['price'][0]=data['Open'][i]
-                    if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
+                    if sold_count > 0: # stop buy
+                        new_row_data['count'][0]-=sold_count # take it into account
+                        sold_count=0
+                    elif (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
                         count=int(deal_cost / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
@@ -418,6 +425,11 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 if (total_tt_money - total_tt_cost) > tt_deal_cost:
                         next_tt_buy = data['Close'][i] < data['Open'][i]
             if not isinstance(lodgers, type(None)):
+                    l_index=lodgers['total-count'].count()-1
+                    if l_index==0: # only one item
+                            lodgers.iloc[l_index]['total-count']=lodgers.iloc[l_index]['count']                            
+                            continue
+                    lodgers.iloc[l_index]['total-count']=lodgers.iloc[l_index-1]['total-count']+lodgers.iloc[l_index]['count']
                     l_deals=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price'] == 0 else False)
                     if l_deals['sell-price'].count() > 0:
                             # select all pending share, calculate their virtual total value according to current price
