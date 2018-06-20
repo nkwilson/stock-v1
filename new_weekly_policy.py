@@ -192,7 +192,7 @@ stocks5=[
         ['601398', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
 	] 
 
-def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy='', max_tt_share=0.4, do_tt=1):
+def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy='', max_tt_share=0.4, do_tt=0):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
@@ -239,6 +239,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         virt_total=0 # current holding shares value plut virtal profit
         sold_value=0 # saved all sold shares until now
 
+        cash = total_money
+        tt_cash = total_tt_money
+        
         count = data['signal'].count()
         # if no volume, return now
         if count < 1 or data['Volume'][count-1] == 0:
@@ -255,7 +258,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 print data.iloc[i][['Open', 'Volume']]
             if data['Volume'][i] == 0:
                 continue
-            if not isinstance(lodgers, type(None)) and (total_tt_money - total_tt_cost) >= tt_deal_cost: # means have tt pending
+            if not isinstance(lodgers, type(None)) and do_tt and (total_tt_money - total_tt_cost) >= tt_deal_cost: # means have tt pending
                 to_sold_deals=lodgers.select(lambda x: True if lodgers.loc[x]['tt-profit'] == 0 and lodgers.loc[x]['tt-price'] < data['Open'][i] else False)
                 if not isinstance(to_sold_deals, type(None)):
                         if show_verbose > 0:
@@ -345,6 +348,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                        'total-cost',
                                                        'virt-total',
                                                        'virt-profit',
+                                                        'cash',
+                                                        'tt-cash',
                                                        'sell-date',
                                                        'sell-price',
                                                        'profit',
@@ -365,13 +370,14 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     if sold_count > 0: # stop buy
                         new_row_data['count'][0]-=sold_count # take it into account
                         new_row_data['cost'][0]-=sold_value
+                        cash += sold_value
                         sold_count=0
                     elif (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
                         count=int(deal_cost / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
                         new_row_data['count'][0]=count
-                        new_row_data['cost'][0]=new_row_data['count'][0] * data['Open'][i]
+                        new_row_data['cost'][0]=count * data['Open'][i]
                         #        new_row_data['signal'][0]=0
                         #        new_row_data['close_s'][0]=0
                         new_row_data['sell-date'][0]=0
@@ -380,6 +386,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['profit-rate'][0]=0
                         new_row_data['pending-rate'][0]=0
                         total_cost += new_row_data['cost'][0]
+                        cash -= new_row_data['cost'][0]
                         # exclude current cost from sold_value
                         if sold_value > 0:
                                 sold_value -= new_row_data['cost'][0]
@@ -390,6 +397,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['count'][0]=count
                         new_row_data['cost'][0]=count * data['Open'][i]
                         total_tt_cost+=count * data['Open'][i]
+                        tt_cash -= new_row_data['cost'][0]
+                    new_row_data['cash'][0]=cash
+                    new_row_data['tt-cash'][0]=tt_cash
                     if isinstance(lodgers, type(None)):
                             lodgers=new_row_data
                     else:
@@ -423,7 +433,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                                                               force_selling_good_deals,
                                                                                               next_buy, next_half_buy, global_tendency)
             if global_tendency > 0:
-                if (total_tt_money - total_tt_cost) > tt_deal_cost:
+                if do_tt and (total_tt_money - total_tt_cost) > tt_deal_cost:
                         next_tt_buy = data['Close'][i] < data['Open'][i]
             if not isinstance(lodgers, type(None)):
                     l_index=lodgers['total-count'].count()-1
