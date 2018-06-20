@@ -262,7 +262,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                 if to_sold_deals['tt-price'].count() == 0:
                                         print "Nothing to tt"
                                 else:
-                                        print to_sold_deals[['price','count','total']]
+                                        print to_sold_deals[['price','count','cost']]
                         sold_count=0
                         sold_value=0
                         for j in range(to_sold_deals['tt-price'].count()):
@@ -274,8 +274,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                 lodgers.loc[l_index]['tt-price']=data['Open'][i] # updated to sold price
                                 lodgers.loc[l_index]['sell-date']=data.index[i]
                                 lodgers.loc[l_index]['tt-profit']= l_profit
-                                lodgers.loc[l_index]['tt-profit-rate']=l_profit/lodgers.loc[l_index]['total']
-                                total_tt_cost-=lodgers.loc[l_index]['total']
+                                lodgers.loc[l_index]['tt-profit-rate']=l_profit/lodgers.loc[l_index]['cost']
+                                total_tt_cost-=lodgers.loc[l_index]['cost']
                                 current_tt_profit += l_profit
                                 virt_tt_profit += l_profit
                                 # if with big profit, increase total_money
@@ -304,7 +304,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 if to_sold_deals['price'].count() == 0:
                   print "Nothing to sold"
                 else:
-                  print to_sold_deals[['price','count','total']]
+                  print to_sold_deals[['price','count','cost']]
 
                for j in range(to_sold_deals['price'].count()):
                    #           print data.index[i]
@@ -314,8 +314,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    sold_count += to_sold_deals['count'][j]
                    l_profit = (data['Open'][i]-to_sold_deals['price'][j])*to_sold_deals['count'][j]
                    lodgers.loc[to_sold_deals.index[j]]['profit']= l_profit
-                   lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['total']
-                   total_cost -= lodgers.loc[to_sold_deals.index[j]]['total']
+                   lodgers.loc[to_sold_deals.index[j]]['profit-rate']=lodgers.loc[to_sold_deals.index[j]]['profit']/lodgers.loc[to_sold_deals.index[j]]['cost']
+                   total_cost -= lodgers.loc[to_sold_deals.index[j]]['cost']
                    current_profit += lodgers.loc[to_sold_deals.index[j]]['profit']
 
                    virt_profit += l_profit
@@ -331,7 +331,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    if show_verbose > 0:
                      print total_money, current_profit
                if show_verbose > 0 :
-                print lodgers[['price','count','total','sell-date','sell-price']]
+                print lodgers[['price','count','cost','sell-date','sell-price']]
 
             selling_good_deals=-1
             force_selling_good_deals=-1
@@ -341,7 +341,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                                                   columns=['price',
                                                        'count',
                                                        'total-count',
-                                                       'total',
+                                                       'cost',
                                                        'total-cost',
                                                        'virt-total',
                                                        'virt-profit',
@@ -360,18 +360,18 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     new_row_data['count'][0]=0
                     new_row_data['total-count'][0]=0
                     new_row_data['total-cost'][0]=0
-                    new_row_data['total'][0]=0
+                    new_row_data['cost'][0]=0
                     new_row_data['price'][0]=data['Open'][i]
                     if sold_count > 0: # stop buy
                         new_row_data['count'][0]-=sold_count # take it into account
-                        new_row_data['total'][0]-=sold_value
+                        new_row_data['cost'][0]-=sold_value
                         sold_count=0
                     elif (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
                         count=int(deal_cost / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
                         new_row_data['count'][0]=count
-                        new_row_data['total'][0]=new_row_data['count'][0] * data['Open'][i]
+                        new_row_data['cost'][0]=new_row_data['count'][0] * data['Open'][i]
                         #        new_row_data['signal'][0]=0
                         #        new_row_data['close_s'][0]=0
                         new_row_data['sell-date'][0]=0
@@ -379,16 +379,16 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['profit'][0]=0
                         new_row_data['profit-rate'][0]=0
                         new_row_data['pending-rate'][0]=0
-                        total_cost += new_row_data['total'][0]
+                        total_cost += new_row_data['cost'][0]
                         # exclude current cost from sold_value
                         if sold_value > 0:
-                                sold_value -= new_row_data['total'][0]
+                                sold_value -= new_row_data['cost'][0]
                     elif next_tt_buy > 0: # do tt buying
                         new_row_data['tt-price'][0]=data['Open'][i]                            
                         new_row_data['tt-profit'][0]=0
                         count=int(tt_deal_cost/data['Open'][i]/100.0)*100
                         new_row_data['count'][0]=count
-                        new_row_data['total'][0]=count * data['Open'][i]
+                        new_row_data['cost'][0]=count * data['Open'][i]
                         total_tt_cost+=count * data['Open'][i]
                     if isinstance(lodgers, type(None)):
                             lodgers=new_row_data
@@ -429,11 +429,11 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     l_index=lodgers['total-count'].count()-1
                     if l_index==0: # only one item
                             lodgers.iloc[l_index]['total-count']=lodgers.iloc[l_index]['count']
-                            lodgers.iloc[l_index]['total-cost']=lodgers.iloc[l_index]['total']
-                            lodgers.iloc[l_index]['virt-total']=lodgers.iloc[l_index]['total']
+                            lodgers.iloc[l_index]['total-cost']=lodgers.iloc[l_index]['cost']
+                            lodgers.iloc[l_index]['virt-total']=lodgers.iloc[l_index]['cost']
                             continue
                     lodgers.iloc[l_index]['total-count']=lodgers.iloc[l_index-1]['total-count']+lodgers.iloc[l_index]['count']
-                    lodgers.iloc[l_index]['total-cost']=lodgers.iloc[l_index-1]['total-cost']+lodgers.iloc[l_index]['total']
+                    lodgers.iloc[l_index]['total-cost']=lodgers.iloc[l_index-1]['total-cost']+lodgers.iloc[l_index]['cost']
                     lodgers.iloc[l_index]['virt-total']=lodgers.iloc[l_index]['total-count']*data['Adj Close'][i]
         # generate signal for next operation, buy and/or sell?
         if show_signal > 0 and not isinstance(lodgers, type(None)):
@@ -466,13 +466,13 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
             price=data.iloc[last]['Open']
             holdings=lodgers.select(lambda x: True if lodgers.loc[x]['sell-price']==0 else False)
             total_profit=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit'].sum()
-            total_profit2=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit']/lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total']
-            total_flows=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['total'].sum()
+            total_profit2=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['profit']/lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['cost']
+            total_flows=lodgers.select(lambda x: True if lodgers.loc[x]['profit']>0 else False)['cost'].sum()
             if total_flows > 0:
                     print '### flows %d profit %d rate %.3f rate2 %.3f holding %d(=%d) pending %d left %d' % (total_flows, total_profit, total_profit/total_flows, total_profit2.sum() / total_profit2.count(),
                                                                                                               holdings['count'].sum(),
-                                                                                                              holdings['total'].sum(),
-                                                                                                              holdings['count'].sum() * price - holdings['total'].sum(),
+                                                                                                              holdings['cost'].sum(),
+                                                                                                              holdings['count'].sum() * price - holdings['cost'].sum(),
                                                                                                               total_money-total_cost+current_profit)
 
         if isinstance(lodgers, type(None)):
