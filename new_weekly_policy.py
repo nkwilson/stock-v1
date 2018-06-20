@@ -214,11 +214,16 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         global_tendency=0
         # deal_cost=37000 # calculated from input total_money
         # deal_count=8  # at most this many deals # input argument with default value
-        deal_cost = total_money / deal_count
+
+        tt_cash = total_money * max_tt_share
+        cash = total_money - tt_cash
+        
+        deal_cost = cash / deal_count
         # total_money=deal_count * deal_cost # all of my money
         total_cost=0 # total cost of holding until now, must be less than total_money
 
         total_tt_money = total_money * max_tt_share
+
         tt_deal_cost = total_tt_money / deal_count
         total_tt_cost = 0
         next_tt_buy=-1
@@ -239,9 +244,6 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         virt_total=0 # current holding shares value plut virtal profit
         sold_value=0 # saved all sold shares until now
 
-        cash = total_money
-        tt_cash = total_tt_money
-        
         count = data['signal'].count()
         # if no volume, return now
         if count < 1 or data['Volume'][count-1] == 0:
@@ -371,9 +373,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['count'][0]-=sold_count # take it into account
                         new_row_data['cost'][0]-=sold_value
                         cash += sold_value
-                        sold_count=0
                     elif (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
-                        count=int(deal_cost / data['Open'][i]/100.0) * 100
+                        count=int(min(deal_cost, cash) / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
                             count=count / 2
                         new_row_data['count'][0]=count
@@ -398,6 +399,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                         new_row_data['cost'][0]=count * data['Open'][i]
                         total_tt_cost+=count * data['Open'][i]
                         tt_cash -= new_row_data['cost'][0]
+                    sold_count=0
+                    sold_value=0
                     new_row_data['cash'][0]=cash
                     new_row_data['tt-cash'][0]=tt_cash
                     if isinstance(lodgers, type(None)):
@@ -412,12 +415,12 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 print 'signal %d close_s %d EMA_s %d global %d' % (data['signal'][i], data['close_s'][i], data['EMA_s'][i], global_tendency)
             if data['signal'][i] < 0:
                 selling_good_deals=1
-            elif data['signal'][i] > 0 and (total_money - total_cost) > deal_cost:
+            elif data['signal'][i] > 0 and cash > 100 * data['Adj Close'][i]:
                 next_buy=1
             else :
                 if global_tendency < 1:
                         selling_good_deals=1
-                if (total_money - total_cost) > deal_cost:
+                if cash > 100 * data['Adj Close'][i]:
                         if data['close_s'][i] == 0:
                                 next_buy=1
                         elif do_half_buy > 0:
@@ -462,7 +465,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
 
         if (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0) and show_signal > 0:
             last=data['Open'].count()-1
-            count=int(deal_cost / data.iloc[last]['Open']/100.0) * 100
+            count=int(min(deal_cost, cash) / data.iloc[last]['Open']/100.0) * 100
             if next_half_buy > 0 and count >= 200:
                 count=count / 2
             if count > 0 and total_op_count == 0:
