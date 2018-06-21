@@ -328,12 +328,13 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    # only update when first buy. 
                    # lodgers.loc[to_sold_deals.index[j]]['virt-total']=virt_total
                    # lodgers.loc[to_sold_deals.index[j]]['virt-profit']=virt_profit
-                   
-                   # if with big profit, increase total_money
-                   if current_profit > profit_multi * deal_cost and profit_invested == 1:
-                     total_money += deal_cost
-                     current_profit-= deal_cost
-                   if show_verbose > 0:
+               cash += sold_value    
+               # if with big profit, increase total_money
+               if (cash + tt_cash - total_money) > profit_multi * deal_cost and profit_invested == 1:
+                        total_money = cash + tt_cash
+                        deal_cost = cash / deal_count
+                        current_profit-= deal_cost
+               if show_verbose > 0:
                      print total_money, current_profit
                if show_verbose > 0 :
                 print lodgers[['price','count','cost','sell-date','sell-price']]
@@ -372,7 +373,6 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     if sold_count > 0: # stop buy
                         new_row_data['count'][0]-=sold_count # take it into account
                         new_row_data['cost'][0]-=sold_value
-                        cash += sold_value
                     elif (next_buy > 0 or next_half_buy > 0 or next_steady_buy > 0):
                         count=int(min(deal_cost, cash) / data['Open'][i]/100.0) * 100
                         if next_half_buy > 0 and count >= 200:
