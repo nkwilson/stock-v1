@@ -207,6 +207,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
         selling_good_deals=-1
         with_profit=0.068  # golden rate
         force_selling_good_deals=-1 # if total_cost is reach, then sell profit more than 10%
+        do_sold_slowly = 1
+        selling_slowly = -1
         forced_with_profit=0.68
         next_buy=-1
         next_half_buy=-1  # buy half cost when globa_tendency=1 and close_s=1
@@ -311,7 +313,8 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                 else:
                   print to_sold_deals[['price','count','cost']]
 
-               for j in range(to_sold_deals['price'].count()):
+               selling_slowly=False
+               for j in reversed(range(to_sold_deals['price'].count())):
                    #           print data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-date']=data.index[i]
                    lodgers.loc[to_sold_deals.index[j]]['sell-price']=data['Open'][i]
@@ -328,6 +331,11 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                    # only update when first buy. 
                    # lodgers.loc[to_sold_deals.index[j]]['virt-total']=virt_total
                    # lodgers.loc[to_sold_deals.index[j]]['virt-profit']=virt_profit
+
+                   # ok, just do sold slowly
+                   if do_sold_slowly :
+                        selling_slowly=True
+                        break
                cash += sold_value    
                # if with big profit, increase total_money
                if (cash + tt_cash - total_money) > profit_multi * deal_cost and profit_invested == 1:
@@ -339,8 +347,9 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                if show_verbose > 0 :
                 print lodgers[['price','count','cost','sell-date','sell-price']]
 
-            selling_good_deals=-1
-            force_selling_good_deals=-1
+            if not selling_slowly:
+                selling_good_deals=-1
+                force_selling_good_deals=-1
 
             if first_buy_at < data.index[i] :
                     new_row_data=pandas.DataFrame(index=data.index[i:i+1],
@@ -448,6 +457,7 @@ def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy=
                     lodgers.iloc[l_index]['total-count']=lodgers.iloc[l_index-1]['total-count']+lodgers.iloc[l_index]['count']
                     lodgers.iloc[l_index]['total-cost']=lodgers.iloc[l_index-1]['total-cost']+lodgers.iloc[l_index]['cost']
                     lodgers.iloc[l_index]['virt-total']=lodgers.iloc[l_index]['total-count']*data['Adj Close'][i]
+
         # generate signal for next operation, buy and/or sell?
         if show_signal > 0 and not isinstance(lodgers, type(None)):
             last=data['Open'].count()-1
