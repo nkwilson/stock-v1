@@ -192,7 +192,7 @@ stocks5=[
         ['601398', '恒瑞医药', '2014-01-01', '', 100000, 8, '2017-01-01'],
 	] 
 
-def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy='', max_tt_share=0.4, do_tt=0):
+def new_weekly_policy (stock, data, total_money=100000, deal_count=8, first_buy='', max_tt_share=0.4, do_tt=1):
         # global next_buy, selling_good_deals, next_half_buy, next_steady_buy
         # global global_tendency, lodgers, total_op_count, total_cost
         # global deal_cost, total_money, do_half_buy, do_steady_buy
